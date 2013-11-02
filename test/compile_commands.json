@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/npeter/Devel/practice/refactor/reflector_mini/test",
-  "command": "/usr/bin/g++ -std=c++0x -g -O0 -Wall Test.hh -c",
-  "file": "./Test.hh"
-}
-]
