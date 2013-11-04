@@ -6,7 +6,7 @@ Why?
 ----
 
 C++ is a great programming language, but it falters when we try to use it for reflection.
-CODT lets you create very complicate clons of a given type (class, enums, templates) with
+CODT lets you create very complicate clones of a given type (class, enums, templates) with
 a familiar syntax. The result is extraordinarily expressive, readable, and quick to develop.
 
 The idea of this proposal comes from the AngularJS HTML template framework.
