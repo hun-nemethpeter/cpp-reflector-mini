@@ -4,17 +4,24 @@ cpp-reflector-mini
 This tool generate minimal reflection info about classes and enums based on clang 3.2
 
 It requires clang 3.2, waf (included), python
-it works with Ubuntu 13.04 stock packages: llvm llvm-dev clang clang-dev
+it works with Ubuntu 13.04 stock packages: 
+```
+llvm llvm-dev clang clang-dev
+```
 
 Compilation
 ===========
+```
 waf/waf configure
-waf
+waf/waf
+```
 
 Usage
 =====
+```
 cd test
 ./test.sh
+```
 
 will process Test.hh and prints:
 
