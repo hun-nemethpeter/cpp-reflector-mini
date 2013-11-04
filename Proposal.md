@@ -19,22 +19,22 @@ Motivating example:
 
 ```C++
 // tamplate part
-template<typename T> [[meta::driver="EnumDriver(meta::class<T>) ctrl"]]
+template<typename T> [[meta::driver="EnumDriver(meta::class<T>) driver"]]
 // EnumDriver is a constexpr class, that gets a compiler generated AST node
 // in constructor parameter, through meta::class<T> in a type safe manner.
 // (ex. enum declaration generates const EnumDecl*,
 // and a class declaration generates const CXXRecordDecl*).
-// driver instance name will be "ctrl", this is a normal C++ syntax
+// driver instance name will be "driver", this is a normal C++ syntax
 // members and methods of this object can be accessed with the following syntax:
-// $ctrl.member$ or $ctrl.method(param1, param2, ...)$
-void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& data)
+// $driver.member$ or $driver.method(param1, param2, ...)$
+void Json::readFrom(boost::optional<$driver.enumName$>& obj, const std::string& data)
 {
   folly::fbstring jsonVal = folly::parseJson(data).asString();
   llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
-  obj = llvm::StringSwitch<$ctrl.enumName$>(decoded)
+  obj = llvm::StringSwitch<$driver.enumName$>(decoded)
     // controlling directive meta::for, with the syntax of range base for
     // enumValueName will be a local variable of a CODT
-    [[meta::for="(enumValueName:ctrl.enumValueNames)"]]
+    [[meta::for="(enumValueName:driver.enumValueNames)"]]
     .Case($enumValueName.asStr()$, $enumValueName$)
   ;
 }
@@ -44,7 +44,7 @@ class EnumDriver
 {
   const EnumDecl* enumDecl;
   public:
-    // used in [[std::driver="EnumDriver(meta::class<EVote>) ctrl"]]
+    // used in [[std::driver="EnumDriver(meta::class<EVote>) driver"]]
     constexpr EnumDriver(const EnumDecl* enumDecl)
       : enumDecl(enumDecl)
     {
@@ -52,10 +52,10 @@ class EnumDriver
       for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
         enumNames.push_back((*it)->getName().data());
     }
-    // used in [[meta::for(enumValueName:ctrl.enumValueNames)]]
+    // used in [[meta::for(enumValueName:driver.enumValueNames)]]
     // meta::vector is a constexpr vector
     meta::vector<meta::id_string> enumValueNames;
-    // used in $ctrl.enumName$
+    // used in $driver.enumName$
     // meta::id_string is a constexpr string that contains only valid C++ identifier
     // it has an asStr() that gives back a stringified string, so between "" signes
     meta::id_string enumName;
