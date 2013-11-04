@@ -19,12 +19,12 @@ Motivating example:
 
 ```C++
 // tamplate part
-template<typename T> [[meta::controller="EnumController(meta::class<T>) ctrl"]]
-// EnumController is a constexpr class, that gets a compiler generated AST node
-// in constructor param, through meta::class<T> in a type safe manner.
+template<typename T> [[meta::driver="EnumDriver(meta::class<T>) ctrl"]]
+// EnumDriver is a constexpr class, that gets a compiler generated AST node
+// in constructor parameter, through meta::class<T> in a type safe manner.
 // (ex. enum declaration generates const EnumDecl*,
 // and a class declaration generates const CXXRecordDecl*).
-// controller instance name will be "ctrl", this is a normal C++ syntax
+// driver instance name will be "ctrl", this is a normal C++ syntax
 // members and methods of this object can be accessed with the following syntax:
 // $ctrl.member$ or $ctrl.method(param1, param2, ...)$
 void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& data)
@@ -39,13 +39,13 @@ void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& da
   ;
 }
 
-// controller part
-class EnumController
+// driver part
+class EnumDriver
 {
   const EnumDecl* enumDecl;
   public:
-    // used in [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
-    constexpr EnumController(const EnumDecl* enumDecl)
+    // used in [[std::driver="EnumDriver(meta::class<EVote>) ctrl"]]
+    constexpr EnumDriver(const EnumDecl* enumDecl)
       : enumDecl(enumDecl)
     {
       std::string enumName = enumDecl->getNameAsString();
