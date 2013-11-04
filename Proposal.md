@@ -6,6 +6,48 @@ http://angularjs.org/
 I posted earlier my mini reflector tool, these code snippet comes from there.
 https://github.com/hun-nemethpeter/cpp-reflector-mini
 
+Motivating example:
+-------------------
+
+```C++
+// tamplate part
+template<> [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
+// EnumController is a constexpr class, that gets a compiler generated AST node
+// in constructor param, through meta::class<T> in a type safe manner.
+// (ex. enum declaration generates const EnumDecl*,
+// and a class declaration generates const CXXRecordDecl*).
+// controller instance name will be "ctrl", this is a normal C++ syntax
+// members and methods of this object can be accessed with the following syntax:
+// $ctrl.member$ or $ctrl.method(param1, param2, )$ syntax
+void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& data)
+{
+  folly::fbstring jsonVal = folly::parseJson(data).asString();
+  llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
+  obj = llvm::StringSwitch<$ctrl.enumName$>(decoded)
+    [[std::repeat="enumValueName:enumValueNames"]]
+    .Case($ctrl.enumValueName.asStr()$, $ctrl.enumValueName$)
+  ;
+}
+
+// controller part
+class EnumController
+{
+  const EnumDecl* enumDecl;
+  public:
+    // used in [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
+    constexpr EnumController(const EnumDecl* enumDecl)
+      : enumDecl(enumDecl)
+    {
+      std::string enumName = enumDecl->getNameAsString();
+      for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
+        enumNames.push_back((*it)->getName().data());
+    }
+    // used in [[std::repeat="enumValueName:ctrl.enumValueNames"]]
+    meta::vector<meta::id_string> enumValueNames;
+    // used in $ctrl.enumName$
+    meta::id_string enumName;
+};
+```
 
 So a case study:
 ----------------
@@ -144,40 +186,4 @@ prebuilt directives
 ngRepeat
 directive in module ng
 http://docs.angularjs.org/api/ng.directive:ngRepeat
-
-So based on above AngularC++ looks like this:
-
-```C++
-// tamplate part
-
-template<> [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
-void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& data)
-{
-  folly::fbstring jsonVal = folly::parseJson(data).asString();
-  llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
-  obj = llvm::StringSwitch<$ctrl.enumName$>(decoded)
-    [[std::repeat="enumValueName:enumValueNames"]]
-    .Case($ctrl.enumValueName$, $ctrl.enumValueName$)
-  ;
-}
-
-// controller part
-class EnumController
-{
-  const EnumDecl* enumDecl;
-  public:
-    // used in [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
-    constexpr EnumController(const EnumDecl* enumDecl)
-      : enumDecl(enumDecl)
-    {
-      std::string enumName = enumDecl->getNameAsString();
-      for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
-        enumNames.push_back((*it)->getName().data());
-    }
-    // used in [[std::repeat="enumValueName:ctrl.enumValueNames"]]
-    meta::vector<meta::id_string> enumValueNames;
-    // used in $ctrl.enumName$
-    meta::id_string enumName;
-};
-```
 
