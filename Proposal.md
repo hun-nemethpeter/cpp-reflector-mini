@@ -1,6 +1,8 @@
 Constexpr objects driven template system proposal
 =================================================
 
+Temporary name after Constexpr objects driven template: CODT
+
 The idea of this proposal comes from the AngularJS HTML template framework.
 http://angularjs.org/
 I posted earlier my mini reflector tool, these code snippet comes from there.
@@ -18,13 +20,15 @@ template<> [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
 // and a class declaration generates const CXXRecordDecl*).
 // controller instance name will be "ctrl", this is a normal C++ syntax
 // members and methods of this object can be accessed with the following syntax:
-// $ctrl.member$ or $ctrl.method(param1, param2, )$ syntax
+// $ctrl.member$ or $ctrl.method(param1, param2, ...)$
 void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& data)
 {
   folly::fbstring jsonVal = folly::parseJson(data).asString();
   llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
   obj = llvm::StringSwitch<$ctrl.enumName$>(decoded)
-    [[std::repeat="enumValueName:enumValueNames"]]
+    // controlling directive std::repeat, with the syntax of range base for
+    // enumValueName will be a local variable of a CODT
+    [[std::repeat="enumValueName:ctrl.enumValueNames"]]
     .Case($ctrl.enumValueName.asStr()$, $ctrl.enumValueName$)
   ;
 }
@@ -43,8 +47,11 @@ class EnumController
         enumNames.push_back((*it)->getName().data());
     }
     // used in [[std::repeat="enumValueName:ctrl.enumValueNames"]]
+    // meta::vector is a constexpr vector
     meta::vector<meta::id_string> enumValueNames;
     // used in $ctrl.enumName$
+    // meta::id_string is a constexpr string that contains only valid C++ identifier
+    // it has an asStr() that gives back a stringified string, so between "" signes
     meta::id_string enumName;
 };
 ```
