@@ -1,7 +1,13 @@
-Constexpr objects driven template system proposal
-=================================================
+Constexpr objects driven templating (CODT)
+==========================================
 
-Temporary name after Constexpr objects driven template: CODT
+
+Why?
+----
+
+C++ is a great programming language, but it falters when we try to use it for reflection.
+CODT lets you create very complicate clons of a given type (class, enums, templates) with
+a familiar syntax. The result is extraordinarily expressive, readable, and quick to develop.
 
 The idea of this proposal comes from the AngularJS HTML template framework.
 http://angularjs.org/
@@ -29,7 +35,7 @@ void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& da
     // controlling directive std::meta::for, with the syntax of range base for
     // enumValueName will be a local variable of a CODT
     [[std::meta::for="(enumValueName:ctrl.enumValueNames)"]]
-    .Case($ctrl.enumValueName.asStr()$, $ctrl.enumValueName$)
+    .Case($enumValueName.asStr()$, $enumValueName$)
   ;
 }
 
