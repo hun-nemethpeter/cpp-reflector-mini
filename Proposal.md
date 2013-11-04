@@ -19,7 +19,7 @@ Motivating example:
 
 ```C++
 // tamplate part
-template<> [[std::meta::controller="EnumController(meta::class<EVote>) ctrl"]]
+template<typename T> [[meta::controller="EnumController(meta::class<T>) ctrl"]]
 // EnumController is a constexpr class, that gets a compiler generated AST node
 // in constructor param, through meta::class<T> in a type safe manner.
 // (ex. enum declaration generates const EnumDecl*,
@@ -32,9 +32,9 @@ void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& da
   folly::fbstring jsonVal = folly::parseJson(data).asString();
   llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
   obj = llvm::StringSwitch<$ctrl.enumName$>(decoded)
-    // controlling directive std::meta::for, with the syntax of range base for
+    // controlling directive meta::for, with the syntax of range base for
     // enumValueName will be a local variable of a CODT
-    [[std::meta::for="(enumValueName:ctrl.enumValueNames)"]]
+    [[meta::for="(enumValueName:ctrl.enumValueNames)"]]
     .Case($enumValueName.asStr()$, $enumValueName$)
   ;
 }
@@ -52,7 +52,7 @@ class EnumController
       for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
         enumNames.push_back((*it)->getName().data());
     }
-    // used in [[std::meta::for(enumValueName:ctrl.enumValueNames)]]
+    // used in [[meta::for(enumValueName:ctrl.enumValueNames)]]
     // meta::vector is a constexpr vector
     meta::vector<meta::id_string> enumValueNames;
     // used in $ctrl.enumName$
