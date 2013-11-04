@@ -1,18 +1,14 @@
-This proposal based on the AngularJS Mtml template framework.
+Constexpr objects driven template system proposal
+=================================================
+
+The idea of this proposal comes from the AngularJS HTML template framework.
 http://angularjs.org/
 I posted earlier my mini reflector tool, these code snippet comes from there.
+https://github.com/hun-nemethpeter/cpp-reflector-mini
 
 
 So a case study:
-
-from this enum declaration:
-
-This proposal based on the AngularJS Mtml template framework.
-http://angularjs.org/
-I posted earlier my mini reflector tool, these code snippet comes from there.
-
-
-So a case study:
+----------------
 
 from this enum declaration:
 
@@ -153,6 +149,7 @@ So based on above AngularC++ looks like this:
 
 ```C++
 // tamplate part
+
 template<> [[std::controller="EnumController(meta::class<EVote>) ctrl"]]
 void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& data)
 {
@@ -160,7 +157,7 @@ void Json::readFrom(boost::optional<$ctrl.enumName$>& obj, const std::string& da
   llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
   obj = llvm::StringSwitch<$ctrl.enumName$>(decoded)
     [[std::repeat="enumValueName:enumValueNames"]]
-    .Case($ctrl.enumValueName$, {{enumValueName}})
+    .Case($ctrl.enumValueName$, $ctrl.enumValueName$)
   ;
 }
 
