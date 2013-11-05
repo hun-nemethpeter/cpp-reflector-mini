@@ -11,7 +11,7 @@ a familiar syntax. The result is extraordinarily expressive, readable, and quick
 
 The idea of this proposal comes from the AngularJS HTML template framework.
 http://angularjs.org/
-I posted earlier my mini reflector tool, these code snippet comes from there.
+These code snippet based on this repo.
 https://github.com/hun-nemethpeter/cpp-reflector-mini
 
 Motivating example:
