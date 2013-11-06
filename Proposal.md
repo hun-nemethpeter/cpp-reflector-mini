@@ -44,7 +44,7 @@ bool User::operator==(User& rhs) const
 
 Struct-of-Arrays vector
 -----------------------
-'''
+```C++
 // origin
 struct S {
     int a;
@@ -78,7 +78,7 @@ public:
   }
   meta::vector<Member> members;
 };
-'''
+```
 
 Enumerating enums
 -----------------
