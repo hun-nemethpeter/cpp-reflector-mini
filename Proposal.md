@@ -43,7 +43,6 @@ bool User::operator==(User& rhs) const
 class EqualityGenerator
 {
   constexpr EqualityGenerator(const MethodDriver* methodDecl)
-    : enumDecl(enumDecl)
   {
     // static assert param num = 1
     // static assert param type enum
@@ -99,7 +98,37 @@ public:
 Replacing assert
 ----------------
 
-int main
+```C++
+// origin
+int main()
+{
+  int a = 1;
+  int b = 2;
+  assert([](a == b));
+
+  return 0;
+}
+
+// declaration
+[[meta::driver("AssertDriver driver)"]]
+void assert(std::function<void() fn>)
+{
+  // TODO
+  std::cout << $driver.startLoc() << std::endl;
+
+}
+
+// driver
+class AssertDriver
+{
+public:
+  constexpr ArrayDriver(const StmtDecl* stmtDecl)
+  {
+    // TODO
+  }
+};
+
+```
 
 Enumerating enums
 -----------------
