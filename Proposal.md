@@ -9,15 +9,8 @@ C++ is a great programming language, but it falters when we try to use it for re
 CODT lets you create very complicate clones of a given type (class, enums, templates) with
 a familiar syntax. The result is extraordinarily expressive, readable, and quick to develop.
 
-The idea of this proposal comes from the AngularJS HTML template framework.
-http://angularjs.org/
-These code snippet based on this repo.
-https://github.com/hun-nemethpeter/cpp-reflector-mini
-
-http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3814.html
-
-Motivating examples:
--------------------
+Targeted use cases
+------------------
 
 Generating equality operators
 -----------------------------
@@ -313,8 +306,17 @@ function TodoCtrl($scope) { // used in <div ng-controller="TodoCtrl">
 }
 ```
 
-prebuilt directives
-ngRepeat
-directive in module ng
+Links
+-----
+
+The idea of this proposal comes from the AngularJS HTML template framework:
+http://angularjs.org/
+
+prebuilt directives ngRepeat directive in module ng:
 http://docs.angularjs.org/api/ng.directive:ngRepeat
 
+These code snippet based on this repo:
+https://github.com/hun-nemethpeter/cpp-reflector-mini
+
+Call for Compile-Time Reflection Proposals:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3814.html
