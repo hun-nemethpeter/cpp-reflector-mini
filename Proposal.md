@@ -12,8 +12,8 @@ a familiar syntax. The result is extraordinarily expressive, readable, and quick
 Targeted use cases
 ------------------
 
-Generating equality operators
------------------------------
+### Generating equality operators
+
 ```C++
 // origin
 class User
@@ -57,8 +57,8 @@ class EqualityGenerator
 };
 ```
 
-Struct-of-Arrays vector
------------------------
+### Struct-of-Arrays vector
+
 ```C++
 // origin
 struct S {
@@ -82,7 +82,7 @@ public:
   struct Member
   {
     meta::id_string name; // you are create id_string
-    meta::type_string type; // you can't create type_string only compile able to generate it.
+    meta::type_string type; // you can't create type_string only compiler able to generate it.
                             // you can get one from a compiler generated Decl class
                             // it has copy ctor
   };
@@ -95,8 +95,8 @@ public:
   meta::vector<Member> members;
 };
 ```
-Replacing assert
-----------------
+
+### Replacing assert
 
 ```C++
 // origin
@@ -130,8 +130,7 @@ public:
 
 ```
 
-Enumerating enums
------------------
+### Enumerating enums
 
 This code snippet converts a string to an enum. The converter implementation is a function template.
 The function template parameter is "captured" before template instatization, and processed with EnumDriver.
