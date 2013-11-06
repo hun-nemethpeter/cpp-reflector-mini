@@ -29,10 +29,33 @@ class User
 [[meta::driver("EqualityGenerator driver")]]
 bool User::operator==(User& rhs) const
 {
-  return // TODO
+    [[meta::for_begin="(member:driver.members)"]]
+    {
+      return $member == rhs.$member
+    } [[meta::for_body]] {
+      && $member == rhs.$member
+    } [[meta::for_end]] {
+      ;
+    }
 }
 
 // driver
+class EqualityGenerator
+{
+  constexpr EqualityGenerator(const MethodDriver* methodDecl)
+    : enumDecl(enumDecl)
+  {
+    // static assert param num = 1
+    // static assert param type enum
+    const ClassDecl* classDecl = *methodDecl.params.begin();
+    for (auto& field : classDecl->fields()) {
+      if (field.getName() == "weight") // you can filter out members
+        continue;
+      members.emplace_back(field.getName());
+    }
+  }
+  meta::vector<meta::id_string> members;
+};
 ```
 
 Struct-of-Arrays vector
@@ -56,22 +79,27 @@ SoA_vector_of_S {
 // driver
 class ArrayDriver
 {
-  const ClassDecl* classDecl;
 public:
   struct Member
   {
-    meta::id_string name;
-    meta::type_string type;
+    meta::id_string name; // you are create id_string
+    meta::type_string type; // you can't create type_string only compile able to generate it.
+                            // you can get one from a compiler generated Decl class
+                            // it has copy ctor
   };
   constexpr ArrayDriver(const ClassDecl* classDecl)
     : enumDecl(enumDecl)
   {
-    for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
-      enumNames.emplace_back({(*it)->getTypeName(),  (*it)->getName() + "s", });
+    for (auto& field : classDecl->fields())
+      enumNames.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
   meta::vector<Member> members;
 };
 ```
+Replacing assert
+----------------
+
+int main
 
 Enumerating enums
 -----------------
