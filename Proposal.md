@@ -14,28 +14,97 @@ http://angularjs.org/
 These code snippet based on this repo.
 https://github.com/hun-nemethpeter/cpp-reflector-mini
 
-Motivating example:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3814.html
+
+Motivating examples:
 -------------------
+
+Generating equality operators
+-----------------------------
+```C++
+// origin
+class User
+{
+  std::string name;
+  Date birthDate;
+  double weight;
+
+  bool operator==(User& rhs) const;
+};
+
+// driver template
+[[meta::driver("EqualityGenerator driver")]]
+bool User::operator==(User& rhs) const
+{
+  return // TODO
+}
+
+// driver
+```
+
+Struct-of-Arrays vector
+-----------------------
+'''
+// origin
+struct S {
+    int a;
+    int b;
+    int c;
+};
+
+// driver template
+struct
+[[meta::driver("ArrayDriver driver")]]
+SoA_vector_of_S {
+    [[meta::for="(member:driver.members)"]]
+    std::vector<$member.type> $member.name;
+};
+
+// driver
+class ArrayDriver
+{
+  const ClassDecl* classDecl;
+public:
+  struct Member
+  {
+    meta::id_string name;
+    meta::type_string type;
+  };
+  constexpr ArrayDriver(const ClassDecl* classDecl)
+    : enumDecl(enumDecl)
+  {
+    for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
+      enumNames.emplace_back({(*it)->getTypeName(),  (*it)->getName() + "s", });
+  }
+  meta::vector<Member> members;
+};
+'''
+
+Enumerating enums
+-----------------
+
+This code snippet converts a string to an enum. The converter implementation is a function template.
+The function template parameter is "captured" before template instatization, and processed with EnumDriver.
+EnumDriver's constructor is waiting an const EnumDecl* that is coming from meta::class<T>.
 
 ```C++
 // tamplate part
-template<typename T> [[meta::driver="EnumDriver(meta::class<T>) driver"]]
+template<typename T> [[meta::driver("EnumDriver driver)"]]
 // EnumDriver is a constexpr class, that gets a compiler generated AST node
 // in constructor parameter, through meta::class<T> in a type safe manner.
 // (ex. enum declaration generates const EnumDecl*,
 // and a class declaration generates const CXXRecordDecl*).
 // driver instance name will be "driver", this is a normal C++ syntax
 // members and methods of this object can be accessed with the following syntax:
-// $driver.member$ or $driver.method(param1, param2, ...)$
-void Json::readFrom(boost::optional<$driver.enumName$>& obj, const std::string& data)
+// $driver.member or $driver.method(param1, param2, ...)
+void Json::readFrom($driver.enumName& obj, const std::string& data)
 {
-  folly::fbstring jsonVal = folly::parseJson(data).asString();
-  llvm::StringRef decoded(jsonVal.c_str(), jsonVal.length());
-  obj = llvm::StringSwitch<$driver.enumName$>(decoded)
+  obj = llvm::StringSwitch<$driver.enumName>(data)
     // controlling directive meta::for, with the syntax of range base for
     // enumValueName will be a local variable of a CODT
+    // directive scope here is the method call
     [[meta::for="(enumValueName:driver.enumValueNames)"]]
-    .Case($enumValueName.asStr()$, $enumValueName$)
+    .Case($enumValueName.asStr(), $enumValueName)
   ;
 }
 
@@ -44,9 +113,22 @@ class EnumDriver
 {
   const EnumDecl* enumDecl;
   public:
-    // used in [[std::driver="EnumDriver(meta::class<EVote>) driver"]]
+    constexpr EnumDriver(const TemplateDecl* templateDecl)
+    {
+      // static assert param num = 1
+      // static assert param type enum
+      enumDecl = *templateDecl.params.begin();
+      build();
+    }
+
+    // used in [[std::driver="EnumDriver(meta::class<T>) driver"]]
     constexpr EnumDriver(const EnumDecl* enumDecl)
       : enumDecl(enumDecl)
+    {
+      build();
+    }
+  private:
+    void build()
     {
       std::string enumName = enumDecl->getNameAsString();
       for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
@@ -55,15 +137,57 @@ class EnumDriver
     // used in [[meta::for(enumValueName:driver.enumValueNames)]]
     // meta::vector is a constexpr vector
     meta::vector<meta::id_string> enumValueNames;
-    // used in $driver.enumName$
+    // used in $driver.enumName
     // meta::id_string is a constexpr string that contains only valid C++ identifier
     // it has an asStr() that gives back a stringified string, so between "" signes
     meta::id_string enumName;
 };
+
+// usage
+enum class EVote
+{
+  Yes,
+  RatherYes,
+  Undecided,
+  RatherNo,
+  No
+};
+
+int main()
+{
+  Evote vote;
+  Json::readFrom(vote, "EVote::Undecided");
+
+  return 0;
+}
 ```
 
-So a case study:
-----------------
+Drivers
+=======
+
+Driver attached to:
+
+```C++
+// will need a NamespaceDriver(const namespaceDecl* ) declaration
+namespace [[meta::driver("NamespaceDriver  driver")]] foo {}
+
+
+// will need a ClassDriver(const classDecl*)
+class [[meta::driver("ClassDriver driver")]] foo
+{
+  void method(bool param);
+  int member;
+};
+
+// will need a MethodDriver(const methodDecl*)
+[[meta::driver("MethodDriver driver")]]
+class foo::method(bool param)
+{
+}
+```
+
+A case study:
+-------------
 
 from this enum declaration:
 
@@ -132,7 +256,7 @@ void processEnumDefsForJsonReadFromTail()
 }
 ```
 
-No, here come some completely different.
+Now, here come some completely different.
 AngulerJS Html template system in 1 minute
 More tutorials on:
 http://docs.angularjs.org/tutorial/step_02
