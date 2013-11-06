@@ -88,7 +88,17 @@ The function template parameter is "captured" before template instatization, and
 EnumDriver's constructor is waiting an const EnumDecl* that is coming from meta::class<T>.
 
 ```C++
-// tamplate part
+// origin
+enum class EVote
+{
+  Yes,
+  RatherYes,
+  Undecided,
+  RatherNo,
+  No
+};
+
+// driver template
 template<typename T> [[meta::driver("EnumDriver driver)"]]
 // EnumDriver is a constexpr class, that gets a compiler generated AST node
 // in constructor parameter, through meta::class<T> in a type safe manner.
@@ -108,7 +118,7 @@ void Json::readFrom($driver.enumName& obj, const std::string& data)
   ;
 }
 
-// driver part
+// driver
 class EnumDriver
 {
   const EnumDecl* enumDecl;
@@ -121,12 +131,6 @@ class EnumDriver
       build();
     }
 
-    // used in [[std::driver="EnumDriver(meta::class<T>) driver"]]
-    constexpr EnumDriver(const EnumDecl* enumDecl)
-      : enumDecl(enumDecl)
-    {
-      build();
-    }
   private:
     void build()
     {
@@ -141,16 +145,6 @@ class EnumDriver
     // meta::id_string is a constexpr string that contains only valid C++ identifier
     // it has an asStr() that gives back a stringified string, so between "" signes
     meta::id_string enumName;
-};
-
-// usage
-enum class EVote
-{
-  Yes,
-  RatherYes,
-  Undecided,
-  RatherNo,
-  No
 };
 
 int main()
