@@ -30,11 +30,11 @@ class User
 bool User::operator==(User& rhs) const
 {
     [[meta::for_begin="(member:driver.members)"]]
-    {
+    ${ // ${ marks that this is not a normal scope but a virtual one
       return $member == rhs.$member
-    } [[meta::for_body]] {
+    } [[meta::for_body]] ${
       && $member == rhs.$member
-    } [[meta::for_end]] {
+    } [[meta::for_end]] ${
       ;
     }
 }
