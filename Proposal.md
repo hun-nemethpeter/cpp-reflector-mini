@@ -5,9 +5,19 @@ Constexpr objects driven templating (CODT)
 Why?
 ----
 
-C++ is a great programming language, but it falters when we try to use it for reflection.
-CODT lets you create very complicate clones of a given type (class, enums, templates) with
-a familiar syntax. The result is extraordinarily expressive, readable, and quick to develop.
+C++ is a great programming language, but it falters when we try to use it for cloning and
+generating code parts. CODT lets you create very complicate clones of a given code part
+(class, enums, templates, statements) with familiar syntax.
+The result is extraordinarily expressive, readable, and quick to develop.
+
+How?
+----
+
+Manipulating code parts are directed with directives.
+Directives are: meta::driver, meta::for, meta::for_begin-body-end, meta::if, meta::switch
+You can mark code parts for manipulations with the ${ ... } syntax.
+meta::driver directive waits a driver which is constexpr object.
+Generating code parts is safe, because you can't create new type only just using an existing one it in CODT.
 
 Targeted use cases
 ------------------
