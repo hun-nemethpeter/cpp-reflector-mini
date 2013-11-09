@@ -14,7 +14,7 @@ How?
 ----
 
 Manipulating code parts are directed with directives.
-Directives are: meta::driver, meta::for, meta::for_begin-body-end, meta::if, meta::switch
+Directives are: meta::driver, meta::use, meta::for, meta::for_begin-body-end, meta::if, meta::switch
 You can mark code parts for manipulations with the ${ ... } syntax.
 meta::driver directive waits a driver which is constexpr object.
 Generating code parts is safe, because you can't create new type only just using an existing one it in CODT.
@@ -36,8 +36,10 @@ class User
 };
 
 // driver template
+// without constructor parameter an implicit std::meta<bool User::operator==(const User&) const> will be called
+// for default constructor use EqualityGenerator driver() syntax
 [[meta::driver("EqualityGenerator driver")]]
-bool User::operator==(User& rhs) const
+bool User::operator==(const User& rhs) const
 {
     [[meta::for_begin="(member:driver.members)"]]
     ${ // ${ marks that this is not a normal scope but a virtual one
@@ -63,9 +65,12 @@ class EqualityGenerator
       members.emplace_back(field.getName());
     }
   }
-  meta::vector<meta::id_string> members;
+  meta::vector<meta::id_name> members;
 };
 ```
+
+Note, this example is not really usefull because the "User" type is hardcoded to the definition. We should use a template here
+and there is an example for that in the enumeration section.
 
 ### Struct-of-Arrays vector
 
@@ -80,7 +85,7 @@ struct S {
 // driver template
 struct
 [[meta::driver("ArrayDriver driver")]]
-SoA_vector_of_S {
+$member.class_name {
     [[meta::for="(member:driver.members)"]]
     std::vector<$member.type> $member.name;
 };
@@ -91,22 +96,29 @@ class ArrayDriver
 public:
   struct Member
   {
-    meta::id_string name; // you are create id_string
-    meta::type_string type; // you can't create type_string only compiler able to generate it.
-                            // you can get one from a compiler generated Decl class
-                            // it has copy ctor
+    meta::id_name name; // you are create id_name
+    meta::type_name type; // you can't create type_name only compiler able to generate it.
+                          // you can get one from a compiler generated Decl class
+                          // it has copy ctor
   };
   constexpr ArrayDriver(const ClassDecl* classDecl)
-    : enumDecl(enumDecl)
+    : classDecl(classDecl)
   {
     for (auto& field : classDecl->fields())
       enumNames.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
+  meta::type_name class_name;
   meta::vector<Member> members;
 };
+
+// usage
+struct SoA_vector_of_S; // forward declaration
+meta::use<ArrayDriver>(SoA_vector_of_S); // meta::use expect an incomplet type
 ```
 
 ### Replacing assert
+
+My best solution is introduce a new keyword called "astnode"
 
 ```C++
 // origin
@@ -114,29 +126,43 @@ int main()
 {
   int a = 1;
   int b = 2;
-  assert([](a == b));
+  assert(a == b);
 
   return 0;
 }
 
 // declaration
 [[meta::driver("AssertDriver driver)"]]
-void assert(std::function<void() fn>)
+template<astnode Node> // new keyword astnode, allowed only in a meta::driver
+void assert(Node)
 {
-  // TODO
-  std::cout << $driver.startLoc() << std::endl;
-
+  result = $driver.decl.eval();
+  if (result)
+  {
+    std::cout << $driver.decl.to_string() << std::endl;
+    std::cout << $driver.decl.source.get_start_pos() << std::endl;
+  }
 }
 
 // driver
 class AssertDriver
 {
 public:
-  constexpr ArrayDriver(const StmtDecl* stmtDecl)
+  constexpr ArrayDriver(const ExpressionDecl& decl) // if astnode is not an expression we got compilation error
+     expessionDecl(decl)
   {
-    // TODO
+    // check decl is boolean expr
   }
+  const expessionDecl& decl;
 };
+
+// usage
+int main()
+{
+  int a = 1;
+  int b = 2;
+  assert(a == b);
+}
 
 ```
 
@@ -199,11 +225,11 @@ class EnumDriver
     }
     // used in [[meta::for(enumValueName:driver.enumValueNames)]]
     // meta::vector is a constexpr vector
-    meta::vector<meta::id_string> enumValueNames;
+    meta::vector<meta::id_name> enumValueNames;
     // used in $driver.enumName
-    // meta::id_string is a constexpr string that contains only valid C++ identifier
+    // meta::id_name is a constexpr string that contains only valid C++ identifier
     // it has an asStr() that gives back a stringified string, so between "" signes
-    meta::id_string enumName;
+    meta::id_name enumName;
 };
 
 int main()
@@ -212,6 +238,51 @@ int main()
   Json::readFrom(vote, "EVote::Undecided");
 
   return 0;
+}
+```
+
+### Replacing normal macro
+
+We can replace the old macro system with this new one. For this reason meta::if and meta::swicth is introduced.
+For normal code flow this conditional compilation as harmful (or helpful) as the normal macro style one.
+This is just a new syntax. Some intended usage:
+
+Instead of
+```C++
+#define DEBUG 1
+
+void printBackTrace() {
+#if DEBUG
+  // do something
+#else
+  // do nothing
+#endif
+```
+
+we can write
+
+```C++
+enum class Configuration {
+  Debug,
+  Release
+};
+struct ConfigurationDriver {
+  const configuration;
+  constexpr ConfigurationDriver()
+    : configuration (Debug) {
+  }
+};
+
+[[meta::driver("ConfigurationDriver driver)"]]
+void printBackTrace() {
+[[meta::if("driver.configuration == Configuration::Debug")]]
+${
+  // do something
+}
+[[meta::else"]]
+${
+  // do nothing
+}
 }
 ```
 
