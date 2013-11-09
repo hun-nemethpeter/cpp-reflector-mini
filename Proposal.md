@@ -18,7 +18,7 @@ Directives are: meta::driver, meta::use, meta::for, meta::for_begin-body-end, me
 You can mark code parts for manipulations with the ${ ... } syntax.
 meta::driver directive waits a driver which is constexpr object.
 Generating code parts is safe, because you can't create new type only just using an existing one it in CODT.
-Some basic rules: you are create meta::id_name but you can't create meta::type_name only compiler able to generate it.
+Some basic rules: you can create meta::id_name but you can't create meta::type_name only compiler able to generate it.
 
 Targeted use cases
 ------------------
