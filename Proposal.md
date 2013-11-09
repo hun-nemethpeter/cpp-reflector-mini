@@ -32,14 +32,14 @@ class User
   Date birthDate;
   double weight;
 
-  bool operator==(User& rhs) const;
+  meta::use<EqualityGenerator>(User); // generate an operator==
 };
 
 // driver template
 // without constructor parameter an implicit std::meta<bool User::operator==(const User&) const> will be called
 // for default constructor use EqualityGenerator driver() syntax
-[[meta::driver("EqualityGenerator driver")]]
-bool User::operator==(const User& rhs) const
+[[meta::driver("EqualityGenerator driver", on_demand)]]
+bool $driver.class_name::operator==(const User& rhs) const
 {
     [[meta::for_begin="(member:driver.members)"]]
     ${ // ${ marks that this is not a normal scope but a virtual one
@@ -54,11 +54,8 @@ bool User::operator==(const User& rhs) const
 // driver
 class EqualityGenerator
 {
-  constexpr EqualityGenerator(const MethodDriver* methodDecl)
+  constexpr EqualityGenerator(const MethodDriver* classDecl)
   {
-    // static assert param num = 1
-    // static assert param type enum
-    const ClassDecl* classDecl = *methodDecl.params.begin();
     for (auto& field : classDecl->fields()) {
       if (field.getName() == "weight") // you can filter out members
         continue;
