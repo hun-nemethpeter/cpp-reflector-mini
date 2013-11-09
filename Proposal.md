@@ -83,9 +83,9 @@ struct S {
 };
 
 // driver template
-struct
-[[meta::driver("ArrayDriver driver")]]
-$member.class_name {
+// on_demand, means driver will not processed here, only where meta::use
+struct [[meta::driver("ArrayDriver driver", on_demand)]]
+$driver.class_name {
     [[meta::for="(member:driver.members)"]]
     std::vector<$member.type> $member.name;
 };
@@ -101,9 +101,10 @@ public:
                           // you can get one from a compiler generated Decl class
                           // it has copy ctor
   };
-  constexpr ArrayDriver(const ClassDecl* classDecl)
+  constexpr ArrayDriver(const ClassDecl* fromClassDecl, const ClassDecl* toClassDecl)
     : classDecl(classDecl)
   {
+    class_name = toClassDecl.getTypeName();
     for (auto& field : classDecl->fields())
       enumNames.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
@@ -113,7 +114,7 @@ public:
 
 // usage
 struct SoA_vector_of_S; // forward declaration
-meta::use<ArrayDriver>(SoA_vector_of_S); // meta::use expect an incomplet type
+meta::use<ArrayDriver>(S, SoA_vector_of_S); // meta::use expect an incomplete type
 ```
 
 ### Replacing assert
