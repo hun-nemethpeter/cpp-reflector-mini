@@ -13,6 +13,7 @@ The result is extraordinarily expressive, readable, and quick to develop.
 How?
 ----
 
+The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
 Manipulating code parts are directed with directives.
 Directives are: meta::driver, meta::use, meta::for, meta::for_begin-body-end, meta::if, meta::switch
 You can mark code parts for manipulations with the ${ ... } syntax.
