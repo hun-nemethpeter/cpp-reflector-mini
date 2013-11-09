@@ -36,8 +36,7 @@ class User
 };
 
 // driver template
-// without constructor parameter an implicit std::meta<bool User::operator==(const User&) const> will be called
-// for default constructor use EqualityGenerator driver() syntax
+// on_demand: means driver will not processed here, only where meta::use
 [[meta::driver("EqualityGenerator driver", on_demand)]]
 bool $driver.class_name::operator==(const User& rhs) const
 {
@@ -65,9 +64,6 @@ class EqualityGenerator
   meta::vector<meta::id_name> members;
 };
 ```
-
-Note, this example is not really usefull because the "User" type is hardcoded to the definition. We should use a template here
-and there is an example for that in the enumeration section.
 
 ### Struct-of-Arrays vector
 
