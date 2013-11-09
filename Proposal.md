@@ -1,12 +1,12 @@
-Constexpr objects driven templating (CODT)
-==========================================
+Template drivers (TDS)
+======================
 
 
 Why?
 ----
 
 C++ is a great programming language, but it falters when we try to use it for cloning and
-generating code parts. CODT lets you create very complicate clones of a given code part
+generating code parts. Template drivers lets you create very complicate clones of a given code part
 (class, enums, templates, statements) with familiar syntax.
 The result is extraordinarily expressive, readable, and quick to develop.
 
@@ -17,7 +17,7 @@ Manipulating code parts are directed with directives.
 Directives are: meta::driver, meta::use, meta::for, meta::for_begin-body-end, meta::if, meta::switch
 You can mark code parts for manipulations with the ${ ... } syntax.
 meta::driver directive waits a driver which is constexpr object.
-Generating code parts is safe, because you can't create new type only just using an existing one it in CODT.
+Generating code parts is safe, because you can't create new type only just using an existing one it in TDS.
 Some basic rules: you can create meta::id_name but you can't create meta::type_name only compiler able to generate it.
 
 Targeted use cases
@@ -193,7 +193,7 @@ void Json::readFrom($driver.enumName& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<$driver.enumName>(data)
     // controlling directive meta::for, with the syntax of range base for
-    // enumValueName will be a local variable of a CODT
+    // enumValueName will be a local variable of a TDS
     // directive scope here is the method call
     [[meta::for="(enumValueName:driver.enumValueNames)"]]
     .Case($enumValueName.asStr(), $enumValueName)
