@@ -133,7 +133,7 @@ int main()
 }
 
 // declaration
-[[meta::driver("AssertDriver driver)"]]
+[[meta::driver("AssertDriver driver(Node))"]]
 template<astnode Node> // new keyword astnode, allowed only in a meta::driver
 void assert(Node)
 {
