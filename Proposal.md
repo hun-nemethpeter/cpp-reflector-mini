@@ -262,7 +262,7 @@ enum class Configuration {
 struct ConfigurationDriver {
   const configuration;
   constexpr ConfigurationDriver()
-    : configuration (Debug) {
+    : configuration (Configuration::Debug) {
   }
 };
 
