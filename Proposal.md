@@ -185,7 +185,7 @@ enum class EVote
 };
 
 // driver template
-template<typename T> [[meta::driver("EnumDriver driver)"]]
+template<typename T> [[meta::driver("EnumDriver driver(meta::class<T>))"]]
 // EnumDriver is a constexpr class, that gets a compiler generated AST node
 // in constructor parameter, through meta::class<T> in a type safe manner.
 // (ex. enum declaration generates const EnumDecl*,
@@ -207,22 +207,14 @@ void Json::readFrom($driver.enumName& obj, const std::string& data)
 // driver
 class EnumDriver
 {
-  const EnumDecl* enumDecl;
+  const EnumDecl& enumDecl;
   public:
-    constexpr EnumDriver(const TemplateDecl* templateDecl)
+    constexpr EnumDriver(const EnumDecl& enumDecl)
+      : enumDecl(enumDecl)
     {
-      // static assert param num = 1
-      // static assert param type enum
-      enumDecl = *templateDecl.params.begin();
-      build();
-    }
-
-  private:
-    void build()
-    {
-      std::string enumName = enumDecl->getNameAsString();
-      for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
-        enumNames.push_back((*it)->getName().data());
+      std::string enumName = enumDecl.getNameAsString();
+      for (auto& enumerator : enumDecl->enumerators())
+        enumValueNames.push_back(enumerator->getName());
     }
     // used in [[meta::for(enumValueName:driver.enumValueNames)]]
     // meta::vector is a constexpr vector
@@ -286,6 +278,8 @@ ${
 }
 }
 ```
+
+// TODO: example for meta switch
 
 Drivers
 =======
