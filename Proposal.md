@@ -18,6 +18,7 @@ Directives are: meta::driver, meta::use, meta::for, meta::for_begin-body-end, me
 You can mark code parts for manipulations with the ${ ... } syntax.
 meta::driver directive waits a driver which is constexpr object.
 Generating code parts is safe, because you can't create new type only just using an existing one it in CODT.
+Some basic rules: you are create meta::id_name but you can't create meta::type_name only compiler able to generate it.
 
 Targeted use cases
 ------------------
@@ -55,6 +56,7 @@ class EqualityGenerator
 {
   constexpr EqualityGenerator(const MethodDriver* classDecl)
   {
+    class_name = classDecl.getTypeName();
     for (auto& field : classDecl->fields()) {
       if (field.getName() == "weight") // you can filter out members
         continue;
@@ -62,6 +64,7 @@ class EqualityGenerator
     }
   }
   meta::vector<meta::id_name> members;
+  meta::type_name class_name;
 };
 ```
 
