@@ -262,7 +262,7 @@ struct ConfigurationDriver {
   }
 };
 
-[[meta::driver("ConfigurationDriver driver)"]]
+[[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
 void printBackTrace() {
 [[meta::if("driver.configuration == Configuration::Debug")]]
 ${
@@ -276,6 +276,24 @@ ${
 ```
 
 // TODO: example for meta switch
+
+### Concept checking
+
+If we use the meta::driver without an instance name it means that the driver is doing only checks
+
+```C++
+template<typename T> [[meta::driver("ConceptDriver(T)"]]
+class Foo
+{
+}
+
+struct ConceptDriver {
+  constexpr ConfigurationDriver(const ClassDecl* classDecl) // first check, T must be an class
+    // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
+    static_assert(classDecl->hasMoveConstructor(), "Move constructor is missing")
+  }
+};
+```
 
 Drivers
 =======
