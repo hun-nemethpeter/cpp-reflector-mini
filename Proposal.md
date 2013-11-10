@@ -248,6 +248,7 @@ void printBackTrace() {
 #else
   // do nothing
 #endif
+}
 ```
 
 we can write
