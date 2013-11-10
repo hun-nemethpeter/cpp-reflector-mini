@@ -57,10 +57,10 @@ bool $driver.class_name::operator==(const User& rhs) const
 // driver
 class EqualityGenerator
 {
-  constexpr EqualityGenerator(const MethodDriver* classDecl)
+  constexpr EqualityGenerator(const ClassDecl& classDecl)
   {
     class_name = classDecl.getTypeName();
-    for (auto& field : classDecl->fields()) {
+    for (auto& field : classDecl.fields()) {
       if (field.getName() == "weight") // you can filter out members
         continue;
       members.emplace_back(field.getName());
@@ -100,10 +100,10 @@ public:
                           // you can get one from a compiler generated Decl class
                           // it has copy ctor
   };
-  constexpr ArrayDriver(const ClassDecl* fromClassDecl, const ClassDecl* toClassDecl)
+  constexpr ArrayDriver(const ClassDecl& fromClassDecl, const ClassDecl& toClassDecl)
   {
     class_name = toClassDecl.getTypeName();
-    for (auto& field : fromClassDecl->fields())
+    for (auto& field : fromClassDecl.fields())
       members.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
   meta::type_name class_name;
@@ -211,8 +211,8 @@ class EnumDriver
       : enumDecl(enumDecl)
     {
       std::string enumName = enumDecl.getNameAsString();
-      for (auto& enumerator : enumDecl->enumerators())
-        enumValueNames.push_back(enumerator->getName());
+      for (auto& enumerator : enumDecl.enumerators())
+        enumValueNames.push_back(enumerator.getName());
     }
     // used in [[meta::for(enumValueName:driver.enumValueNames)]]
     // meta::vector is a constexpr vector
