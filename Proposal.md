@@ -135,10 +135,8 @@ int main()
 template<astnode Node> // new keyword astnode, allowed only in a meta::driver
 void assert(Node)
 {
-  result = $driver.decl.eval();
-  if (result)
-  {
-    std::cout << $driver.decl.to_string() << std::endl;
+  if (!$driver.decl.eval()) { // evaluated runtime inplace, but the result will be here
+    std::cout << "failed assert: " << $driver.decl.to_string() << std::endl;
     std::cout << $driver.decl.source.get_start_pos() << std::endl;
   }
 }
