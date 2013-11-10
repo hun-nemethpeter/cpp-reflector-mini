@@ -101,10 +101,9 @@ public:
                           // it has copy ctor
   };
   constexpr ArrayDriver(const ClassDecl* fromClassDecl, const ClassDecl* toClassDecl)
-    : classDecl(classDecl)
   {
     class_name = toClassDecl.getTypeName();
-    for (auto& field : classDecl->fields())
+    for (auto& field : fromClassDecl->fields())
       enumNames.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
   meta::type_name class_name;
