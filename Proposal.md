@@ -286,7 +286,7 @@ $else
 }
 }
 
-$switch(driver.configuration)
+$switch(driver.platform)
 {
   $case Platform::Win32 // fallthrough
   $case Platform::Win64
