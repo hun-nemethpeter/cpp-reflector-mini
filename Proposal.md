@@ -15,13 +15,17 @@ How?
 
 The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
-Directives are: meta::driver, meta::use, meta::for, meta::for_begin-body-end, meta::if, meta::switch
-You can mark code parts for manipulations with the ${ ... } syntax.
+Directives are: meta::driver, meta::define, $call, $for, $if, $switch, $while
+You can mark code parts for manipulations with the { ... } syntax.
 meta::driver directive waits a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
 Template driver parameters start with the dollar ($) sign.
 Generating code parts is safe, because you can't create new type only just using an existing one it in TDS.
-Some basic rules: you can create meta::id_name but you can't create meta::type_name only compiler able to generate it.
+Some basic rules: you can create meta::id_name (in member, variable or parameter declaration context) but you can't
+create meta::type_name only compiler able to generate it.
+
+meta::define define a new kind of macro with a driver. Driver is a constexpr
+meta::driver attach a driver to a template
 
 Targeted use cases
 ------------------
@@ -36,22 +40,17 @@ class User
   Date birthDate;
   double weight;
 
-  meta::use<EqualityGenerator>(User); // generate an operator==
+  bool operator==(const User& rhs) const; // declaring
 };
 
-// driver template
-// on_demand: means driver will not processed here, only where meta::use
-[[meta::driver("EqualityGenerator driver", on_demand)]]
+// can be called later with $OperatorEqDriver
+[[meta::define(operatorEqDriver, "EqualityGenerator driver")]]
 bool $driver.class_name::operator==(const User& rhs) const
 {
-    [[meta::for_begin="(member:driver.members)"]]
-    ${ // ${ marks that this is not a normal scope but a virtual one
-      return $member == rhs.$member
-    } [[meta::for_body]] ${
+    return $member == rhs.$member
+    $for(member:driver.members) {
       && $member == rhs.$member
-    } [[meta::for_end]] ${
-      ;
-    }
+    };
 }
 
 // driver
@@ -69,6 +68,9 @@ class EqualityGenerator
   meta::vector<meta::id_name> members;
   meta::type_name class_name;
 };
+
+// usage
+$OperatorEqDriver<User>; // define an operator== for User
 ```
 
 ### Struct-of-Arrays vector
@@ -82,11 +84,11 @@ struct S {
 };
 
 // driver template
-// on_demand, means driver will not processed here, only where meta::use
-struct [[meta::driver("ArrayDriver driver", on_demand)]]
+struct [[meta::define(SoAGenerator, "ArrayDriver driver")]]
 $driver.class_name {
-    [[meta::for="(member:driver.members)"]]
-    std::vector<$member.type> $member.name;
+    $for(member:driver.members) {
+      std::vector<$member.type> $member.name;
+    }
 };
 
 // driver
@@ -112,7 +114,7 @@ public:
 
 // usage
 struct SoA_vector_of_S; // forward declaration
-meta::use<ArrayDriver>(S, SoA_vector_of_S); // meta::use expect an incomplete type
+$SoAGenerator(S, SoA_vector_of_S);
 ```
 
 ### Replacing assert
@@ -195,8 +197,8 @@ void Json::readFrom($driver.enumName& obj, const std::string& data)
     // controlling directive meta::for, with the syntax of range base for
     // enumValueName will be a local variable of a TDS
     // directive scope here is the method call
-    [[meta::for="(enumValueName:driver.enumValueNames)"]]
-    .Case($enumValueName.asStr(), $enumValueName)
+    $for(enumValueName:driver.enumValueNames) {
+    .Case($enumValueName.asStr(), $enumValueName) }
   ;
 }
 
@@ -212,7 +214,7 @@ class EnumDriver
       for (auto& enumerator : enumDecl.enumerators())
         enumValueNames.push_back(enumerator.getName());
     }
-    // used in [[meta::for(enumValueName:driver.enumValueNames)]]
+    // used in $for(enumValueName:driver.enumValueNames)
     // meta::vector is a constexpr vector
     meta::vector<meta::id_name> enumValueNames;
     // used in $driver.enumName
@@ -232,7 +234,7 @@ int main()
 
 ### Replacing normal macro
 
-We can replace the old macro system with this new one. For this reason meta::if and meta::swicth is introduced.
+We can replace the old macro system with this new one. For this reason $if and $swicth is introduced.
 For normal code flow this conditional compilation as harmful (or helpful) as the normal macro style one.
 This is just a new syntax. Some intended usage:
 
@@ -265,14 +267,33 @@ struct ConfigurationDriver {
 
 [[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
 void printBackTrace() {
-[[meta::if("driver.configuration == Configuration::Debug")]]
-${
+$if(driver.configuration == Configuration::Debug)
+{
   // do something
 }
-[[meta::else]]
-${
+$else
+{
   // do nothing
 }
+}
+
+$switch(driver.configuration)
+{
+  $case Platform::Win32 // fallthrough
+  $case Platform::Win64
+  {
+    void foo()
+    {
+      WinApi();
+    }
+  }
+  $case Platform::Linux
+  {
+    void foo()
+    {
+      GlibcCallXyz();
+    }
+  }
 }
 ```
 
