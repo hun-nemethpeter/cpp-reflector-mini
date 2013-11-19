@@ -15,17 +15,20 @@ How?
 
 The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
-Directives are: meta::driver, meta::define, $call, $for, $if, $switch, $while
-You can mark code parts for manipulations with the { ... } syntax.
-meta::driver directive waits a driver which is constexpr object.
+
+Directives are: meta::driver, `meta::define`, `$call`, `$for`, `$if`, `$switch`, `$while`
+
+You can mark code parts for manipulations with the `{ ... }` syntax.
+
+`meta::driver` directive waits a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
-Template driver parameters start with the dollar ($) sign.
+Template driver parameters start with the dollar `$` sign.
 Generating code parts is safe, because you can't create new type only just using an existing one it in TDS.
 Some basic rules: you can create meta::id_name (in member, variable or parameter declaration context) but you can't
-create meta::type_name only compiler able to generate it.
+create `meta::type_name` only compiler able to generate it.
 
-meta::define define a new kind of macro with a driver. Driver is a constexpr
-meta::driver attach a driver to a template
+`meta::define` define a new kind of macro with a driver. Driver is a constexpr
+`meta::driver` attach a driver to a template
 
 Targeted use cases
 ------------------
