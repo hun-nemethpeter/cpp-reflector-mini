@@ -305,8 +305,6 @@ $switch(driver.platform)
 }
 ```
 
-// TODO: example for meta switch
-
 ### Concept checking
 
 If we use the meta::driver without an instance name it means that the driver is doing only checks
