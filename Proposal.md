@@ -32,7 +32,7 @@ Some basic rules:
 
  * you can't create `meta::type_name` only compiler able to generate it.
 
- * `meta::define` define a name TDS. Can be used later with the `$name` syntax, where name is the defined name.
+ * `meta::define` define a named TDS. Can be used later with the `$name` syntax, where name is the defined name.
 
  * `meta::driver` attach a driver to a template will be called during template instantiation.
 
