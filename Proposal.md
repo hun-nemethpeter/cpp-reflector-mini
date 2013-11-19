@@ -26,11 +26,15 @@ Template driver parameters start with the dollar `$` sign.
 
 Generating code parts is safe, because you can't create new type only just using an existing one it in TDS.
 
-Some basic rules: you can create `meta::id_name` (in member, variable or parameter declaration context) but you can't
-create `meta::type_name` only compiler able to generate it.
+Some basic rules:
 
-`meta::define` define a new kind of macro with a driver. Driver is a constexpr
-`meta::driver` attach a driver to a template
+ * you can create `meta::id_name` (in member, variable or parameter declaration context)
+
+ * you can't create `meta::type_name` only compiler able to generate it.
+
+ * `meta::define` define a name TDS. Can be used later with the `$name` syntax, where name is the defined name.
+
+ * `meta::driver` attach a driver to a template will be called during template instantiation.
 
 Targeted use cases
 ------------------
