@@ -52,8 +52,8 @@ class User
   bool operator==(const User& rhs) const; // declaring
 };
 
-// can be called later with $OperatorEqDriver
-[[meta::define(operatorEqDriver, "EqualityGenerator driver")]]
+// can be used later with $OperatorEqDriver syntax
+[[meta::define(OperatorEqDriver, "EqualityGenerator driver")]]
 bool $driver.class_name::operator==(const User& rhs) const
 {
     return $member == rhs.$member
@@ -92,7 +92,7 @@ struct S {
     int c;
 };
 
-// driver template
+// can be used later with $SoAGenerator syntax
 struct [[meta::define(SoAGenerator, "ArrayDriver driver")]]
 $driver.class_name {
     $for(member:driver.members) {
