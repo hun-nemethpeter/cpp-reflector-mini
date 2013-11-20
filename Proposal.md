@@ -79,7 +79,7 @@ class EqualityGenerator
 };
 
 // usage
-$OperatorEqDriver<User>; // define an operator== for User
+$OperatorEqDriver(User); // define an operator== for User
 ```
 
 ### Struct-of-Arrays vector
