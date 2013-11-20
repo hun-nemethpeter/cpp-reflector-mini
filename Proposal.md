@@ -56,7 +56,7 @@ class User
 [[meta::define(OperatorEqGenerator, "EqualityDriver driver")]]
 bool $driver.class_name::operator==(const User& rhs) const
 {
-    return $member == rhs.$member
+    return true
       $for (member:driver.members) {
         && $member == rhs.$member
       }
