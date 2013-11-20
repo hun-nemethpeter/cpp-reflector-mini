@@ -16,7 +16,7 @@ How?
 The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
 
-Directives are: meta::driver, `meta::define`, `meta::driver`, `$call`, `$for`, `$if`, `$switch`, `$while`
+Directives are: meta::driver, `meta::define`, `meta::driver`, `$for`, `$if`, `$switch`, `$while`
 
 `meta::define` and `meta::driver` directives wait a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
