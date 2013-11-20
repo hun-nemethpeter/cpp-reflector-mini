@@ -56,9 +56,10 @@ class User
 bool $driver.class_name::operator==(const User& rhs) const
 {
     return $member == rhs.$member
-    $for(member:driver.members) {
-      && $member == rhs.$member
-    };
+      $for (member:driver.members) {
+        && $member == rhs.$member
+      }
+    ;
 }
 
 // driver
@@ -94,7 +95,7 @@ struct S {
 // can be used later with $SoAGenerator syntax
 struct [[meta::define(SoAGenerator, "ArrayDriver driver")]]
 $driver.class_name {
-    $for(member:driver.members) {
+    $for (member:driver.members) {
       std::vector<$member.type> $member.name;
     }
 };
