@@ -93,8 +93,9 @@ struct S {
     int c;
 };
 
+// generator template
 // can be used later with $SoAGenerator syntax
-struct [[meta::define(SoAGenerator, "ArrayDriver driver")]]
+struct [[meta::define(SoAGenerator, "SoADriver driver")]]
 $driver.class_name {
     $for (member:driver.members) {
       std::vector<$member.type> $member.name;
@@ -102,7 +103,7 @@ $driver.class_name {
 };
 
 // driver
-class ArrayDriver
+class SoADriver
 {
 public:
   struct Member
@@ -112,7 +113,7 @@ public:
                           // you can get one from a compiler generated Decl class
                           // it has copy ctor
   };
-  constexpr ArrayDriver(const ClassDecl& fromClassDecl, const ClassDecl& toClassDecl)
+  constexpr SoADriver(const ClassDecl& fromClassDecl, const ClassDecl& toClassDecl)
   {
     class_name = toClassDecl.getTypeName();
     for (auto& field : fromClassDecl.fields())
