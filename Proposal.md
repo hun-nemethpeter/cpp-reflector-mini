@@ -51,7 +51,8 @@ class User
   bool operator==(const User& rhs) const; // declaring
 };
 
-// can be used later with $OperatorEqDriver syntax
+// generator template
+// can be used later with $OperatorEqGenerator syntax
 [[meta::define(OperatorEqGenerator, "EqualityDriver driver")]]
 bool $driver.class_name::operator==(const User& rhs) const
 {
@@ -63,7 +64,7 @@ bool $driver.class_name::operator==(const User& rhs) const
 }
 
 // driver
-class EqualityGenerator
+class EqualityDriver
 {
   constexpr EqualityDriver(const ClassDecl& classDecl)
   {
