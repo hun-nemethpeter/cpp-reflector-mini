@@ -52,7 +52,7 @@ class User
 };
 
 // can be used later with $OperatorEqDriver syntax
-[[meta::define(OperatorEqDriver, "EqualityGenerator driver")]]
+[[meta::define(OperatorEqGenerator, "EqualityDriver driver")]]
 bool $driver.class_name::operator==(const User& rhs) const
 {
     return $member == rhs.$member
@@ -65,7 +65,7 @@ bool $driver.class_name::operator==(const User& rhs) const
 // driver
 class EqualityGenerator
 {
-  constexpr EqualityGenerator(const ClassDecl& classDecl)
+  constexpr EqualityDriver(const ClassDecl& classDecl)
   {
     class_name = classDecl.getTypeName();
     for (auto& field : classDecl.fields()) {
@@ -79,7 +79,7 @@ class EqualityGenerator
 };
 
 // usage
-$OperatorEqDriver(User); // define an operator== for User
+$OperatorEqGenerator(User); // define an operator== for User
 ```
 
 ### Struct-of-Arrays vector
