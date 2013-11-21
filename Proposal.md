@@ -16,9 +16,9 @@ How?
 The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
 
-Directives are: `meta::define`, `meta::driver`, `$for`, `$if`, `$switch`, `$while`
+Directives are: `$define`, `$driver`, `$for`, `$if`, `$switch`, `$while`
 
-`meta::define` and `meta::driver` directives wait a driver which is constexpr object.
+`$define` and `$driver` directives wait a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
 Template driver parameters start with the dollar `$` sign.
 
@@ -53,14 +53,16 @@ class User
 
 // generator template
 // can be used later with $OperatorEqGenerator syntax
-[[meta::define(OperatorEqGenerator, "EqualityDriver driver")]]
-bool $driver.class_name::operator==(const $driver.class_name& rhs) const
+$define OperatorEqGenerator(EqualityDriver driver)
 {
+  bool $driver.class_name::operator==(const $driver.class_name& rhs) const
+  {
     return true
       $for (auto member : $driver.members) {
         && $member == rhs.$member
       }
     ;
+  }
 }
 
 // driver
@@ -95,12 +97,15 @@ struct S {
 
 // generator template
 // can be used later with $SoAGenerator syntax
-struct [[meta::define(SoAGenerator, "SoADriver driver")]]
-$driver.class_name {
+$define SoAGenerator(SoADriver driver)
+{
+  $driver.class_name
+  {
     $for (auto member : $driver.members) {
       std::vector<$member.type> $member.name;
     }
-};
+  };
+}
 
 // driver
 class SoADriver
@@ -143,9 +148,9 @@ int main()
   return 0;
 }
 
-// declaration
-[[meta::driver("AssertDriver driver(Node))"]]
-template<astnode Node> // new keyword astnode, allowed only in a meta::driver
+// template with driver
+// new keyword astnode, allowed only in a meta::driver
+template<astnode Node> $driver<AssertDriver driver>
 void assert(Node)
 {
   if (!$driver.decl.get_result()) { // evaluated runtime inplace, but the result will be here
@@ -193,22 +198,11 @@ enum class EVote
   No
 };
 
-// driver template
-[[meta::driver("EnumDriver driver(meta::class<T>))"]]
-template<typename T>
-// EnumDriver is a constexpr class, that gets a compiler generated AST node
-// in constructor parameter, through meta::class<T> in a type safe manner.
-// (ex. enum declaration generates const EnumDecl*,
-// and a class declaration generates const CXXRecordDecl*).
-// driver instance name will be "driver", this is a normal C++ syntax
-// members and methods of this object can be accessed with the following syntax:
-// $driver.member or $driver.method(param1, param2, ...)
+// template with driver
+template<typename T> $driver(EnumDriver driver)
 void Json::readFrom($driver.enumName& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<$driver.enumName>(data)
-    // controlling directive meta::for, with the syntax of range base for
-    // enumValueName will be a local variable of a generator
-    // directive scope here is the method call
     $for (auto enumValueName : $driver.enumValueNames) {
       .Case($enumValueName.asStr(), $enumValueName) }
   ;
@@ -287,8 +281,8 @@ struct ConfigurationDriver
   { }
 };
 
-[[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
-void printBackTrace()
+// function with a driver
+void printBackTrace() $driver(ConfigurationDriver driver)
 {
   $if (driver.configuration == Configuration::Debug)
   {
@@ -300,8 +294,8 @@ void printBackTrace()
   }
 }
 
-[[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
-void foo()
+// function with a driver
+void foo() $driver(ConfigurationDriver driver)
 {
   $switch (driver.platform)
   {
