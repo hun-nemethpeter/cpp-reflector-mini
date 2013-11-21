@@ -6,8 +6,8 @@ Why?
 ----
 
 C++ is a great programming language, but it falters when we try to use it for cloning and
-generating code parts. Template drivers lets you create very complicate clones of a given code part
-(class, enums, templates, statements) with familiar syntax.
+generating code parts. Programmable code generators lets you create very complicate clones of a given code part
+(class, enums, templates, statements, etc.) with familiar syntax.
 The result is extraordinarily expressive, readable, and quick to develop.
 
 How?
