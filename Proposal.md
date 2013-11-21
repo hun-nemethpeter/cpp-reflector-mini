@@ -16,7 +16,7 @@ How?
 The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
 
-Directives are: `$define`, `$driver`, `$for`, `$if`, `$switch`, `$while`
+Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`, `$while`
 
 `$define` and `$driver` directives wait a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
@@ -33,7 +33,7 @@ Some basic rules:
 
  * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
 
- * `$driver` can be attached to a template or can be scoped with `{ ... }`
+ * `$use` can be attached to a template or can be scoped with `{ ... }`
 
 Targeted use cases
 ------------------
@@ -150,7 +150,7 @@ int main()
 
 // template with attached driver
 // new keyword astnode, allowed only with $driver
-template<astnode Node> $driver<AssertDriver driver>
+template<astnode Node> $use<AssertDriver driver>
 void assert(Node)
 {
   if (!$driver.decl.get_result()) { // evaluated runtime inplace, but the result will be here
@@ -199,7 +199,7 @@ enum class EVote
 };
 
 // template with attached driver
-template<typename T> $driver(EnumDriver driver)
+template<typename T> $use(EnumDriver driver)
 void Json::readFrom($driver.enumName& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<$driver.enumName>(data)
@@ -282,7 +282,7 @@ struct ConfigurationDriver
 };
 
 // function with a driver
-$driver(ConfigurationDriver driver)
+$use(ConfigurationDriver driver)
 {
 
 // function with a driver
@@ -315,7 +315,7 @@ void foo()
   }
 }
 
-} // $driver
+} // $use
 ```
 
 ### Concept checking
@@ -323,7 +323,7 @@ void foo()
 If we use the $driver without an instance name it means that the driver is doing only checks
 
 ```C++
-template<typename T> $driver(ConceptDriver)
+template<typename T> $use(ConceptDriver)
 class Foo
 {
 }
@@ -344,7 +344,7 @@ Example
 // TODO: more example
 
 ```C++
-$driver(NamespaceDriver driver)
+$use(NamespaceDriver driver)
 {
   namespace $driver.name
   {
