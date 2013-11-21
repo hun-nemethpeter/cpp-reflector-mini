@@ -200,9 +200,9 @@ enum class EVote
 
 // template with attached driver
 template<typename T> $use(EnumDriver driver)
-void Json::readFrom($driver.enumName& obj, const std::string& data)
+void Json::readFrom(T& obj, const std::string& data)
 {
-  obj = llvm::StringSwitch<$driver.enumName>(data)
+  obj = llvm::StringSwitch<T>(data)
     $for (auto enumValueName : $driver.enumValueNames) {
       .Case($enumValueName.asStr(), $enumValueName) }
   ;
@@ -216,17 +216,11 @@ class EnumDriver
     constexpr EnumDriver(const EnumDecl& enumDecl)
       : enumDecl(enumDecl)
     {
-      std::string enumName = enumDecl.getNameAsString();
       for (auto& enumerator : enumDecl.enumerators())
         enumValueNames.push_back(enumerator.getName());
     }
-    // used in $for (auto enumValueName : $driver.enumValueNames)
     // meta::vector is a constexpr vector
     meta::vector<meta::id_name> enumValueNames;
-    // used in $driver.enumName
-    // meta::id_name is a constexpr string that contains only valid C++ identifier
-    // it has an asStr() that gives back a stringified string, so between "" signes
-    meta::id_name enumName;
 };
 
 int main()
