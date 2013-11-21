@@ -277,7 +277,8 @@ struct ConfigurationDriver {
 };
 
 [[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
-void printBackTrace() {
+void printBackTrace()
+{
   $if (driver.configuration == Configuration::Debug)
   {
     realPrintBackTrace();
