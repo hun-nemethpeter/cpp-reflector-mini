@@ -57,7 +57,7 @@ class User
 bool $driver.class_name::operator==(const $driver.class_name& rhs) const
 {
     return true
-      $for (member:driver.members) {
+      $for (auto member : $driver.members) {
         && $member == rhs.$member
       }
     ;
@@ -97,7 +97,7 @@ struct S {
 // can be used later with $SoAGenerator syntax
 struct [[meta::define(SoAGenerator, "SoADriver driver")]]
 $driver.class_name {
-    $for (member:driver.members) {
+    $for (auto member : $driver.members) {
       std::vector<$member.type> $member.name;
     }
 };
@@ -208,8 +208,8 @@ void Json::readFrom($driver.enumName& obj, const std::string& data)
     // controlling directive meta::for, with the syntax of range base for
     // enumValueName will be a local variable of a CGD
     // directive scope here is the method call
-    $for(enumValueName:driver.enumValueNames) {
-    .Case($enumValueName.asStr(), $enumValueName) }
+    $for (auto enumValueName : $driver.enumValueNames) {
+      .Case($enumValueName.asStr(), $enumValueName) }
   ;
 }
 
@@ -225,7 +225,7 @@ class EnumDriver
       for (auto& enumerator : enumDecl.enumerators())
         enumValueNames.push_back(enumerator.getName());
     }
-    // used in $for(enumValueName:driver.enumValueNames)
+    // used in $for (auto enumValueName : $driver.enumValueNames)
     // meta::vector is a constexpr vector
     meta::vector<meta::id_name> enumValueNames;
     // used in $driver.enumName
