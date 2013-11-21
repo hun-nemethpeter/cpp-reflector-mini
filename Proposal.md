@@ -29,7 +29,7 @@ Some basic rules:
 
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
 
- * you can't create `meta::type_name` only compiler able to generate it.
+ * you can't create `meta::type_name` only compiler able to generate it. // TODO: what about class declaration?
 
  * `meta::define` define a named CGD. Can be used later with the `$name` syntax, where name is the defined name.
 
