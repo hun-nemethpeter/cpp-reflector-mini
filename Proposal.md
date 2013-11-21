@@ -1,5 +1,5 @@
-Programmable code generators
-============================
+Code generators
+===============
 (Draft rev 3)
 
 Why?
