@@ -265,15 +265,15 @@ void printBackTrace() {
 we can write
 
 ```C++
-enum class Configuration {
+enum class Configuration
+{
   Debug,
   Release
 };
-struct ConfigurationDriver {
-  const configuration;
-  constexpr ConfigurationDriver()
-    : configuration (Configuration::Debug) {
-  }
+struct ConfigurationDriver
+{
+  const Configuration configuration;
+  constexpr ConfigurationDriver() : configuration (Configuration::Debug) { }
 };
 
 [[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
@@ -297,7 +297,7 @@ void foo()
     $case Platform::Win32 // fallthrough
     $case Platform::Win64
     {
-      WinApi();
+      WinApiXyz();
     }
     $case Platform::Linux
     {
