@@ -194,7 +194,8 @@ enum class EVote
 };
 
 // driver template
-template<typename T> [[meta::driver("EnumDriver driver(meta::class<T>))"]]
+[[meta::driver("EnumDriver driver(meta::class<T>))"]]
+template<typename T>
 // EnumDriver is a constexpr class, that gets a compiler generated AST node
 // in constructor parameter, through meta::class<T> in a type safe manner.
 // (ex. enum declaration generates const EnumDecl*,
