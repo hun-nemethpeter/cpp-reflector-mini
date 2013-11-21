@@ -31,9 +31,9 @@ Some basic rules:
 
  * you can't create `meta::type_name` only compiler able to generate it. // TODO: what about class declaration?
 
- * `meta::define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
+ * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
 
- * `meta::driver` attach a driver to a template will be called during template instantiation.
+ * `$driver` can be attached to a template or can be scoped with `{ ... }`
 
 Targeted use cases
 ------------------
@@ -148,8 +148,8 @@ int main()
   return 0;
 }
 
-// template with driver
-// new keyword astnode, allowed only in a meta::driver
+// template with attached driver
+// new keyword astnode, allowed only with $driver
 template<astnode Node> $driver<AssertDriver driver>
 void assert(Node)
 {
@@ -198,7 +198,7 @@ enum class EVote
   No
 };
 
-// template with driver
+// template with attached driver
 template<typename T> $driver(EnumDriver driver)
 void Json::readFrom($driver.enumName& obj, const std::string& data)
 {
@@ -282,7 +282,11 @@ struct ConfigurationDriver
 };
 
 // function with a driver
-void printBackTrace() $driver(ConfigurationDriver driver)
+$driver(ConfigurationDriver driver)
+{
+
+// function with a driver
+void printBackTrace()
 {
   $if (driver.configuration == Configuration::Debug)
   {
@@ -295,7 +299,7 @@ void printBackTrace() $driver(ConfigurationDriver driver)
 }
 
 // function with a driver
-void foo() $driver(ConfigurationDriver driver)
+void foo()
 {
   $switch (driver.platform)
   {
@@ -310,14 +314,16 @@ void foo() $driver(ConfigurationDriver driver)
     }
   }
 }
+
+} // $driver
 ```
 
 ### Concept checking
 
-If we use the meta::driver without an instance name it means that the driver is doing only checks
+If we use the $driver without an instance name it means that the driver is doing only checks
 
 ```C++
-template<typename T> [[meta::driver("ConceptDriver(T)"]]
+template<typename T> $driver(ConceptDriver)
 class Foo
 {
 }
@@ -333,24 +339,22 @@ struct ConceptDriver {
 Drivers
 =======
 
-Driver attached to:
+Example
+
+// TODO: more example
 
 ```C++
-// will need a NamespaceDriver(const namespaceDecl* ) declaration
-namespace [[meta::driver("NamespaceDriver  driver")]] foo {}
-
-
-// will need a ClassDriver(const classDecl*)
-class [[meta::driver("ClassDriver driver")]] foo
+$driver(NamespaceDriver driver)
 {
-  void method(bool param);
-  int member;
-};
-
-// will need a MethodDriver(const methodDecl*)
-[[meta::driver("MethodDriver driver")]]
-class foo::method(bool param)
-{
+  namespace $driver.name
+  {
+    $for (auto className : $driver.classNames)
+    {
+      class $className
+      {
+      };
+    }
+  }
 }
 ```
 
