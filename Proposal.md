@@ -270,10 +270,20 @@ enum class Configuration
   Debug,
   Release
 };
+enum class Platform
+{
+  Win32,
+  Win64,
+  Linux
+};
 struct ConfigurationDriver
 {
   const Configuration configuration;
-  constexpr ConfigurationDriver() : configuration (Configuration::Debug) { }
+  const Platform platform;
+  constexpr ConfigurationDriver()
+    : configuration (Configuration::Debug)
+    , platform(Platform::Linux)
+  { }
 };
 
 [[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
@@ -289,7 +299,7 @@ void printBackTrace()
   }
 }
 
-[[meta::driver("PlatformDriver driver()"]] // not: default constructor is used
+[[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
 void foo()
 {
   $switch (driver.platform)
