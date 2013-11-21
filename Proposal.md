@@ -329,7 +329,7 @@ class Foo
 }
 
 struct ConceptDriver {
-  constexpr ConfigurationDriver(const ClassDecl* classDecl) // first check, T must be an class
+  constexpr ConceptDriver(const ClassDecl* classDecl) // first check, T must be an class
     // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
     static_assert(classDecl->hasMoveConstructor(), "Move constructor is missing")
   }
