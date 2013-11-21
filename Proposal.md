@@ -1,6 +1,6 @@
-Code generators and drivers (CGD)
-=================================
-(Draft rev 2)
+Programmable code generators
+============================
+(Draft rev 3)
 
 Why?
 ----
@@ -22,7 +22,7 @@ Directives are: `meta::define`, `meta::driver`, `$for`, `$if`, `$switch`, `$whil
 In directives and in template driver variables you can use the constexpr object's methods and members.
 Template driver parameters start with the dollar `$` sign.
 
-Generating code parts is safe, because you can't create new type only just using an existing one it in CGD.
+Generating code parts is safe, because you can't create new type only just using an existing one it in a generator.
 
 Some basic rules:
  * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch`, `$while` directives
@@ -31,7 +31,7 @@ Some basic rules:
 
  * you can't create `meta::type_name` only compiler able to generate it. // TODO: what about class declaration?
 
- * `meta::define` define a named CGD. Can be used later with the `$name` syntax, where name is the defined name.
+ * `meta::define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
 
  * `meta::driver` attach a driver to a template will be called during template instantiation.
 
@@ -207,7 +207,7 @@ void Json::readFrom($driver.enumName& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<$driver.enumName>(data)
     // controlling directive meta::for, with the syntax of range base for
-    // enumValueName will be a local variable of a CGD
+    // enumValueName will be a local variable of a generator
     // directive scope here is the method call
     $for (auto enumValueName : $driver.enumValueNames) {
       .Case($enumValueName.asStr(), $enumValueName) }
