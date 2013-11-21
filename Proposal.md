@@ -211,14 +211,13 @@ void Json::readFrom(T& obj, const std::string& data)
 // driver
 class EnumDriver
 {
-  const EnumDecl& enumDecl;
   public:
     constexpr EnumDriver(const EnumDecl& enumDecl)
-      : enumDecl(enumDecl)
     {
       for (auto& enumerator : enumDecl.enumerators())
         enumValueNames.push_back(enumerator.getName());
     }
+
     // meta::vector is a constexpr vector
     meta::vector<meta::id_name> enumValueNames;
 };
