@@ -278,29 +278,27 @@ struct ConfigurationDriver {
 
 [[meta::driver("ConfigurationDriver driver()"]] // not: default constructor is used
 void printBackTrace() {
-$if(driver.configuration == Configuration::Debug)
-{
-  // do something
-}
-$else
-{
-  // do nothing
-}
+  $if (driver.configuration == Configuration::Debug)
+  {
+    realPrintBackTrace();
+  }
+  $else
+  {
+    // do nothing
+  }
 }
 
-$switch(driver.platform)
+[[meta::driver("PlatformDriver driver()"]] // not: default constructor is used
+void foo()
 {
-  $case Platform::Win32 // fallthrough
-  $case Platform::Win64
+  $switch (driver.platform)
   {
-    void foo()
+    $case Platform::Win32 // fallthrough
+    $case Platform::Win64
     {
       WinApi();
     }
-  }
-  $case Platform::Linux
-  {
-    void foo()
+    $case Platform::Linux
     {
       GlibcCallXyz();
     }
