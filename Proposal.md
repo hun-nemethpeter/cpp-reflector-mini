@@ -31,7 +31,7 @@ $define OperatorEqGenerator(EqualityDriver driver)
   bool $driver.class_name::operator==(const $driver.class_name& rhs) const
   {
     return true
-      $for (auto member : $driver.members) {
+      $for (auto member : driver.members) {
         && $member == rhs.$member
       }
     ;
