@@ -124,7 +124,7 @@ $define SoAGenerator(SoADriver driver)
 {
   $driver.class_name
   {
-    $for (auto member : $driver.members) {
+    $for (auto member : driver.members) {
       std::vector<$member.type> $member.name;
     }
   };
@@ -226,7 +226,7 @@ template<typename T> $use(EnumDriver driver)
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
-    $for (auto enumValueName : $driver.enumValueNames) {
+    $for (auto enumValueName : driver.enumValueNames) {
       .Case($enumValueName.asStr(), $enumValueName) }
   ;
 }
@@ -364,7 +364,7 @@ $use(NamespaceDriver driver)
 {
   namespace $driver.name
   {
-    $for (auto className : $driver.classNames)
+    $for (auto className : driver.classNames)
     {
       class $className
       {
