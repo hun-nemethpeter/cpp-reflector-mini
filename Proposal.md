@@ -83,22 +83,18 @@ Where the magic happens?
 ------------------------
 
 1. From `User` to `ClassDecl`
-
   * Compiler sees that `$OperatorEqGenerator` is a defined generator with a driver where driver expect one parameter
   * Compiler generates an AST node struct for `User` with base type `decl`. Compiler can use its internal AST with a standandardized wrapper.
   * Compiler tries to cast `decl` to `ClassDecl`. If it failed compiler tells that driver expects `ClassDecl`.
 2. Inject generated tokens
-
   * `meta::id_name` can be constructed from string
   * with the dollar `$` syntax it can be pasted (ex. $member) as a normal id in a generator template
   * `meta::id_name` can be pasted as a string literal
 3. Parameter passing in templates
-
   * for one parameter `template<typename T> $use(Driver driver)` Driver got the AST nodized T
   * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expect the same number of parameters as template has.
   * manual parameter passing `template<class T, class U> $use(Driver driver(U))` here only `U` is used.
 4. New keyword `astnode` in template parameter
-
   * `template<astnode Node> $use<AssertDriver driver>` where astnode can be an expression but Driver got an AST node
   * `astnode` template parameter must be used with a driver
 
