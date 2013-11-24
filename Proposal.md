@@ -10,35 +10,8 @@ generating code parts. Programmable code generators lets you create very complic
 (class, enums, templates, statements, etc.) with familiar syntax.
 The result is extraordinarily expressive, readable, and quick to develop.
 
-How?
-----
-
-The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
-Drivers are constexpr objects. Manipulating code parts are directed with directives.
-
-Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`, `$while`
-
-`$define` and `$driver` directives wait a driver which is constexpr object.
-In directives and in template driver variables you can use the constexpr object's methods and members.
-Template driver parameters start with the dollar `$` sign.
-
-Generating code parts is safe, because you can't create new type only just using an existing one it in a generator.
-
-Some basic rules:
- * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch`, `$while` directives
-
- * you can create `meta::id_name` (in member, variable or parameter declaration context)
-
- * you can't create `meta::type_name` only compiler able to generate it. // TODO: what about class declaration?
-
- * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
-
- * `$use` can be attached to a template or can be scoped with `{ ... }`
-
-Targeted use cases
+Motivating example
 ------------------
-
-### Generating equality operators
 
 ```C++
 // origin
@@ -84,6 +57,63 @@ class EqualityDriver
 // usage
 $OperatorEqGenerator(User); // define an operator== for User
 ```
+
+How?
+----
+
+The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
+Drivers are constexpr objects. Manipulating code parts are directed with directives.
+
+Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`, `$while`
+
+`$define` and `$driver` directives wait a driver which is constexpr object.
+In directives and in template driver variables you can use the constexpr object's methods and members.
+Template driver parameters start with the dollar `$` sign.
+
+Generating code parts is safe, because you can create only a typed id.
+
+Some basic rules:
+ * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch`, `$while` directives
+ * you can create `meta::id_name` (in member, variable or parameter declaration context)
+ * you can't create `meta::type_name` only compiler able to generate it. // TODO: what about class declaration?
+ * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
+ * `$use` can be attached to a template or can be scoped with `{ ... }`
+
+Where the magic happens?
+------------------------
+
+ 1. From `User` to `ClassDecl`
+
+    * Compiler sees that `$OperatorEqGenerator` is a defined generator with a driver where driver expect one parameter
+    * Compiler generates an AST node struct for `User` with base type `decl`. Compiler can use its internal AST with a standandardized wrapper.
+    * Compiler tries to cast `decl` to `ClassDecl`. If it failed compiler tells that driver expects `ClassDecl`.
+
+ 2. Inject generated tokens
+
+    * `meta::id_name` can be constructed from string
+    * with the dollar `$` syntax it can be pasted (ex. $member) as a normal id in a generator template
+    * `meta::id_name` can be pasted as a string literal
+
+ 3. Parameter passing in templates
+
+    * for one parameter `template<typename T> $use(Driver driver)` Driver got the AST nodized T
+    * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expect the same number of parameters as template has.
+    * manual parameter passing `template<class T, class U> $use(Driver driver(U))` here only `U` is used.
+
+ 4. New keyword `astnode` in template parameter
+
+    * `template<astnode Node> $use<AssertDriver driver>` where astnode can be an expression but Driver got an AST node
+    * `astnode` template parameter must be used with a driver
+
+Standardized AST nodes
+----------------------
+
+TODO: modelled after clang http://clang.llvm.org/doxygen/classclang_1_1Decl.html
+
+Clang Decl API use `camelCase` C++ STL use `underscores_type`. Only a minimal subset of ClangAPI is needed.
+
+Other use cases
+------------------
 
 ### Struct-of-Arrays vector
 
