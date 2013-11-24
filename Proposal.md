@@ -82,9 +82,10 @@ Some basic rules:
 Where the magic happens?
 ------------------------
 
-1. From `User` to `ClassDecl`
+1. Getting compiler generated AST node
+  * AST node is a wrapped version of the internal one where the interface is standardized
   * Compiler sees that `$OperatorEqGenerator` is a defined generator with a driver where driver expect one parameter
-  * Compiler generates an AST node struct for `User` with base type `decl`. Compiler can use its internal AST with a standandardized wrapper.
+  * Compiler generates an AST node struct for `User` with base type `decl`.
   * Compiler tries to cast `decl` to `ClassDecl`. If it failed compiler tells that driver expects `ClassDecl`.
 2. Inject generated tokens
   * `meta::id_name` can be constructed from string
