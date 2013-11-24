@@ -313,7 +313,7 @@ void foo()
 
 ### Concept checking
 
-If we use the $driver without an instance name it means that the driver is doing only checks
+If we use the $use without an instance name it means that the driver is doing only checks
 
 ```C++
 template<typename T> $use(ConceptDriver)
