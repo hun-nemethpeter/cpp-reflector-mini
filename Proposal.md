@@ -355,28 +355,6 @@ struct ConceptDriver {
 };
 ```
 
-Drivers
-=======
-
-Example
-
-// TODO: more example
-
-```C++
-$use(NamespaceDriver driver)
-{
-  namespace $driver.name
-  {
-    $for (auto className : driver.classNames)
-    {
-      class $className
-      {
-      };
-    }
-  }
-}
-```
-
 Links
 -----
 
