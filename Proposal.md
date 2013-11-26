@@ -300,7 +300,7 @@ struct ConfigurationDriver
   { }
 };
 
-// function with a driver
+// start using ConfigurationDriver
 $use(ConfigurationDriver driver)
 {
 
