@@ -1,7 +1,7 @@
 Code generators
 ===============
 (Draft rev 3)
-You can comment this on this mailing list (isocpp.org/forums -> SG7 – Reflection)
+You can comment it on (isocpp.org/forums -> SG7 – Reflection)
 https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
 
 Why?
