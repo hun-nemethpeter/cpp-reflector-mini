@@ -68,7 +68,7 @@ Drivers are constexpr objects. Manipulating code parts are directed with directi
 
 Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`, `$while`
 
-`$define` and `$driver` directives wait a driver which is constexpr object.
+`$define` and `$use` directives wait a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
 Template driver parameters start with the dollar `$` sign.
 
