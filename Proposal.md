@@ -370,10 +370,10 @@ Which is better
  * `OperatorEqGenerator(User);  // macro syntax`
  
 Which is better, so how hard for the compiler?
+ `$driver.class_name` is one token
  * `bool $driver.class_name::operator==`
  * `bool $driver.class_name$::operator==`
  * `bool $(driver.class_name)::operator==`
- `$driver.class_name` is one token
 
 "you can't create meta::type_name only compiler able to generate it. // TODO: what about class declaration?"
 So why not? What about creating:
