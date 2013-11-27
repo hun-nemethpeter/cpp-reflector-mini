@@ -98,7 +98,7 @@ Where the magic happens?
   * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expect the same number of parameters as template has.
   * manual parameter passing `template<class T, class U> $use(Driver driver(U))` here only `U` is used.
 4. New keyword `astnode` in template parameter
-  * `template<astnode Node> $use<AssertDriver driver>` where astnode can be an expression but Driver got an AST node
+  * `template<astnode Node> $use(AssertDriver driver)` where astnode can be an expression but Driver got an AST node
   * `astnode` template parameter must be used with a driver
 
 Standardized AST nodes
@@ -139,7 +139,7 @@ class SoADriver
 public:
   struct Member
   {
-    meta::id_name name; // you are create id_name
+    meta::id_name name; // you can create id_name
     meta::type_name type; // you can't create type_name only compiler able to generate it.
                           // you can get one from a compiler generated Decl class
                           // it has copy ctor
@@ -176,7 +176,7 @@ int main()
 
 // template with attached driver
 // new keyword astnode, allowed only with $driver
-template<astnode Node> $use<AssertDriver driver>
+template<astnode Node> $use(AssertDriver driver)
 void assert(Node)
 {
   if (!$driver.decl.get_result()) { // evaluated runtime inplace, but the result will be here
@@ -354,6 +354,21 @@ struct ConceptDriver {
   }
 };
 ```
+
+TODO
+----
+
+I selected the first one.
+
+Which is better
+ * $use(AssertDriver driver)
+ * $use<AssertDriver driver>
+
+Which is better
+ * $OperatorEqGenerator(User); // new syntax
+ * OperatorEqGenerator<User>;  // template syntax
+ * OperatorEqGenerator(User);  // macro syntax
+
 
 Links
 -----
