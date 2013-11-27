@@ -77,7 +77,7 @@ Generating code parts is safe, because you can create only a typed id.
 Some basic rules:
  * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch`, `$while` directives
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
- * you can't create `meta::type_name` only compiler able to generate it. // TODO: what about class declaration?
+ * you can't create `meta::type_name` only compiler able to generate it.
  * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
  * `$use` can be attached to a template or can be scoped with `{ ... }`
 
@@ -368,7 +368,21 @@ Which is better
  * `$OperatorEqGenerator(User); // new syntax`
  * `OperatorEqGenerator<User>;  // template syntax`
  * `OperatorEqGenerator(User);  // macro syntax`
+ 
+Which is better, so how hard for the compiler?
+ * `bool $driver.class_name::operator==`
+ * `bool $driver.class_name$::operator==`
+ * `bool $(driver.class_name)::operator==`
+ `$driver.class_name` is one token
 
+"you can't create meta::type_name only compiler able to generate it. // TODO: what about class declaration?"
+So why not? What about creating:
+ * `meta::class_name`
+ * `meta::template_name`
+ * `meta::namespace_name`
+ * `meta::function_name`
+ * `meta::value_name`
+ * `meta::operator_name`
 
 Links
 -----
