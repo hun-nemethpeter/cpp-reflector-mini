@@ -361,13 +361,13 @@ TODO
 I selected the first one.
 
 Which is better
- * $use(AssertDriver driver)
- * $use<AssertDriver driver>
+ * `$use(AssertDriver driver)`
+ * `$use<AssertDriver driver>`
 
 Which is better
- * $OperatorEqGenerator(User); // new syntax
- * OperatorEqGenerator<User>;  // template syntax
- * OperatorEqGenerator(User);  // macro syntax
+ * `$OperatorEqGenerator(User); // new syntax`
+ * `OperatorEqGenerator<User>;  // template syntax`
+ * `OperatorEqGenerator(User);  // macro syntax`
 
 
 Links
