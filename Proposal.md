@@ -1,6 +1,7 @@
 Code generators
 ===============
-(Draft rev 3)
+(Draft rev 4)
+
 You can comment it on (isocpp.org/forums -> SG7 – Reflection)
 https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
 
