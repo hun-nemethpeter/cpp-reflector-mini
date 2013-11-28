@@ -362,6 +362,7 @@ If we can solve with C++ modules to use JIT compiler on constexpr drivers it doe
 Grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar.
 We should sign, that a struct is a grammar struct, with inheriting meta::grammar.
 Grammar struct should not contain any method (including ctor, dtor, ..)
+
 '''
 struct JsonParamGrammarItem : meta::grammar
 {
