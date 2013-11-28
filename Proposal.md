@@ -363,7 +363,7 @@ Grammar of astnode is defined in the driver's constructor parameters, it can be 
 We should sign, that a struct is a grammar struct, with inheriting meta::grammar.
 Grammar struct should not contain any method (including ctor, dtor, ..)
 
-'''
+```C++
 struct JsonParamGrammarItem : meta::grammar
 {
   meta::id_name key;
@@ -414,7 +414,7 @@ class SomeWidget
 };
 
 SomeWidget widget(window = "Hello world", label = "Foo");
-'''
+```C++
 
 TODO
 ----
