@@ -204,7 +204,6 @@ int main()
   int b = 2;
   assert(a == b);
 }
-
 ```
 
 ### Enumerating enums
@@ -354,6 +353,67 @@ struct ConceptDriver {
   }
 };
 ```
+
+Domain-specific language support
+--------------------------------
+
+With the help of this we can achive native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
+If we can solve with C++ modules to use JIT compiler on constexpr drivers it does not slow down the compilation too much.
+Grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar.
+We should sign, that a struct is a grammar struct, with inheriting meta::grammar.
+Grammar struct should not contain any method (including ctor, dtor, ..)
+'''
+struct JsonParamGrammarItem : meta::grammar
+{
+  meta::id_name key;
+  meta::op_name equal_sign = '=';
+  meta::or<meta::id_name, meta::number, meta::string_literal> value;
+};
+
+struct JsonParamGrammarTail : meta::grammar
+{
+  meta::id_name comma = ',';
+  JsonParamGrammarItem item;
+};
+
+struct JsonParamGrammar : meta::grammar
+{
+  JsonParamGrammarItem paramFirst;
+  meta::vector<JsonParamGrammarTail> paramMore;
+};
+
+class JsonParamDriver
+{
+   JsonParamDriver(JsonParamGrammar grammar);
+};
+
+/*
+grammar rules
+or - meta::or
+and - member in struct
+optional - meta::optional
+any - meta::vector
+
+so JsonParamGrammarItem is
+meta::id_name & '=' & (meta::id_name | meta::number | meta::string_literal)
+*/
+
+// usage
+class SomeWidget
+{
+  template<astnode Node>
+  SomeWidget(Node) $use(JsonParamDriver driver)
+  {
+    ...
+    // We should process with an other driver that associate member names with param names.
+  }
+
+  SomeWindow window;
+  SomeLabel label;
+};
+
+SomeWidget widget(window = "Hello world", label = "Foo");
+'''
 
 TODO
 ----
