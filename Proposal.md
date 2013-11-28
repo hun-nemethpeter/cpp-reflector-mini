@@ -414,7 +414,7 @@ class SomeWidget
 };
 
 SomeWidget widget(window = "Hello world", label = "Foo");
-```C++
+```
 
 TODO
 ----
