@@ -159,7 +159,7 @@ $SoAGenerator(S, "SoA_vector_of_S");
 
 ### Replacing assert
 
-My best solution is introduce a new keyword called "astnode"
+My best solution is introduce a new keyword called `astnode`
 
 ```C++
 // origin
@@ -256,9 +256,19 @@ int main()
 
 ### Replacing normal macro
 
-We can replace the old macro system with this new one. For this reason $if and $swicth is introduced.
+We can replace the old macro system with this new one. For this reason `$if` and `$swicth` is introduced.
 For normal code flow this conditional compilation as harmful (or helpful) as the normal macro style one.
-This is just a new syntax. Some intended usage:
+This is just a new syntax.
+
+Pro:
+ - namespace friendly
+ - object oriented design
+
+Con:
+ - can not used for header guard (because it is namespace friendly)
+ - `{` and `}` does not introduce scope but it looks like from the syntax
+
+Some intended usage:
 
 Instead of
 ```C++
