@@ -176,7 +176,7 @@ int main()
 }
 
 // template with attached driver
-// new keyword astnode, allowed only with $driver
+// new keyword astnode, allowed only with $use
 template<astnode Node> $use(AssertDriver driver)
 void assert(Node)
 {
@@ -210,8 +210,8 @@ int main()
 ### Enumerating enums
 
 This code snippet converts a string to an enum. The converter implementation is a function template.
-The function template parameter is "captured" before template instatization, and processed with EnumDriver.
-EnumDriver's constructor is waiting an const EnumDecl* that is coming from meta::class<T>.
+The function template parameter is "captured" before template instatization, and processed with `EnumDriver`.
+`EnumDriver`'s constructor is waiting an `const EnumDecl&` that is the AST node of `T`.
 
 ```C++
 // origin
