@@ -126,7 +126,7 @@ struct S {
 // can be used later with $SoAGenerator syntax
 $define SoAGenerator(SoADriver driver)
 {
-  $driver.class_name
+  class $driver.new_class_name
   {
     $for (auto member : driver.members) {
       std::vector<$member.type> $member.name;
@@ -140,24 +140,21 @@ class SoADriver
 public:
   struct Member
   {
-    meta::id_name name; // you can create id_name
-    meta::type_name type; // you can't create type_name only compiler able to generate it.
-                          // you can get one from a compiler generated Decl class
-                          // it has copy ctor
+    meta::id_name name;
+    meta::type_name type;
   };
-  constexpr SoADriver(const ClassDecl& fromClassDecl, const ClassDecl& toClassDecl)
+  constexpr SoADriver(const ClassDecl& fromClassDecl, const char* new_class_name)
+    : new_class_name(new_class_name)
   {
-    class_name = toClassDecl.getTypeName();
     for (auto& field : fromClassDecl.fields())
       members.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
-  meta::type_name class_name;
+  meta::type_name new_class_name;
   meta::vector<Member> members;
 };
 
 // usage
-struct SoA_vector_of_S; // forward declaration
-$SoAGenerator(S, SoA_vector_of_S);
+$SoAGenerator(S, "SoA_vector_of_S");
 ```
 
 ### Replacing assert
