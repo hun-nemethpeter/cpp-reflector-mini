@@ -384,7 +384,7 @@ struct JsonParamGrammar : meta::grammar
   meta::symbol open_brace = '{';
   JsonParamGrammarItem paramFirst;
   meta::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
-  meta::symbol open_brace = '}';
+  meta::symbol close_brace = '}';
 };
 
 class JsonParamDriver
