@@ -365,11 +365,12 @@ We should sign, that a struct is a grammar struct, with inheriting meta::grammar
 Grammar struct should not contain any method (including ctor, dtor, ..)
 
 ```C++
+// full grammar is here: http://www.json.org/
 struct JsonParamGrammarItem : meta::grammar
 {
   meta::id_name key;
-  meta::op_name equal_sign = '=';
-  meta::or<meta::id_name, meta::number, meta::string_literal> value;
+  meta::op_name colon = ':';
+  meta::expr value;
 };
 
 struct JsonParamGrammarTail : meta::grammar
@@ -380,8 +381,10 @@ struct JsonParamGrammarTail : meta::grammar
 
 struct JsonParamGrammar : meta::grammar
 {
+  meta::symbol open_brace = '{';
   JsonParamGrammarItem paramFirst;
-  meta::vector<JsonParamGrammarTail> paramMore;
+  meta::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
+  meta::symbol open_brace = '}';
 };
 
 class JsonParamDriver
@@ -397,7 +400,7 @@ optional - meta::optional
 any - meta::vector
 
 so JsonParamGrammarItem is
-meta::id_name & '=' & (meta::id_name | meta::number | meta::string_literal)
+meta::id_name & ':' & meta::expr
 */
 
 // usage
@@ -414,7 +417,10 @@ class SomeWidget
   SomeLabel label;
 };
 
-SomeWidget widget(window = "Hello world", label = "Foo");
+SomeWidget widget({
+                     window: "Hello world",
+                     label:  "Foo"
+                  });
 ```
 
 TODO
