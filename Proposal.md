@@ -1,5 +1,5 @@
-Code generators
-===============
+Code checkers & generators
+==========================
 (Draft rev 4)
 
 You can comment it on (isocpp.org/forums -> SG7 – Reflection)
@@ -71,8 +71,6 @@ Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`, `$while`
 
 `$define` and `$use` directives wait a driver which is constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
-Template driver parameters start with the dollar `$` sign.
-
 Generating code parts is safe, because you can create only a typed id.
 
 Some basic rules:
@@ -93,7 +91,7 @@ Where the magic happens?
   * Compiler tries to cast `decl` to `ClassDecl`. If it failed compiler tells that driver expects `ClassDecl`.
 2. Inject generated tokens
   * `meta::id_name` can be constructed from string
-  * with the dollar `$` syntax it can be pasted (ex. $member) as a normal id in a generator template
+  * with the dollar `$` syntax it can be pasted (ex. `$member`) as a normal id in a generator template
   * `meta::id_name` can be pasted as a string literal
 3. Parameter passing in templates
   * for one parameter `template<typename T> $use(Driver driver)` Driver got the AST nodized T
@@ -263,12 +261,13 @@ For normal code flow this conditional compilation as harmful (or helpful) as the
 This is just a new syntax.
 
 Pro:
- - namespace friendly
- - object oriented design
+ * namespace friendly
+ * object oriented design
+ * simple: only `$if` & `$else` instead of `#ifdef`, `#ifndef`, `#elif`, `#endif`, `#if defined`
 
 Con:
- - can not used for header guard (only `$if` and there is no `#ifdef`, `#ifndef`, `#elif`, `#endif`, `#if defined`)
- - `{` and `}` does not introduce scope but it looks like from the syntax
+ * can not used for header guard
+ * `{` and `}` does not introduce scope but it looks like from the syntax
 
 Some intended usage:
 
@@ -361,8 +360,7 @@ struct ConceptDriver {
 };
 ```
 
-Domain-specific language support
---------------------------------
+### Domain-specific language support
 
 With the help of this we can achive native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
 If we can solve with C++ modules to use JIT compiler on constexpr drivers it does not slow down the compilation too much.
@@ -457,6 +455,12 @@ So why not? What about creating:
  * `meta::function_name`
  * `meta::value_name`
  * `meta::operator_name`
+
+How can I name this paper?
+ * Code checkers & generators
+ * Compile time reflection
+ * Template drivers
+ * AngularC++
 
 Links
 -----
