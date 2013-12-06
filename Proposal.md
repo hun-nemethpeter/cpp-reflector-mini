@@ -177,7 +177,10 @@ int main()
 template<astnode Node> $use(AssertDriver driver)
 void assert(Node)
 {
-  if (!$driver.decl.get_result()) { // evaluated runtime inplace, but the result will be here
+  // this will run between two sequence points
+  // after Node is evaluated
+  // `get_result()` is a const ref to the result
+  if (!$driver.decl.get_result()) {
     std::cout << "failed assert: " << $driver.decl.to_string() << std::endl;
     std::cout << $driver.decl.source.get_start_pos() << std::endl;
   }
@@ -347,15 +350,30 @@ void foo()
 If we use the `$use` without an instance name it means that the driver is doing only checks
 
 ```C++
-template<typename T> $use(ConceptDriver)
+template<typename T> $use(ConceptChecker)
 class Foo
 {
 }
 
-struct ConceptDriver {
-  constexpr ConceptDriver(const ClassDecl& classDecl) // first check, T must be an class
+struct ConceptChecker {
+  constexpr ConceptChecker(const ClassDecl& classDecl) // first check, T must be an class
     // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
-    static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing")
+    static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
+  }
+};
+
+// for compile time call site check
+void printDate(const char* formatStr) $use(FormatChecker)
+{
+}
+
+struct FormatChecker {
+  // http://clang.llvm.org/doxygen/classclang_1_1Expr.html
+  constexpr FormatChecker(const meta::expr& expr)
+    if (expr.isa<meta::string_literal>()) 
+    {
+       // do format check for format string
+    }
   }
 };
 ```
