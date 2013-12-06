@@ -80,6 +80,7 @@ Some basic rules:
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
  * you can't create `meta::type_name` only compiler able to generate it.
  * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
+ * `$define` is namespace friendly (macro #define is not)
  * `$use` can be attached to a template or can be scoped with `{ ... }`
 
 Where the magic happens?
@@ -101,6 +102,7 @@ Where the magic happens?
 4. New keyword `astnode` in template parameter
   * `template<astnode Node> $use(AssertDriver driver)` where astnode can be an expression but Driver got an AST node
   * `astnode` template parameter must be used with a driver
+  * grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar
 
 Standardized AST nodes
 ----------------------
@@ -265,7 +267,7 @@ Pro:
  - object oriented design
 
 Con:
- - can not used for header guard (because it is namespace friendly)
+ - can not used for header guard (only `$if` and there is no `#ifdef`, `#ifndef`, `#elif`, `#endif`, `#if defined`)
  - `{` and `}` does not introduce scope but it looks like from the syntax
 
 Some intended usage:
@@ -299,12 +301,9 @@ enum class Platform
 };
 struct ConfigurationDriver
 {
-  const Configuration configuration;
-  const Platform platform;
-  constexpr ConfigurationDriver()
-    : configuration (Configuration::Debug)
-    , platform(Platform::Linux)
-  { }
+  constexpr Configuration configuration = Configuration::Debug;
+  constexpr Platform platform = Platform::Linux;
+  constexpr ConfigurationDriver() {}
 };
 
 // start using ConfigurationDriver
@@ -346,7 +345,7 @@ void foo()
 
 ### Concept checking
 
-If we use the $use without an instance name it means that the driver is doing only checks
+If we use the `$use` without an instance name it means that the driver is doing only checks
 
 ```C++
 template<typename T> $use(ConceptDriver)
