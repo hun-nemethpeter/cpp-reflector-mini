@@ -350,6 +350,7 @@ void foo()
 If we use the `$use` without an instance name it means that the driver is doing only checks
 
 ```C++
+// attached checker for a class template
 template<typename T> $use(ConceptChecker)
 class Foo
 {
@@ -357,12 +358,14 @@ class Foo
 
 struct ConceptChecker {
   constexpr ConceptChecker(const ClassDecl& classDecl) // first check, T must be an class
+  {
     // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
     static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
   }
 };
 
 // for compile time call site check
+// attached checker for a normal function
 void printDate(const char* formatStr) $use(FormatChecker)
 {
 }
@@ -370,6 +373,7 @@ void printDate(const char* formatStr) $use(FormatChecker)
 struct FormatChecker {
   // http://clang.llvm.org/doxygen/classclang_1_1Expr.html
   constexpr FormatChecker(const meta::expr& expr)
+  {
     if (expr.isa<meta::string_literal>()) 
     {
        // do format check for format string
