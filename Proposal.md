@@ -257,7 +257,7 @@ int main()
 }
 ```
 
-### Replacing normal macro
+### Deprecating C style macro
 
 We can replace the old macro system with this new one. For this reason `$if` and `$swicth` is introduced.
 For normal code flow this conditional compilation as harmful (or helpful) as the normal macro style one.
@@ -345,7 +345,14 @@ void foo()
 } // $use
 ```
 
-### Concept checking
+### Deprecating template metaprogramming
+
+Working with code generators and checkers is much easier, faster and safer than TMP.
+My proposal is issue a deprecate warning when template instantiation depth reach a low number ex. `16`.
+This limit may be removed with a  compiler switch ex. `-ftemplate-depth-20000`
+With native DSL support we can invent a new DSL language for functional style metaprogramming and for concept checking. 
+
+### Code checking (also concept check)
 
 If we use the `$use` without an instance name it means that the driver is doing only checks
 
