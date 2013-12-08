@@ -385,6 +385,22 @@ struct FormatChecker {
     }
   }
 };
+
+// for compile time call site check
+// attached checker after a normal function
+struct TutorialDriver {
+  constexpr TutorialDriver(const meta::compound_stmt& stmt)
+  {
+     // check for C function and show std::cout example
+  }
+};
+
+int main()
+{
+  printf("My first program!");
+  return 0;
+} $use (TutorialChecker, CodingStyleChecker)
+
 ```
 
 ### Domain-specific language support
