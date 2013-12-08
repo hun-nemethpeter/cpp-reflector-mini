@@ -27,20 +27,6 @@ class User
   bool operator==(const User& rhs) const; // declaring
 };
 
-// generator template
-// can be used later with $OperatorEqGenerator syntax
-$define OperatorEqGenerator(EqualityDriver driver)
-{
-  bool $driver.class_name::operator==(const $driver.class_name& rhs) const
-  {
-    return true
-      $for (auto member : driver.members) {
-        && $member == rhs.$member
-      }
-    ;
-  }
-}
-
 // driver
 class EqualityDriver
 {
@@ -56,6 +42,19 @@ class EqualityDriver
   meta::vector<meta::id_name> members;
   meta::type_name class_name;
 };
+
+// pattern
+$define OperatorEqGenerator(EqualityDriver driver)
+{
+  bool $driver.class_name::operator==(const $driver.class_name& rhs) const
+  {
+    return true
+      $for (auto member : driver.members) {
+        && $member == rhs.$member
+      }
+    ;
+  }
+}
 
 // usage
 $OperatorEqGenerator(User); // define an operator== for User
@@ -77,7 +76,7 @@ Some basic rules:
  * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch`, `$while` directives
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
  * you can't create `meta::type_name` only compiler able to generate it.
- * `$define` define a named generator. Can be used later with the `$name` syntax, where name is the defined name.
+ * `$define` define a pattern. Can be used later with the `$name` syntax, where name is the defined name.
  * `$define` is namespace friendly (macro #define is not)
  * `$use` can be attached to a template or can be scoped with `{ ... }`
 
@@ -122,18 +121,6 @@ struct S {
     int c;
 };
 
-// generator template
-// can be used later with $SoAGenerator syntax
-$define SoAGenerator(SoADriver driver)
-{
-  class $driver.new_class_name
-  {
-    $for (auto member : driver.members) {
-      std::vector<$member.type> $member.name;
-    }
-  };
-}
-
 // driver
 class SoADriver
 {
@@ -152,6 +139,17 @@ public:
   meta::type_name new_class_name;
   meta::vector<Member> members;
 };
+
+// pattern
+$define SoAGenerator(SoADriver driver)
+{
+  class $driver.new_class_name
+  {
+    $for (auto member : driver.members) {
+      std::vector<$member.type> $member.name;
+    }
+  };
+}
 
 // usage
 $SoAGenerator(S, "SoA_vector_of_S");
@@ -172,6 +170,18 @@ int main()
   return 0;
 }
 
+// driver
+class AssertDriver
+{
+public:
+  constexpr ArrayDriver(const ExpressionDecl& decl) // if astnode is not an expression we got compilation error
+     expessionDecl(decl)
+  {
+    // check decl is boolean expr
+  }
+  const expessionDecl& decl;
+};
+
 // template with attached driver
 // new keyword astnode, allowed only with $use
 template<astnode Node> $use(AssertDriver driver)
@@ -185,18 +195,6 @@ void assert(Node)
     std::cout << $driver.decl.source.get_start_pos() << std::endl;
   }
 }
-
-// driver
-class AssertDriver
-{
-public:
-  constexpr ArrayDriver(const ExpressionDecl& decl) // if astnode is not an expression we got compilation error
-     expessionDecl(decl)
-  {
-    // check decl is boolean expr
-  }
-  const expessionDecl& decl;
-};
 
 // usage
 int main()
@@ -224,16 +222,6 @@ enum class EVote
   No
 };
 
-// template with attached driver
-template<typename T> $use(EnumDriver driver)
-void Json::readFrom(T& obj, const std::string& data)
-{
-  obj = llvm::StringSwitch<T>(data)
-    $for (auto enumValueName : driver.enumValueNames) {
-      .Case($enumValueName.asStr(), $enumValueName) }
-  ;
-}
-
 // driver
 class EnumDriver
 {
@@ -247,6 +235,16 @@ class EnumDriver
     // meta::vector is a constexpr vector
     meta::vector<meta::id_name> enumValueNames;
 };
+
+// template with attached driver
+template<typename T> $use(EnumDriver driver)
+void Json::readFrom(T& obj, const std::string& data)
+{
+  obj = llvm::StringSwitch<T>(data)
+    $for (auto enumValueName : driver.enumValueNames) {
+      .Case($enumValueName.asStr(), $enumValueName) }
+  ;
+}
 
 int main()
 {
@@ -490,6 +488,13 @@ How can I name this paper?
  * Compile time reflection
  * Template drivers
  * AngularC++
+ 
+What is the name of the $define thing?
+ * pattern
+ * macro-ng
+ * new macro
+ * generator template
+ * named generator
 
 Links
 -----
