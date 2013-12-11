@@ -388,8 +388,8 @@ struct FormatChecker {
 
 // for compile time call site check
 // attached checker after a normal function
-struct TutorialDriver {
-  constexpr TutorialDriver(const meta::compound_stmt& stmt)
+struct TutorialChecker {
+  constexpr TutorialChecker(const meta::compound_stmt& stmt)
   {
      // check for C function and show std::cout example
   }
