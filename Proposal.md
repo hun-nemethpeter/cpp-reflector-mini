@@ -75,7 +75,7 @@ Generating code parts is safe, because you can create only a typed id.
 Some basic rules:
  * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch`, `$while` directives
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
- * you can't create `meta::type_name` only compiler able to generate it.
+ * you can create `meta::type_name` and can be used where new type is introduced (ex. after `class` keyword)
  * `$define` define a pattern. Can be used later with the `$name` syntax, where name is the defined name.
  * `$define` is namespace friendly (macro #define is not)
  * `$use` can be attached to a template or can be scoped with `{ ... }`
