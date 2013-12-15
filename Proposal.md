@@ -514,6 +514,11 @@ Restrict pattern to a subgrammar item
  * `$define MyFooAttribute() : meta::attribute_decl { [[ foo ]] }`
  * `$define MyFooAttribute $use(SomeGrammarStruct) { [[ foo ]] }`
  * `$define MyFooAttribute() $use(SomeGrammarStruct) { [[ foo ]] }`
+ 
+Syntax of a member in `$for`, because it is always `const auto&`
+ * `$for (auto member : driver.members)` no copy, it is $for(const auto& member : ...
+ * `$for (const auto& member : driver.members)` ok..., but simply long
+ * `$for (member : driver.members)` ok..., but maybe too short, where is the type?!
 
 Links
 -----
