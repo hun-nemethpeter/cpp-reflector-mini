@@ -348,33 +348,31 @@ void foo()
 Working with code generators and checkers is much easier, faster and safer than TMP.
 My proposal is issue a deprecate warning when template instantiation depth reach a low number ex. `16`.
 This limit may be removed with a  compiler switch ex. `-ftemplate-depth-20000`
-With native DSL support we can invent a new DSL language for functional style metaprogramming and for concept checking. 
+With native DSL support we can invent a new DSL language for functional style metaprogramming and for concepts checking. 
 
-### Code checking (also concept check)
+### Code checking (also concepts check)
 
 If we use the `$use` without an instance name it means that the driver is doing only checks
 
+#### For concepts check
 ```C++
 // attached checker for a class template
-template<typename T> $use(ConceptChecker)
+template<typename T> $use(ConceptsChecker)
 class Foo
 {
 }
 
-struct ConceptChecker {
-  constexpr ConceptChecker(const ClassDecl& classDecl) // first check, T must be an class
+struct ConceptsChecker {
+  constexpr ConceptsChecker(const ClassDecl& classDecl) // first check, T must be an class
   {
     // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
     static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
   }
 };
+```
 
-// for compile time call site check
-// attached checker for a normal function
-void printDate(const char* formatStr) $use(FormatChecker)
-{
-}
-
+#### For compile time call site parameter check
+```C++
 struct FormatChecker {
   // http://clang.llvm.org/doxygen/classclang_1_1Expr.html
   constexpr FormatChecker(const meta::expr& expr)
@@ -386,7 +384,14 @@ struct FormatChecker {
   }
 };
 
-// for compile time call site check
+// attached checker for a normal function
+void printDate(const char* formatStr) $use(FormatChecker)
+{
+}
+```
+
+#### For compile time general call site check, ideal for ex. tutorials and coding style checkers.
+```C++
 // attached checker after a normal function
 struct TutorialChecker {
   constexpr TutorialChecker(const meta::compound_stmt& stmt)
