@@ -77,6 +77,7 @@ Some basic rules:
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
  * you can create `meta::type_name` and can be used where new type is introduced (ex. after `class` keyword)
  * `$define` define a pattern. Can be used later with the `$name` syntax, where name is the defined name.
+ * if `$name` waits a grammar, than `(` and `)` can be optional
  * `$define` is namespace friendly (macro #define is not)
  * `$use` can be attached to a template or can be scoped with `{ ... }`
 
@@ -480,30 +481,11 @@ TODO
 
 I selected the first one.
 
-Which is better
- * `$use(AssertDriver driver)`
- * `$use<AssertDriver driver>`
-
-Which is better
- * `$OperatorEqGenerator(User); // new syntax`
- * `OperatorEqGenerator<User>;  // template syntax`
- * `OperatorEqGenerator(User);  // macro syntax`
- if `$OperatorEqGenerator` waits a grammar, than `(` and `)` can be optional
- 
 Which is better, so how hard for the compiler?
  `$driver.class_name` is one token
  * `bool $driver.class_name::operator==`
  * `bool $driver.class_name$::operator==`
  * `bool $(driver.class_name)::operator==`
-
-"you can't create meta::type_name only compiler able to generate it. // TODO: what about class declaration?"
-So why not? What about creating:
- * `meta::class_name`
- * `meta::template_name`
- * `meta::namespace_name`
- * `meta::function_name`
- * `meta::value_name`
- * `meta::operator_name`
 
 How can I name this paper?
  * Code checkers & generators
@@ -511,12 +493,25 @@ How can I name this paper?
  * Template drivers
  * AngularC++
  
-What is the name of the $define thing?
+What is the name of the `$define` thing?
  * pattern
  * macro-ng
  * new macro
  * generator template
  * named generator
+
+Standardize Clang Api names from http://clang.llvm.org/doxygen/classclang_1_1NamedDecl.html
+ * `meta::class_name` from http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
+ * `meta::template_name` from http://clang.llvm.org/doxygen/classclang_1_1TemplateDecl.html
+ * `meta::namespace_name` from http://clang.llvm.org/doxygen/classclang_1_1NamespaceDecl.html
+ * `meta::function_name` from http://clang.llvm.org/doxygen/classclang_1_1FunctionDecl.html
+ * `meta::value_name` from http://clang.llvm.org/doxygen/classclang_1_1DeclStmt.html
+ * `meta::operator_name` from http://clang.llvm.org/doxygen/OperatorKinds_8h_source.html
+ * ...
+
+Restrict pattern to a subgrammar item
+ * `$define MyFooAttribute() : meta::attribute_decl { [[ foo ]] }`
+ * `$define MyFooAttribute() $use(SomeGrammarStruct) { [[ foo ]] }`
 
 Links
 -----
