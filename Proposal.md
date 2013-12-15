@@ -483,6 +483,7 @@ Which is better
  * `$OperatorEqGenerator(User); // new syntax`
  * `OperatorEqGenerator<User>;  // template syntax`
  * `OperatorEqGenerator(User);  // macro syntax`
+ if `$OperatorEqGenerator` waits a grammar, than `(` and `)` can be optional
  
 Which is better, so how hard for the compiler?
  `$driver.class_name` is one token
