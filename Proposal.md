@@ -510,7 +510,9 @@ Standardize Clang Api names from http://clang.llvm.org/doxygen/classclang_1_1Nam
  * ...
 
 Restrict pattern to a subgrammar item
+ * `$define MyFooAttribute : meta::attribute_decl { [[ foo ]] }`
  * `$define MyFooAttribute() : meta::attribute_decl { [[ foo ]] }`
+ * `$define MyFooAttribute $use(SomeGrammarStruct) { [[ foo ]] }`
  * `$define MyFooAttribute() $use(SomeGrammarStruct) { [[ foo ]] }`
 
 Links
