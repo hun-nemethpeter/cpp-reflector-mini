@@ -442,7 +442,7 @@ struct JsonParamGrammar : meta::grammar
 
 class JsonParamDriver
 {
-   JsonParamDriver(JsonParamGrammar grammar);
+   constexpr JsonParamDriver(JsonParamGrammar grammar);
 };
 
 /*
