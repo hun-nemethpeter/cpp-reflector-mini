@@ -2,8 +2,8 @@ Code checkers & generators
 ==========================
 (Draft rev 4)
 
-You can comment it on (isocpp.org/forums -> SG7 – Reflection)
-https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
+
+Native Json & HTML, built-in tutorial, easy meta programming, reflection proposal to C++
 
 Why?
 ----
@@ -522,6 +522,8 @@ Syntax of a member in `$for`, because it is always `const auto&`
 
 Links
 -----
+You can comment it on (isocpp.org/forums -> SG7 – Reflection)
+https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
 
 The idea of this proposal comes from the AngularJS HTML template framework:
 http://angularjs.org/
