@@ -9,7 +9,7 @@ Why?
 ----
 
 C++ is a great programming language, but it falters when we try to use it for cloning and
-generating code parts. Programmable code generators lets you create very complicate clones of a given code part
+generating code parts. Programmable code generators let you create very complex clones of a given code part
 (class, enums, templates, statements, etc.) with familiar syntax.
 The result is extraordinarily expressive, readable, and quick to develop.
 
@@ -63,51 +63,51 @@ $OperatorEqGenerator(User); // define an operator== for User
 How?
 ----
 
-The idea come from the AngularJS templating system which is a proven to work an efficient solution for HTML templating.
+The idea comes from the AngularJS templating system which is a proven to work and efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
 
 Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`
 
-`$define` and `$use` directives wait a driver which is constexpr object.
+`$define` and `$use` directives expect a driver which is a constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
 Generating code parts is safe, because you can create only a typed id.
 
 Some basic rules:
  * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch` directives
  * you can create `meta::id_name` (in member, variable or parameter declaration context)
- * you can create `meta::type_name` and can be used where new type is introduced (ex. after `class` keyword)
- * `$define` define a pattern. Can be used later with the `$name` syntax, where name is the defined name.
- * if `$name` waits a grammar, than `(` and `)` can be optional
+ * you can create `meta::type_name` and this can be used where a new type is introduced (e.g. after `class` keyword)
+ * `$define` defines a pattern. Can be used later with the `$name` syntax, where name is the defined name.
+ * if `$name` expects a grammar, then `(` and `)` can be optional
  * `$define` is namespace friendly (macro #define is not)
  * `$use` can be attached to a template or can be scoped with `{ ... }`
 
-Where the magic happens?
-------------------------
+Where does the magic happen?
+----------------------------
 
 1. Getting compiler generated AST node
-  * AST node is a wrapped version of the internal one where the interface is standardized
-  * Compiler sees that `$OperatorEqGenerator` is a defined generator with a driver where driver expect one parameter
-  * Compiler generates an AST node struct for `User` with base type `decl`.
-  * Compiler tries to cast `decl` to `ClassDecl`. If it failed compiler tells that driver expects `ClassDecl`.
+  * An AST node is a wrapped version of the internal one, where the interface is standardized
+  * The compiler sees that `$OperatorEqGenerator` is a defined generator with a driver where the driver expects one parameter
+  * The compiler generates an AST node struct for `User` with base type `decl`.
+  * The compiler tries to cast `decl` to `ClassDecl`. If it fails, the compiler tells that the driver expects `ClassDecl`.
 2. Inject generated tokens
   * `meta::id_name` can be constructed from string
-  * with the dollar `$` syntax it can be pasted (ex. `$member`) as a normal id in a generator template
+  * with the dollar `$` syntax it can be pasted (e.g. `$member`) as a normal id in a generator template
   * `meta::id_name` can be pasted as a string literal
 3. Parameter passing in templates
   * for one parameter `template<typename T> $use(Driver driver)` Driver got the AST nodized T
-  * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expect the same number of parameters as template has.
+  * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expects the same number of parameters as template has.
   * manual parameter passing `template<class T, class U> $use(Driver driver(U))` here only `U` is used.
 4. New keyword `astnode` in template parameter
-  * `template<astnode Node> $use(AssertDriver driver)` where astnode can be an expression but Driver got an AST node
+  * `template<astnode Node> $use(AssertDriver driver)` where astnode can be an expression, but Driver gets an AST node
   * `astnode` template parameter must be used with a driver
-  * grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar
+  * the grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar
 
 Standardized AST nodes
 ----------------------
 
 TODO: modelled after clang http://clang.llvm.org/doxygen/classclang_1_1Decl.html
 
-Clang Decl API use `camelCase` C++ STL use `underscores_type`. Only a minimal subset of ClangAPI is needed.
+Clang Decl API uses `camelCase` C++ STL uses `underscores_type`. Only a minimal subset of ClangAPI is needed.
 
 Other use cases
 ------------------
@@ -158,7 +158,7 @@ $SoAGenerator(S, "SoA_vector_of_S");
 
 ### Replacing assert
 
-My best solution is introduce a new keyword called `astnode`
+My best solution is to introduce a new keyword called `astnode`
 
 ```C++
 // origin
@@ -259,7 +259,7 @@ int main()
 ### Deprecating C style macro
 
 We can replace the old macro system with this new one. For this reason `$if` and `$swicth` is introduced.
-For normal code flow this conditional compilation as harmful (or helpful) as the normal macro style one.
+For normal code flow, this conditional compilation would be as harmful (or helpful) as the normal macro style one.
 This is just a new syntax.
 
 Pro:
@@ -268,8 +268,8 @@ Pro:
  * simple: only `$if` & `$else` instead of `#ifdef`, `#ifndef`, `#elif`, `#endif`, `#if defined`
 
 Con:
- * can not used for header guard
- * `{` and `}` does not introduce scope but it looks like from the syntax
+ * cannot be used for header guard
+ * `{` and `}` does not introduce scope but it seems so from the syntax
 
 Some intended usage:
 
@@ -347,8 +347,8 @@ void foo()
 ### Deprecating template metaprogramming
 
 Working with code generators and checkers is much easier, faster and safer than TMP.
-My proposal is issue a deprecate warning when template instantiation depth reach a low number ex. `16`.
-This limit may be removed with a  compiler switch ex. `-ftemplate-depth-20000`
+My proposal is to issue a deprecate warning when template instantiation depth reaches a low number e.g. `16`.
+This limit may be removed with a  compiler switch e.g. `-ftemplate-depth-20000`
 With native DSL support we can invent a new DSL language for functional style metaprogramming and for concepts checking. 
 
 ### Code checking (also concepts check)
@@ -411,11 +411,11 @@ int main()
 
 ### Domain-specific language support
 
-With the help of this we can achive native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
+With the help of this we can achieve native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
 If we can solve with C++ modules to use JIT compiler on constexpr drivers it does not slow down the compilation too much.
-Grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar.
-We should sign, that a struct is a grammar struct, with inheriting meta::grammar.
-Grammar struct should not contain any method (including ctor, dtor, ..)
+The grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar.
+We should indicate, that a struct is a grammar struct, with inherited meta::grammar.
+The grammar struct should not contain any method (including ctor, dtor, ..)
 
 ```C++
 // full grammar is here: http://www.json.org/
