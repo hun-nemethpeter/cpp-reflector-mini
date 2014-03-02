@@ -66,7 +66,7 @@ How?
 The idea comes from the AngularJS templating system which is a proven to work and efficient solution for HTML templating.
 Drivers are constexpr objects. Manipulating code parts are directed with directives.
 
-Directives are: `$define`, `$use`, `$for`, `$if`, `$switch`
+Directives are: `$define`, `$use`, `$for`, `$if`, `$else`, `$switch`, `$case`, `$ast`
 
 `$define` and `$use` directives expect a driver which is a constexpr object.
 In directives and in template driver variables you can use the constexpr object's methods and members.
@@ -98,10 +98,10 @@ Where does the magic happen?
   * for one parameter `template<typename T> $use(Driver driver)` Driver got the AST nodized T
   * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expects the same number of parameters as template has.
   * manual parameter passing `template<class T, class U> $use(Driver driver(U))` here only `U` is used.
-4. New keyword `astnode` in template parameter
-  * `template<astnode Node> $use(AssertDriver driver)` where astnode can be an expression, but Driver gets an AST node
-  * `astnode` template parameter must be used with a driver
-  * the grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar
+4. New keyword `$ast` in template parameter
+  * `template<$ast Node> $use(AssertDriver driver)` where $ast can be an expression, but Driver gets an AST node
+  * `$ast` template parameter must be used with a driver
+  * the grammar of $ast is defined in the driver's constructor parameters, it can be complex grammar
 
 Standardized AST nodes
 ----------------------
@@ -159,7 +159,7 @@ $SoAGenerator(S, "SoA_vector_of_S");
 
 ### Replacing assert
 
-My best solution is to introduce a new keyword called `astnode`
+My best solution is to introduce a new keyword called `$ast`
 
 ```C++
 // origin
@@ -176,7 +176,7 @@ int main()
 class AssertDriver
 {
 public:
-  constexpr ArrayDriver(const ExpressionDecl& decl) // if astnode is not an expression we got compilation error
+  constexpr ArrayDriver(const ExpressionDecl& decl) // if $ast is not an expression we got compilation error
      expessionDecl(decl)
   {
     // check decl is boolean expr
@@ -185,8 +185,8 @@ public:
 };
 
 // template with attached driver
-// new keyword astnode, allowed only with $use
-template<astnode Node> $use(AssertDriver driver)
+// new keyword $ast, allowed only with $use
+template<$ast Node> $use(AssertDriver driver)
 void assert(Node)
 {
   // this will run between two sequence points
@@ -414,7 +414,7 @@ int main()
 
 With the help of this we can achieve native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
 If we can solve with C++ modules to use JIT compiler on constexpr drivers it does not slow down the compilation too much.
-The grammar of astnode is defined in the driver's constructor parameters, it can be complex grammar.
+The grammar of $ast is defined in the driver's constructor parameters, it can be complex grammar.
 We should indicate, that a struct is a grammar struct, with inherited meta::grammar.
 The grammar struct should not contain any method (including ctor, dtor, ..)
 
@@ -460,7 +460,7 @@ meta::id_name & ':' & meta::expr
 // usage
 class SomeWidget
 {
-  template<astnode Node>
+  template<$ast Node>
   SomeWidget(Node) $use(JsonParamDriver driver)
   {
     ...
