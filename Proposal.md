@@ -49,7 +49,7 @@ $define OperatorEqGenerator(EqualityDriver driver)
   bool $driver.class_name::operator==(const $driver.class_name& rhs) const
   {
     return true
-      $for (auto member : driver.members) {
+      $for (member : driver.members) {
         && $member == rhs.$member
       }
     ;
@@ -146,7 +146,7 @@ $define SoAGenerator(SoADriver driver)
 {
   class $driver.new_class_name
   {
-    $for (auto member : driver.members) {
+    $for (member : driver.members) {
       std::vector<$member.type> $member.name;
     }
   };
@@ -242,7 +242,7 @@ template<typename T> $use(EnumDriver driver)
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
-    $for (auto enumValueName : driver.enumValueNames) {
+    $for (enumValueName : driver.enumValueNames) {
       .Case($enumValueName.asStr(), $enumValueName) }
   ;
 }
@@ -515,11 +515,6 @@ Restrict pattern to a subgrammar item
  * `$define MyFooAttribute $use(SomeGrammarStruct) { [[ foo ]] }`
  * `$define MyFooAttribute() $use(SomeGrammarStruct) { [[ foo ]] }`
  
-Syntax of a member in `$for`, because it is always `const auto&`
- * `$for (auto member : driver.members)` no copy, it is $for(const auto& member : ...
- * `$for (const auto& member : driver.members)` ok..., but simply long
- * `$for (member : driver.members)` ok..., but maybe too short, where is the type?!
-
 Links
 -----
 You can comment it on (isocpp.org/forums -> SG7 – Reflection)
