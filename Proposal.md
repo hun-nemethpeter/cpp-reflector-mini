@@ -1,6 +1,6 @@
 Code checkers & generators
 ==========================
-(Draft rev 5)
+(Draft rev 2)
 
 
 Native Json & HTML, built-in tutorial, easy meta programming, reflection proposal to C++
@@ -79,6 +79,7 @@ Some basic rules:
  * `$define` defines a pattern. Can be used later with the `$name` syntax, where name is the defined name.
  * if `$name` expects a grammar, then `(` and `)` can be optional
  * `$define` is namespace friendly (macro #define is not)
+ * restricting pattern to a subgrammar item: `$define MyFooAttribute : meta::attribute_decl { [[ foo ]] }`
  * `$use` can be attached to a template or can be scoped with `{ ... }`
 
 Where does the magic happen?
@@ -481,12 +482,6 @@ TODO
 
 I selected the first one.
 
-How can I name this paper?
- * Code checkers & generators
- * Compile time reflection
- * Template drivers
- * AngularC++
- 
 What is the name of the `$define` thing?
  * pattern
  * macro-ng
@@ -503,12 +498,6 @@ Standardize Clang Api names from http://clang.llvm.org/doxygen/classclang_1_1Nam
  * `meta::operator_name` from http://clang.llvm.org/doxygen/OperatorKinds_8h_source.html
  * ...
 
-Restrict pattern to a subgrammar item
- * `$define MyFooAttribute : meta::attribute_decl { [[ foo ]] }`
- * `$define MyFooAttribute() : meta::attribute_decl { [[ foo ]] }`
- * `$define MyFooAttribute $use(SomeGrammarStruct) { [[ foo ]] }`
- * `$define MyFooAttribute() $use(SomeGrammarStruct) { [[ foo ]] }`
- 
 Links
 -----
 You can comment it on (isocpp.org/forums -> SG7 – Reflection)
