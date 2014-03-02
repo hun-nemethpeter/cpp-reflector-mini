@@ -46,11 +46,11 @@ class EqualityDriver
 // pattern
 $define OperatorEqGenerator(EqualityDriver driver)
 {
-  bool $driver.class_name::operator==(const $driver.class_name& rhs) const
+  bool $(driver.class_name)::operator==(const $(driver.class_name)& rhs) const
   {
     return true
       $for (member : driver.members) {
-        && $member == rhs.$member
+        && $(member) == rhs.$(member)
       }
     ;
   }
@@ -144,10 +144,10 @@ public:
 // pattern
 $define SoAGenerator(SoADriver driver)
 {
-  class $driver.new_class_name
+  class $(driver.new_class_name)
   {
     $for (member : driver.members) {
-      std::vector<$member.type> $member.name;
+      std::vector<$(member.type)> $(member.name);
     }
   };
 }
@@ -191,9 +191,9 @@ void assert(Node)
   // this will run between two sequence points
   // after Node is evaluated
   // `get_result()` is a const ref to the result
-  if (!$driver.decl.get_result()) {
-    std::cout << "failed assert: " << $driver.decl.to_string() << std::endl;
-    std::cout << $driver.decl.source.get_start_pos() << std::endl;
+  if (!$(driver.decl.get_result())) {
+    std::cout << "failed assert: " << $(driver.decl.stringify()) << std::endl;
+    std::cout << $(driver.decl.source.get_start_pos()) << std::endl;
   }
 }
 
@@ -243,7 +243,7 @@ void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
     $for (enumValueName : driver.enumValueNames) {
-      .Case($enumValueName.asStr(), $enumValueName) }
+      .Case($(enumValueName.stringify()), $(enumValueName)) }
   ;
 }
 
@@ -480,12 +480,6 @@ TODO
 ----
 
 I selected the first one.
-
-Which is better, so how hard for the compiler?
- `$driver.class_name` is one token
- * `bool $driver.class_name::operator==`
- * `bool $driver.class_name$::operator==`
- * `bool $(driver.class_name)::operator==`
 
 How can I name this paper?
  * Code checkers & generators
