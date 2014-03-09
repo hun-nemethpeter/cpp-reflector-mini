@@ -29,8 +29,9 @@ class User
 
 // OperatorEqGenerator will be a dependent name
 template<ipr::Class T>
+auto OperatorEqGenerator
 {
-  bool auto<T.getName()>::operator==(const auto<T.getName()>& rhs) const
+  bool typename<T.getName()>::operator==(const typename<T.getName()>& rhs) const
   {
     return true
       static for (field : T.fields())
@@ -105,7 +106,8 @@ class Foo : public auto<driver.foo()> { ... };
 
 It can be used in a normal function/classs
 ```C++
-template<auto> MyTypeName : ipr::type_name
+template<>
+ipr::type_name MyTypeName
 {
   int
 }
@@ -137,33 +139,15 @@ struct S {
     int c;
 };
 
-// driver
-class SoADriver
-{
-public:
-  struct Member
-  {
-    ipr::id_name name;
-    ipr::type_name type;
-  };
-  constexpr SoADriver(const ipr::Class& fromClassDecl, const char* new_class_name)
-    : new_class_name(new_class_name)
-  {
-    for (auto& field : fromClassDecl.fields())
-      members.emplace_back({field.getTypeName(),  field.getName() + "s", });
-  }
-  ipr::type_name new_class_name;
-  ipr::vector<Member> members;
-};
-
 // SoAGenerator will be a dependent name
-template<ipr::Class T, const char*> SoAGenerator -> (SoADriver driver)
+template<ipr::Class T, const char*>
+auto SoAGenerator
 {
-  class auto<driver.new_class_name>
+  class typename<T.getName()>
   {
-    static for (member : driver.members)
+    static for (field : T.fields())
     {
-      std::vector<auto<member.type>> auto<member.name>;
+      std::vector<typename<field.getName()>> auto<field.name>;
     }
   };
 }
@@ -241,19 +225,19 @@ If we use the driver without an instance name it means that the driver is doing 
 
 #### For concepts check
 ```C++
+struct ConceptsChecker
+{
+  constexpr ConceptsChecker(const ipr::Class& classDecl)
+  {
+    static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
+  }
+};
+
 // attached checker for a class template
 template<ipr::Class T> -> (ConceptsChecker)
 class Foo
 {
 }
-
-struct ConceptsChecker {
-  constexpr ConceptsChecker(const ipr::Class& classDecl) // first check, T must be an class
-  {
-    // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
-    static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
-  }
-};
 ```
 
 #### For compile time call site parameter check
