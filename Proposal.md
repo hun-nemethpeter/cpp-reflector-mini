@@ -254,7 +254,7 @@ enum class EVote
 };
 
 // template with attached driver
-template<ipr::Enum T> -> (EnumDriver driver)
+template<ipr::Enum T>
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
