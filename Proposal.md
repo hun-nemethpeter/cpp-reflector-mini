@@ -63,15 +63,15 @@ Language objects name -> IPR transition
 The first main step for reflection is to make inspectable every named language-object.
 This paper examines the way where every language-object has a corresponding IPR node at compile time.
 
-This paper introduce two new way for creating a dependent name
+Getting an IPR node of a named language object is done through extendending the template declaration syntax.
+Instead of typename/class keyword `ipr::GrammarElelemt` can use.
+ `temaplate<ipr::Class T> -> (SomeDriver driver)`
 
-1. Using dependent name in a template:
-`temaplate<typename T> -> (SomeDriver driver)`
-
+This IPR node optionally can be forwarded to a constexpr object with the `->` syntax.
+ `temaplate<ipr::Class T> -> (SomeDriver driver)`
 
  here `driver` will be a dependent name that can be used during template instantiation.
- The template parameter `T` will be forwarded to SomeDriver class's constructor parameter as an IPR node
- `SomeDriver` must be a constexpr constructor with an `ipr::...` argument:
+ `SomeDriver` must be a constexpr constructor with a corresponding `ipr::...` argument:
 
  ```C++
  class SomeDriver
@@ -81,27 +81,56 @@ This paper introduce two new way for creating a dependent name
  };
  ```
 
- This looks like a magic first, but if this transition is in this form
- `temaplate<typename T> -> (SomeDriver driver(ToIPRNode<T>))`
- the syntax become redundant, so the `(ToIPRNode<T>)` is just a syntax noise here.
+ Template declaration syntax is extended with auto template. This creating a standalone dependent names in a namespaced scope:
+```C++
+template <ipr::Class T>
+auto MacroName
+{
+  class Foo {};
+  int bar;
+}
+```
 
-2. Creating standalone dependent names in a namespaced scope:
- `template <auto T> -> (SomeDriver driver) DependentName`
+you can attach a driver to an auto template
+```C++
+template <ipr::Class T>
+auto MacroName -> (SomeDriver driver)
+{
+  void foo() { std::cout << driver.foo() << std::endl; }
+}
+```
 
- By default it can be used in a namespace scope to declare new function/class/variable. It can be restricted to
- a grammar part with the following syntax
- `template <auto T> -> (SomeDriver driver) DependentName : ipr::grammar_part`
- This way leads to a better C macro
+auto template can be restricted to a grammar object
+```C++
+template <ipr::Class T>
+ipr::Type MacroName
+{
+  int
+}
+```
+
+This way can leads to a better C macro
 
 IPR node -> language object transition
 --------------------------------------
 
-Using dependent name is uniformed with the `auto<...>` syntax.
+There are two way of pasting a dependent name
+ - the `auto<...>` syntax
+ - the typename<...> syntax
+ 
+ typename<...> syntax is for improve the code readability where variable is created
+```C++
+template<ipr::Class T> -> (SomeDriver driver)
+class Foo : public typename<driver.foo()>
+{
+  typename<driver.bar()> auto<driver.getName()>;
+};
+```
 
 It can be used in a template
 ```C++
-template<typename T> -> (SomeDriver driver)
-class Foo : public auto<driver.foo()> { ... };
+template<ipr::Class T> -> (SomeDriver driver)
+class Foo : public typename<driver.foo()> { ... };
 ```
 
 It can be used in a normal function/classs
@@ -116,9 +145,16 @@ class Foo
 {
   auto<MyTypeName> member;
 };
-
 ```
 
+Repeating with static for
+-------------------------
+
+A helper `static for` grammar object is created for repeating grammar parts. It accepts constexprs containers and
+works like a range base for.
+The syntax is simple `static for (item : container) { }`
+
+`{ }` doesn't introduce scope.
 
 Standardized IPR nodes
 ----------------------
