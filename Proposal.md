@@ -173,7 +173,7 @@ public:
 };
 
 // SoAGenerator will be a dependent name
-template <auto> SoAGenerator -> (SoADriver driver)
+template<auto> SoAGenerator -> (SoADriver driver)
 {
   class auto<driver.new_class_name>
   {
