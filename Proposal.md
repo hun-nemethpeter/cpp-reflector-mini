@@ -147,7 +147,7 @@ auto SoAGenerator
   {
     static for (field : T.fields())
     {
-      std::vector<typename<field.getName()>> auto<field.name>;
+      std::vector<typename<field.getName()>> auto<field.getName()>;
     }
   };
 }
