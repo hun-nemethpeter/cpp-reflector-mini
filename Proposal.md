@@ -44,7 +44,7 @@ class EqualityDriver
 };
 
 // OperatorEqGenerator will be a dependent name
-template<auto OperatorEqGenerator> -> (EqualityDriver driver)
+template<class T> -> (EqualityDriver driver) OperatorEqGenerator
 {
   bool auto<driver.class_name>::operator==(const auto<driver.class_name>& rhs) const
   {
@@ -173,7 +173,7 @@ public:
 };
 
 // SoAGenerator will be a dependent name
-template<auto> SoAGenerator -> (SoADriver driver)
+template<class T, const char*> SoAGenerator -> (SoADriver driver)
 {
   class auto<driver.new_class_name>
   {
