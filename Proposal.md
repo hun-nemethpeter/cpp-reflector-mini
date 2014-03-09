@@ -140,10 +140,10 @@ struct S {
 };
 
 // SoAGenerator will be a dependent name
-template<ipr::Class T, const char*>
+template<ipr::Class T>
 auto SoAGenerator
 {
-  class typename<T.getName()>
+  class typename<"SoA_vector_of_" + T.getName()>
   {
     static for (field : T.fields())
     {
@@ -153,7 +153,7 @@ auto SoAGenerator
 }
 
 // usage
-auto<SoAGenerator<S, "SoA_vector_of_S">>;
+auto<SoAGenerator<S>>;
 ```
 
 ### Replacing assert
