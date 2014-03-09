@@ -253,28 +253,14 @@ enum class EVote
   No
 };
 
-// driver
-class EnumDriver
-{
-  public:
-    constexpr EnumDriver(const ipr::Enum& enumDecl)
-    {
-      for (auto& enumerator : enumDecl.enumerators())
-        enumValueNames.push_back(enumerator.getName());
-    }
-
-    // ipr::vector is a constexpr vector
-    ipr::vector<ipr::id_name> enumValueNames;
-};
-
 // template with attached driver
 template<ipr::Enum T> -> (EnumDriver driver)
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
-    static for (enumValueName : driver.enumValueNames)
+    static for (enumerator : T.enumerators())
     {
-      .Case(auto<enumValueName.stringify()>, auto<enumValueName>)
+      .Case(auto<enumerator.getName().stringify()>, auto<enumerator.getName()>)
     }
   ;
 }
