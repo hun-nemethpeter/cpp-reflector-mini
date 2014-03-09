@@ -39,8 +39,8 @@ class EqualityDriver
       members.emplace_back(field.getName());
     }
   }
-  meta::vector<meta::id_name> members;
-  meta::type_name class_name;
+  ipr::vector<ipr::id_name> members;
+  ipr::type_name class_name;
 };
 
 // OperatorEqGenerator will be a dependent name
@@ -81,12 +81,13 @@ This paper introduce two new way for creating a dependent name
 
 1. Using dependent name in a template:
 `temaplate<typename T> -> (SomeDriver driver)`
-here driver will be a dependent name that can be used during template instantiation.
-The template parameter T will be forwarded to the driver as an IPR node.
 
-This looks like a magic first, but if this transition will be in this form
-`temaplate<typename T> -> (SomeDriver driver(ToIPRNode<T>))`
-the syntax will be redundant, so the (ToIPRNode<T>) is just a syntax noise here.
+ here driver will be a dependent name that can be used during template instantiation.
+ The template parameter T will be forwarded to the driver as an IPR node.
+
+ This looks like a magic first, but if this transition will be in this form
+ `temaplate<typename T> -> (SomeDriver driver(ToIPRNode<T>))`
+ the syntax will be redundant, so the (ToIPRNode<T>) is just a syntax noise here.
 
 2. Creating standalone dependent names in a namespaced scope:
 `auto DependentName -> (SomeDriver driver)`
@@ -106,7 +107,6 @@ Standardized IPR nodes
 
 TODO: modelled after Pivot https://parasol.tamu.edu/pivot/
 
-Pivot API uses `camelCase` C++ STL uses `underscores_type`. Only a minimal subset of ClangAPI is needed.
 
 Other use cases
 ------------------
@@ -127,8 +127,8 @@ class SoADriver
 public:
   struct Member
   {
-    meta::id_name name;
-    meta::type_name type;
+    ipr::id_name name;
+    ipr::type_name type;
   };
   constexpr SoADriver(const ClassDecl& fromClassDecl, const char* new_class_name)
     : new_class_name(new_class_name)
@@ -136,8 +136,8 @@ public:
     for (auto& field : fromClassDecl.fields())
       members.emplace_back({field.getTypeName(),  field.getName() + "s", });
   }
-  meta::type_name new_class_name;
-  meta::vector<Member> members;
+  ipr::type_name new_class_name;
+  ipr::vector<Member> members;
 };
 
 // SoAGenerator will be a dependent name
@@ -175,7 +175,7 @@ int main()
 class AssertDriver
 {
 public:
-  constexpr ArrayDriver(const ExpressionDecl& decl) // if $ast is not an expression we got compilation error
+  constexpr ArrayDriver(const ipr::ExpressionDecl& decl) // if Node is not an expression we got compilation error
      expessionDecl(decl)
   {
     // check decl is boolean expr
@@ -225,14 +225,14 @@ enum class EVote
 class EnumDriver
 {
   public:
-    constexpr EnumDriver(const EnumDecl& enumDecl)
+    constexpr EnumDriver(const ipr::Enum& enumDecl)
     {
       for (auto& enumerator : enumDecl.enumerators())
         enumValueNames.push_back(enumerator.getName());
     }
 
-    // meta::vector is a constexpr vector
-    meta::vector<meta::id_name> enumValueNames;
+    // ipr::vector is a constexpr vector
+    ipr::vector<ipr::id_name> enumValueNames;
 };
 
 // template with attached driver
@@ -256,104 +256,9 @@ int main()
 }
 ```
 
-### Deprecating C style macro
-
-We can replace the old macro system with this new one. For this reason `$if` and `$swicth` is introduced.
-For normal code flow, this conditional compilation would be as harmful (or helpful) as the normal macro style one.
-This is just a new syntax.
-
-Pro:
- * namespace friendly
- * object oriented design
- * simple: only `$if` & `$else` instead of `#ifdef`, `#ifndef`, `#elif`, `#endif`, `#if defined`
-
-Con:
- * cannot be used for header guard
- * `{` and `}` does not introduce scope but it seems so from the syntax
-
-Some intended usage:
-
-Instead of
-```C++
-#define DEBUG 1
-
-void printBackTrace() {
-#if DEBUG
-  // do something
-#else
-  // do nothing
-#endif
-}
-```
-
-we can write
-
-```C++
-enum class Configuration
-{
-  Debug,
-  Release
-};
-enum class Platform
-{
-  Win32,
-  Win64,
-  Linux
-};
-struct ConfigurationDriver
-{
-  constexpr Configuration configuration = Configuration::Debug;
-  constexpr Platform platform = Platform::Linux;
-  constexpr ConfigurationDriver() {}
-};
-
-// start using ConfigurationDriver
-$use(ConfigurationDriver driver)
-{
-
-// function with a driver
-void printBackTrace()
-{
-  $if (driver.configuration == Configuration::Debug)
-  {
-    realPrintBackTrace();
-  }
-  $else
-  {
-    // do nothing
-  }
-}
-
-// function with a driver
-void foo()
-{
-  $switch (driver.platform)
-  {
-    $case Platform::Win32 // fallthrough
-    $case Platform::Win64
-    {
-      WinApiXyz();
-    }
-    $case Platform::Linux
-    {
-      GlibcCallXyz();
-    }
-  }
-}
-
-} // $use
-```
-
-### Deprecating template metaprogramming
-
-Working with code generators and checkers is much easier, faster and safer than TMP.
-My proposal is to issue a deprecate warning when template instantiation depth reaches a low number e.g. `16`.
-This limit may be removed with a  compiler switch e.g. `-ftemplate-depth-20000`
-With native DSL support we can invent a new DSL language for functional style metaprogramming and for concepts checking. 
-
 ### Code checking (also concepts check)
 
-If we use the `$use` without an instance name it means that the driver is doing only checks
+If we use the driver without an instance name it means that the driver is doing only checks
 
 #### For concepts check
 ```C++
@@ -376,9 +281,9 @@ struct ConceptsChecker {
 ```C++
 struct FormatChecker {
   // http://clang.llvm.org/doxygen/classclang_1_1Expr.html
-  constexpr FormatChecker(const meta::expr& expr)
+  constexpr FormatChecker(const ipr::Expression& expr)
   {
-    if (expr.isa<meta::string_literal>()) 
+    if (expr.isa<ipr::string_literal>()) 
     {
        // do format check for format string
     }
@@ -386,7 +291,7 @@ struct FormatChecker {
 };
 
 // attached checker for a normal function
-void printDate(const char* formatStr) $use(FormatChecker)
+void printDate(const char* formatStr) -> (FormatChecker)
 {
 }
 ```
@@ -394,8 +299,9 @@ void printDate(const char* formatStr) $use(FormatChecker)
 #### For compile time general call site check, ideal for ex. tutorials and coding style checkers.
 ```C++
 // attached checker after a normal function
-struct TutorialChecker {
-  constexpr TutorialChecker(const meta::compound_stmt& stmt)
+struct TutorialChecker
+{
+  constexpr TutorialChecker(const ipr::CompoundStmt& stmt)
   {
      // check for C function and show std::cout example
   }
@@ -405,7 +311,7 @@ int main()
 {
   printf("My first program!");
   return 0;
-} $use (TutorialChecker, CodingStyleChecker)
+} -> (TutorialChecker, CodingStyleChecker)
 
 ```
 
@@ -413,31 +319,31 @@ int main()
 
 With the help of this we can achieve native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
 If we can solve with C++ modules to use JIT compiler on constexpr drivers it does not slow down the compilation too much.
-The grammar of $ast is defined in the driver's constructor parameters, it can be complex grammar.
-We should indicate, that a struct is a grammar struct, with inherited meta::grammar.
+The grammar of `Node` is defined in the driver's constructor parameters, it can be complex grammar.
+We should indicate, that a struct is a grammar struct, with inherited ipr::grammar.
 The grammar struct should not contain any method (including ctor, dtor, ..)
 
 ```C++
 // full grammar is here: http://www.json.org/
-struct JsonParamGrammarItem : meta::grammar
+struct JsonParamGrammarItem : ipr::grammar
 {
-  meta::id_name key;
-  meta::op_name colon = ':';
-  meta::expr value;
+  ipr::id_name key;
+  ipr::op_name colon = ':';
+  ipr::expr value;
 };
 
-struct JsonParamGrammarTail : meta::grammar
+struct JsonParamGrammarTail : ipr::grammar
 {
-  meta::id_name comma = ',';
+  ipr::id_name comma = ',';
   JsonParamGrammarItem item;
 };
 
-struct JsonParamGrammar : meta::grammar
+struct JsonParamGrammar : ipr::grammar
 {
-  meta::symbol open_brace = '{';
+  ipr::symbol open_brace = '{';
   JsonParamGrammarItem paramFirst;
-  meta::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
-  meta::symbol close_brace = '}';
+  ipr::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
+  ipr::symbol close_brace = '}';
 };
 
 class JsonParamDriver
@@ -447,20 +353,20 @@ class JsonParamDriver
 
 /*
 grammar rules
-or - meta::or
+or - ipr::or
 and - member in struct
-optional - meta::optional
-any - meta::vector
+optional - ipr::optional
+any - ipr::vector
 
 so JsonParamGrammarItem is
-meta::id_name & ':' & meta::expr
+ipr::id_name & ':' & ipr::expr
 */
 
 // usage
 class SomeWidget
 {
-  template<$ast Node>
-  SomeWidget(Node) $use(JsonParamDriver driver)
+  template<auto Node>
+  SomeWidget(Node) -> (JsonParamDriver driver)
   {
     ...
     // We should process with an other driver that associate member names with param names.
@@ -476,30 +382,12 @@ SomeWidget widget({
                   });
 ```
 
-TODO
-----
-
-I selected the first one.
-
-What is the name of the `$define` thing?
- * dependent name
- * pattern
- * macro-ng
- * new macro
- * generator template
- * named generator
-
-Standardize Clang Api names from http://clang.llvm.org/doxygen/classclang_1_1NamedDecl.html
- * `meta::class_name` from http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
- * `meta::template_name` from http://clang.llvm.org/doxygen/classclang_1_1TemplateDecl.html
- * `meta::namespace_name` from http://clang.llvm.org/doxygen/classclang_1_1NamespaceDecl.html
- * `meta::function_name` from http://clang.llvm.org/doxygen/classclang_1_1FunctionDecl.html
- * `meta::value_name` from http://clang.llvm.org/doxygen/classclang_1_1DeclStmt.html
- * `meta::operator_name` from http://clang.llvm.org/doxygen/OperatorKinds_8h_source.html
- * ...
-
 Links
 -----
+
+The Pivot is a framework
+https://parasol.tamu.edu/pivot/
+
 You can comment it on (isocpp.org/forums -> SG7 – Reflection)
 https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
 
