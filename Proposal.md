@@ -111,9 +111,9 @@ auto MacroName -> (SomeDriver driver)
 }
 ```
 
-auto template can be restricted to a grammar object
+auto template can be restricted to a grammar object, this will be a "type-template"
 ```C++
-template <ipr::Class T>
+template <>
 ipr::Type MacroName
 {
   int
