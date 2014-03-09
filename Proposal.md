@@ -30,7 +30,7 @@ class User
 // OperatorEqGenerator will be a dependent name
 template<ipr::Class T>
 {
-  bool auto<driver.class_name>::operator==(const auto<T.getName()>& rhs) const
+  bool auto<T.getName()>::operator==(const auto<T.getName()>& rhs) const
   {
     return true
       static for (field : T.fields())
