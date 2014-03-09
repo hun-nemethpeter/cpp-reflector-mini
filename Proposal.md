@@ -43,72 +43,70 @@ class EqualityDriver
   meta::type_name class_name;
 };
 
-// pattern
-$define OperatorEqGenerator(EqualityDriver driver)
+// OperatorEqGenerator will be a dependent name
+auto OperatorEqGenerator -> (EqualityDriver driver)
 {
-  bool $(driver.class_name)::operator==(const $(driver.class_name)& rhs) const
+  bool auto<driver.class_name>::operator==(const auto<driver.class_name>& rhs) const
   {
     return true
-      $for (member : driver.members) {
-        && $(member) == rhs.$(member)
+      static for (member : driver.members)
+      {
+        && auto<member> == rhs.auto<member>
       }
     ;
   }
 }
 
 // usage
-$OperatorEqGenerator(User); // define an operator== for User
+auto<OperatorEqGenerator<User>>;
 ```
 
-How?
-----
+Step-by-step
+------------
 
-The idea comes from the AngularJS templating system which is a proven to work and efficient solution for HTML templating.
-Drivers are constexpr objects. Manipulating code parts are directed with directives.
+The C++ language has a grammar which define language objects e.g.: classes, functions, enums, namespaces ...
+If a language object is named we can use it later in the source code. If we can use it we can inspect it also.
+Compile time reflection is a way to inspect these named language objects. Theoretically we can inspect every
+attributes of these objects. One possible way of compile time reflection is to ask the compiler to create a
+descriptor-object (an IPR object) for a named language object and pass it to a constexpr object.
+I call this descriptor-object as IPR node. The IPR means Internal Program Representation.
+The descriptor-object is very similar to an AST node but it is not a real one.
 
-Directives are: `$define`, `$use`, `$for`, `$if`, `$else`, `$switch`, `$case`, `$ast`
+dependent-name -> IPR transition
+--------------------------------
 
-`$define` and `$use` directives expect a driver which is a constexpr object.
-In directives and in template driver variables you can use the constexpr object's methods and members.
-Generating code parts is safe, because you can create only a typed id.
+The first main step for reflection is to make inspectable every name language-object.
+This paper examines the way where every language-object has a corresponding IPR node at compile time.
+This paper introduce two new way for creating a dependent name
 
-Some basic rules:
- * you have to use the `{ ... }` syntax after `$for`, `$if`, `$switch` directives
- * you can create `meta::id_name` (in member, variable or parameter declaration context)
- * you can create `meta::type_name` and this can be used where a new type is introduced (e.g. after `class` keyword)
- * `$define` defines a pattern. Can be used later with the `$name` syntax, where name is the defined name.
- * if `$name` expects a grammar, then `(` and `)` can be optional
- * `$define` is namespace friendly (macro #define is not)
- * restricting pattern to a subgrammar item: `$define MyFooAttribute : meta::attribute_decl { [[ foo ]] }`
- * `$use` can be attached to a template or can be scoped with `{ ... }`
+1. Using dependent name in a template:
+`temaplate<typename T> -> (SomeDriver driver)`
+here driver will be a dependent name that can be used during template instantiation.
+The template parameter T will be forwarded to the driver as an IPR node.
 
-Where does the magic happen?
-----------------------------
+This looks like a magic first, but if this transition will be in this form
+`temaplate<typename T> -> (SomeDriver driver(ToIPRNode<T>))`
+the syntax will be redundant, so the (ToIPRNode<T>) is just a syntax noise here.
 
-1. Getting compiler generated AST node
-  * An AST node is a wrapped version of the internal one, where the interface is standardized
-  * The compiler sees that `$OperatorEqGenerator` is a defined generator with a driver where the driver expects one parameter
-  * The compiler generates an AST node struct for `User` with base type `decl`.
-  * The compiler tries to cast `decl` to `ClassDecl`. If it fails, the compiler tells that the driver expects `ClassDecl`.
-2. Inject generated tokens
-  * `meta::id_name` can be constructed from string
-  * with the dollar `$` syntax it can be pasted (e.g. `$member`) as a normal id in a generator template
-  * `meta::id_name` can be pasted as a string literal
-3. Parameter passing in templates
-  * for one parameter `template<typename T> $use(Driver driver)` Driver got the AST nodized T
-  * for more parameter `template<class T, class U> $use(Driver driver)` Driver constructor expects the same number of parameters as template has.
-  * manual parameter passing `template<class T, class U> $use(Driver driver(U))` here only `U` is used.
-4. New keyword `$ast` in template parameter
-  * `template<$ast Node> $use(AssertDriver driver)` where $ast can be an expression, but Driver gets an AST node
-  * `$ast` template parameter must be used with a driver
-  * the grammar of $ast is defined in the driver's constructor parameters, it can be complex grammar
+2. Creating standalone dependent names in a namespaced scope:
+`auto DependentName -> (SomeDriver driver)`
 
-Standardized AST nodes
+Using dependent name is uniformed with the `auto<...>` syntax.
+
+It can be used in a template
+```C++
+template<typename T> -> (SomeDriver driver)
+{
+  class Foo : auto<driver.foo()> { ... };
+};
+```
+
+Standardized IPR nodes
 ----------------------
 
-TODO: modelled after clang http://clang.llvm.org/doxygen/classclang_1_1Decl.html
+TODO: modelled after Pivot https://parasol.tamu.edu/pivot/
 
-Clang Decl API uses `camelCase` C++ STL uses `underscores_type`. Only a minimal subset of ClangAPI is needed.
+Pivot API uses `camelCase` C++ STL uses `underscores_type`. Only a minimal subset of ClangAPI is needed.
 
 Other use cases
 ------------------
@@ -142,24 +140,25 @@ public:
   meta::vector<Member> members;
 };
 
-// pattern
-$define SoAGenerator(SoADriver driver)
+// SoAGenerator will be a dependent name
+auto SoAGenerator -> (SoADriver driver)
 {
-  class $(driver.new_class_name)
+  class auto<driver.new_class_name>
   {
-    $for (member : driver.members) {
-      std::vector<$(member.type)> $(member.name);
+    static for (member : driver.members)
+    {
+      std::vector<auto<member.type>> auto<member.name>;
     }
   };
 }
 
 // usage
-$SoAGenerator(S, "SoA_vector_of_S");
+auto<SoAGenerator<S, "SoA_vector_of_S">>;
 ```
 
 ### Replacing assert
 
-My best solution is to introduce a new keyword called `$ast`
+Using auto keyword instead of typename/class in a template declaration means it can be a grammar element, e.g. a expression.
 
 ```C++
 // origin
@@ -185,16 +184,14 @@ public:
 };
 
 // template with attached driver
-// new keyword $ast, allowed only with $use
-template<$ast Node> $use(AssertDriver driver)
+template<auto Node> -> (AssertDriver driver)
 void assert(Node)
 {
-  // this will run between two sequence points
-  // after Node is evaluated
-  // `get_result()` is a const ref to the result
-  if (!$(driver.decl.get_result())) {
-    std::cout << "failed assert: " << $(driver.decl.stringify()) << std::endl;
-    std::cout << $(driver.decl.source.get_start_pos()) << std::endl;
+  // get_result() is a const ref to the result
+  if (!auto<driver.decl.get_result()>)
+  {
+    std::cout << "failed assert: " << auto<driver.decl.stringify()> << std::endl;
+    std::cout << auto<driver.decl.source.get_start_pos()> << std::endl;
   }
 }
 
@@ -239,12 +236,14 @@ class EnumDriver
 };
 
 // template with attached driver
-template<typename T> $use(EnumDriver driver)
+template<typename T> -> (EnumDriver driver)
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
-    $for (enumValueName : driver.enumValueNames) {
-      .Case($(enumValueName.stringify()), $(enumValueName)) }
+    static for (enumValueName : driver.enumValueNames)
+    {
+      .Case(auto<enumValueName.stringify()>, auto<enumValueName>)
+    }
   ;
 }
 
@@ -359,7 +358,7 @@ If we use the `$use` without an instance name it means that the driver is doing 
 #### For concepts check
 ```C++
 // attached checker for a class template
-template<typename T> $use(ConceptsChecker)
+template<typename T> -> (ConceptsChecker)
 class Foo
 {
 }
@@ -483,6 +482,7 @@ TODO
 I selected the first one.
 
 What is the name of the `$define` thing?
+ * dependent name
  * pattern
  * macro-ng
  * new macro
