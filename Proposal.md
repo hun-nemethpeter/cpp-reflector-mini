@@ -82,7 +82,7 @@ This paper introduce two new way for creating a dependent name
 1. Using dependent name in a template:
 `temaplate<typename T> -> (SomeDriver driver)`
 
- here driver will be a dependent name that can be used during template instantiation.
+ here `driver` will be a dependent name that can be used during template instantiation.
  The template parameter T will be forwarded to the driver as an IPR node.
 
  This looks like a magic first, but if this transition will be in this form
