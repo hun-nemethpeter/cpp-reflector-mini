@@ -31,7 +31,7 @@ class User
 template<ipr::Class T>
 auto OperatorEqGenerator
 {
-  bool typename<T.getName()>::operator==(const typename<T.getName()>& rhs) const
+  bool T::operator==(const T& rhs) const
   {
     return true
       static for (field : T.fields())
