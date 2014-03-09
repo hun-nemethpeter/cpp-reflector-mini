@@ -83,11 +83,11 @@ This paper introduce two new way for creating a dependent name
 `temaplate<typename T> -> (SomeDriver driver)`
 
  here `driver` will be a dependent name that can be used during template instantiation.
- The template parameter T will be forwarded to the driver as an IPR node.
+ The template parameter `T` will be forwarded to the driver as an IPR node.
 
- This looks like a magic first, but if this transition will be in this form
+ This looks like a magic first, but if this transition is in this form
  `temaplate<typename T> -> (SomeDriver driver(ToIPRNode<T>))`
- the syntax will be redundant, so the (ToIPRNode<T>) is just a syntax noise here.
+ the syntax become redundant, so the `(ToIPRNode<T>)` is just a syntax noise here.
 
 2. Creating standalone dependent names in a namespaced scope:
 `auto DependentName -> (SomeDriver driver)`
