@@ -44,7 +44,7 @@ class EqualityDriver
 };
 
 // OperatorEqGenerator will be a dependent name
-template<class T> -> (EqualityDriver driver) OperatorEqGenerator
+template<ipr::Class T> -> (EqualityDriver driver) OperatorEqGenerator
 {
   bool auto<driver.class_name>::operator==(const auto<driver.class_name>& rhs) const
   {
@@ -173,7 +173,7 @@ public:
 };
 
 // SoAGenerator will be a dependent name
-template<class T, const char*> SoAGenerator -> (SoADriver driver)
+template<ipr::Class T, const char*> SoAGenerator -> (SoADriver driver)
 {
   class auto<driver.new_class_name>
   {
@@ -216,7 +216,7 @@ public:
 };
 
 // template with attached driver
-template<auto Node> -> (AssertDriver driver)
+template<ipr::Expression Node> -> (AssertDriver driver)
 void assert(Node)
 {
   // get_result() is a const ref to the result
@@ -268,7 +268,7 @@ class EnumDriver
 };
 
 // template with attached driver
-template<typename T> -> (EnumDriver driver)
+template<ipr::Enum T> -> (EnumDriver driver)
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
@@ -295,7 +295,7 @@ If we use the driver without an instance name it means that the driver is doing 
 #### For concepts check
 ```C++
 // attached checker for a class template
-template<typename T> -> (ConceptsChecker)
+template<ipr::Class T> -> (ConceptsChecker)
 class Foo
 {
 }
