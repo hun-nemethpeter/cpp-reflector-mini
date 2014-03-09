@@ -30,7 +30,7 @@ class User
 // driver
 class EqualityDriver
 {
-  constexpr EqualityDriver(const ClassDecl& classDecl)
+  constexpr EqualityDriver(const ipr::Class& classDecl)
   {
     class_name = classDecl.getTypeName();
     for (auto& field : classDecl.fields()) {
@@ -152,7 +152,7 @@ public:
     ipr::id_name name;
     ipr::type_name type;
   };
-  constexpr SoADriver(const ClassDecl& fromClassDecl, const char* new_class_name)
+  constexpr SoADriver(const ipr::Class& fromClassDecl, const char* new_class_name)
     : new_class_name(new_class_name)
   {
     for (auto& field : fromClassDecl.fields())
@@ -291,7 +291,7 @@ class Foo
 }
 
 struct ConceptsChecker {
-  constexpr ConceptsChecker(const ClassDecl& classDecl) // first check, T must be an class
+  constexpr ConceptsChecker(const ipr::Class& classDecl) // first check, T must be an class
   {
     // for more check, see http://clang.llvm.org/doxygen/classclang_1_1CXXRecordDecl.html
     static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
