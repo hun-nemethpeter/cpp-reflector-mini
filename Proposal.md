@@ -75,7 +75,7 @@ The descriptor-object is very similar to an AST node but it is not a real one.
 dependent-name -> IPR transition
 --------------------------------
 
-The first main step for reflection is to make inspectable every name language-object.
+The first main step for reflection is to make inspectable every named language-object.
 This paper examines the way where every language-object has a corresponding IPR node at compile time.
 This paper introduce two new way for creating a dependent name
 
