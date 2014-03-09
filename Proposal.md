@@ -57,8 +57,8 @@ descriptor-object (an IPR node) for a named language object and pass it to a con
 I call this descriptor-object as IPR node. The IPR means Internal Program Representation.
 The descriptor-object is very similar to an AST node but it is not a real one.
 
-Language objects name -> IPR transition
----------------------------------------
+Language object -> IPR node transition
+--------------------------------------
 
 The first main step for reflection is to make inspectable every named language-object.
 This paper examines the way where every language-object has a corresponding IPR node at compile time.
