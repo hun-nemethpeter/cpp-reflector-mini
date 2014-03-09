@@ -193,17 +193,6 @@ auto<SoAGenerator<S, "SoA_vector_of_S">>;
 Using auto keyword instead of typename/class in a template declaration means it can be a grammar element, e.g. a expression.
 
 ```C++
-// origin
-int main()
-{
-  int a = 1;
-  int b = 2;
-  assert(a == b);
-
-  return 0;
-}
-
-// template with attached driver
 template<ipr::Expression Node>
 void assert(Node)
 {
