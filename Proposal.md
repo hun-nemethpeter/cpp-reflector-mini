@@ -90,7 +90,16 @@ auto MacroName
 {
   class Foo {};
   int bar;
+  void auto<"test" + T.getName()>();
 }
+
+// usage
+auto<MacroName<Foo>>; 
+
+// expanded to
+class Foo;
+int bar;
+void testFoo();
 ```
 
 you can attach a driver to an auto template
