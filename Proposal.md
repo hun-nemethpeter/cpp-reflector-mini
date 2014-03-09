@@ -188,8 +188,6 @@ auto<SoAGenerator<S>>;
 
 ### Replacing assert
 
-Using auto keyword instead of typename/class in a template declaration means it can be a grammar element, e.g. a expression.
-
 ```C++
 template<ipr::Expression Node>
 void assert(Node)
@@ -214,8 +212,6 @@ int main()
 ### Enumerating enums
 
 This code snippet converts a string to an enum. The converter implementation is a function template.
-The function template parameter is "captured" before template instatization, and processed with `EnumDriver`.
-`EnumDriver`'s constructor is waiting an `const ipr::Enum&` that is the IPR node of `T`.
 
 ```C++
 // origin
@@ -228,7 +224,20 @@ enum class EVote
   No
 };
 
-// template with attached driver
+template <ipr::Enum T>
+void Json::writeTo(const T& obj, std::ostream& os)
+{
+  switch (obj)
+  {
+    static for (enumerator : T.enumerators())
+    {
+       case auto<enumerator.getName()>:
+         os << auto<enumerator.getName().stringify()>;
+         return;
+    }
+  }
+}
+
 template<ipr::Enum T>
 void Json::readFrom(T& obj, const std::string& data)
 {
