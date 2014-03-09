@@ -83,8 +83,17 @@ This paper introduce two new way for creating a dependent name
 1. Using dependent name in a template:
 `temaplate<typename T> -> (SomeDriver driver)`
 
+
  here `driver` will be a dependent name that can be used during template instantiation.
- The template parameter `T` will be forwarded to the driver as an IPR node.
+ The template parameter `T` will be forwarded to SomeDriver class's constructor parameter as an IPR node
+ `SomeDriver` must be a constexpr constructor with an `ipr::...` argument:
+```C++
+class SomeDriver
+{
+  constexpr SomeDriver(const ipr::Class& classDecl)
+  ...
+};
+```
 
  This looks like a magic first, but if this transition is in this form
  `temaplate<typename T> -> (SomeDriver driver(ToIPRNode<T>))`
