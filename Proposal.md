@@ -44,7 +44,7 @@ class EqualityDriver
 };
 
 // OperatorEqGenerator will be a dependent name
-auto OperatorEqGenerator -> (EqualityDriver driver)
+template<auto OperatorEqGenerator> -> (EqualityDriver driver)
 {
   bool auto<driver.class_name>::operator==(const auto<driver.class_name>& rhs) const
   {
@@ -101,11 +101,11 @@ This paper introduce two new way for creating a dependent name
  the syntax become redundant, so the `(ToIPRNode<T>)` is just a syntax noise here.
 
 2. Creating standalone dependent names in a namespaced scope:
-`auto DependentName -> (SomeDriver driver)`
+ `template <auto T> -> (SomeDriver driver) DependentName`
 
  By default it can be used in a namespace scope to declare new function/class/variable. It can be restricted to
  a grammar part with the following syntax
- `auto DependentName -> (SomeDriver driver) : ipr::grammar_part`
+ `template <auto T> -> (SomeDriver driver) DependentName : ipr::grammar_part`
  This way leads to a better C macro
 
 IPR node -> language object transition
@@ -121,7 +121,7 @@ class Foo : public auto<driver.foo()> { ... };
 
 It can be used in a normal function/classs
 ```C++
-auto MyTypeName -> () : ipr::type_name
+template<auto> MyTypeName : ipr::type_name
 {
   int
 }
@@ -173,7 +173,7 @@ public:
 };
 
 // SoAGenerator will be a dependent name
-auto SoAGenerator -> (SoADriver driver)
+template <auto> SoAGenerator -> (SoADriver driver)
 {
   class auto<driver.new_class_name>
   {
