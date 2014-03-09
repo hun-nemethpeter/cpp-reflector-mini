@@ -203,27 +203,15 @@ int main()
   return 0;
 }
 
-// driver
-class AssertDriver
-{
-public:
-  constexpr ArrayDriver(const ipr::ExpressionDecl& decl) // if Node is not an expression we got compilation error
-     expessionDecl(decl)
-  {
-    // check decl is boolean expr
-  }
-  const expessionDecl& decl;
-};
-
 // template with attached driver
-template<ipr::Expression Node> -> (AssertDriver driver)
+template<ipr::Expression Node>
 void assert(Node)
 {
   // get_result() is a const ref to the result
   if (!auto<driver.decl.get_result()>)
   {
-    std::cout << "failed assert: " << auto<driver.decl.stringify()> << std::endl;
-    std::cout << auto<driver.decl.source.get_start_pos()> << std::endl;
+    std::cout << "failed assert: " << auto<Node.decl.stringify()> << std::endl;
+    std::cout << auto<Node.decl.source.get_start_pos()> << std::endl;
   }
 }
 
