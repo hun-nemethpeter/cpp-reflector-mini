@@ -27,31 +27,15 @@ class User
   bool operator==(const User& rhs) const; // declaring
 };
 
-// driver
-class EqualityDriver
-{
-  constexpr EqualityDriver(const ipr::Class& classDecl)
-  {
-    class_name = classDecl.getTypeName();
-    for (auto& field : classDecl.fields()) {
-      if (field.getName() == "weight") // you can filter out members
-        continue;
-      members.emplace_back(field.getName());
-    }
-  }
-  ipr::vector<ipr::id_name> members;
-  ipr::type_name class_name;
-};
-
 // OperatorEqGenerator will be a dependent name
-template<ipr::Class T> -> (EqualityDriver driver) OperatorEqGenerator
+template<ipr::Class T>
 {
-  bool auto<driver.class_name>::operator==(const auto<driver.class_name>& rhs) const
+  bool auto<driver.class_name>::operator==(const auto<T.getName()>& rhs) const
   {
     return true
-      static for (member : driver.members)
+      static for (field : T.fields())
       {
-        && auto<member> == rhs.auto<member>
+        && auto<field.getName()> == rhs.auto<field.getName()>
       }
     ;
   }
