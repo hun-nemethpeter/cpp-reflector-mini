@@ -61,22 +61,23 @@ auto OperatorEqGenerator -> (EqualityDriver driver)
 auto<OperatorEqGenerator<User>>;
 ```
 
-Step-by-step
-------------
+How?
+----
 
 The C++ language has a grammar which define language objects e.g.: classes, functions, enums, namespaces ...
 If a language object is named we can use it later in the source code. If we can use it we can inspect it also.
 Compile time reflection is a way to inspect these named language objects. Theoretically we can inspect every
 attributes of these objects. One possible way of compile time reflection is to ask the compiler to create a
-descriptor-object (an IPR object) for a named language object and pass it to a constexpr object.
+descriptor-object (an IPR node) for a named language object and pass it to a constexpr object.
 I call this descriptor-object as IPR node. The IPR means Internal Program Representation.
 The descriptor-object is very similar to an AST node but it is not a real one.
 
-dependent-name -> IPR transition
---------------------------------
+Language objects name -> IPR transition
+---------------------------------------
 
 The first main step for reflection is to make inspectable every named language-object.
 This paper examines the way where every language-object has a corresponding IPR node at compile time.
+
 This paper introduce two new way for creating a dependent name
 
 1. Using dependent name in a template:
@@ -92,15 +93,36 @@ This paper introduce two new way for creating a dependent name
 2. Creating standalone dependent names in a namespaced scope:
 `auto DependentName -> (SomeDriver driver)`
 
+ By default it can be used in a namespace scope to declare new function/class/variable. It can be restricted to
+ a grammar part with the following syntax
+ `auto DependentName -> (SomeDriver driver) : ipr::grammar_part`
+ This way leads to a better C macro
+
+IPR node -> language object transition
+--------------------------------------
+
 Using dependent name is uniformed with the `auto<...>` syntax.
 
 It can be used in a template
 ```C++
 template<typename T> -> (SomeDriver driver)
-{
-  class Foo : auto<driver.foo()> { ... };
-};
+class Foo : public auto<driver.foo()> { ... };
 ```
+
+It can be used in a normal function/classs
+```C++
+auto MyTypeName -> () : ipr::type_name
+{
+  int
+}
+
+class Foo
+{
+  auto<MyTypeName> member;
+};
+
+```
+
 
 Standardized IPR nodes
 ----------------------
