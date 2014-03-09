@@ -65,9 +65,11 @@ This paper examines the way where every language-object has a corresponding IPR 
 
 Getting an IPR node of a named language object is done through extendending the template declaration syntax.
 Instead of typename/class keyword `ipr::GrammarElelemt` can use.
- `temaplate<ipr::Class T> -> (SomeDriver driver)`
+
+ `temaplate<ipr::Class T>`
 
 This IPR node optionally can be forwarded to a constexpr object with the `->` syntax.
+
  `temaplate<ipr::Class T> -> (SomeDriver driver)`
 
  here `driver` will be a dependent name that can be used during template instantiation.
@@ -81,7 +83,7 @@ This IPR node optionally can be forwarded to a constexpr object with the `->` sy
  };
  ```
 
- Template declaration syntax is extended with auto template. This creating a standalone dependent names in a namespaced scope:
+ Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
 ```C++
 template <ipr::Class T>
 auto MacroName
@@ -116,34 +118,26 @@ IPR node -> language object transition
 
 There are two way of pasting a dependent name
  - the `auto<...>` syntax
- - the typename<...> syntax
+ - the `typename<...>` syntax
  
- typename<...> syntax is for improve the code readability where variable is created
+ `typename<...>` syntax is for improve the code readability where variable is created
+
+
+You can acces the ipr:: Node methods directly
+```C++
+template<ipr::Class T>
+class Foo : public typename<T.getName() + "Test">
+{
+  typename<T.getName() + "Test"> memberName;
+};
+```
+ 
+Or you can use a driver if there is a complex transforming
 ```C++
 template<ipr::Class T> -> (SomeDriver driver)
 class Foo : public typename<driver.foo()>
 {
   typename<driver.bar()> auto<driver.getName()>;
-};
-```
-
-It can be used in a template
-```C++
-template<ipr::Class T> -> (SomeDriver driver)
-class Foo : public typename<driver.foo()> { ... };
-```
-
-It can be used in a normal function/classs
-```C++
-template<>
-ipr::type_name MyTypeName
-{
-  int
-}
-
-class Foo
-{
-  auto<MyTypeName> member;
 };
 ```
 
