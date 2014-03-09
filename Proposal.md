@@ -240,7 +240,7 @@ int main()
 
 This code snippet converts a string to an enum. The converter implementation is a function template.
 The function template parameter is "captured" before template instatization, and processed with `EnumDriver`.
-`EnumDriver`'s constructor is waiting an `const EnumDecl&` that is the IPR node of `T`.
+`EnumDriver`'s constructor is waiting an `const ipr::Enum&` that is the IPR node of `T`.
 
 ```C++
 // origin
