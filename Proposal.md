@@ -85,7 +85,7 @@ This IPR node optionally can be forwarded to a constexpr object with the `->` sy
 
  Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
 ```C++
-template <ipr::Class T>
+template<ipr::Class T>
 auto MacroName
 {
   class Foo {};
@@ -104,7 +104,7 @@ void testFoo();
 
 you can attach a driver to an auto template
 ```C++
-template <ipr::Class T>
+template<ipr::Class T>
 auto MacroName -> (SomeDriver driver)
 {
   void foo() { std::cout << driver.foo() << std::endl; }
@@ -113,7 +113,7 @@ auto MacroName -> (SomeDriver driver)
 
 auto template can be restricted to a grammar object, this will be a "type-template"
 ```C++
-template <>
+template<>
 ipr::Type MacroName
 {
   int
@@ -233,7 +233,7 @@ enum class EVote
   No
 };
 
-template <ipr::Enum T>
+template<ipr::Enum T>
 void Json::writeTo(const T& obj, std::ostream& os)
 {
   switch (obj)
