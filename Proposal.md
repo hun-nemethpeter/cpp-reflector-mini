@@ -180,7 +180,7 @@ struct S
 template<ipr::Class T>
 auto SoAGenerator
 {
-  class typename<"SoA_vector_of_" + T.getName()>
+  struct typename<"SoA_vector_of_" + T.getName()>
   {
     static for (field : T.fields())
     {
