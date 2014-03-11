@@ -41,6 +41,16 @@ bool T::operator==(const T& rhs) const
 
 // usage
 OperatorEqGenerator<User>;
+
+// expands to
+bool User::operator==(const User& rhs) const
+{
+  return true
+      && name == rhs.name
+      && birthDate == rhs.birthDate
+      && weight == rhs.weight
+  ;
+}
 ```
 
 How?
@@ -50,7 +60,7 @@ The C++ language has a grammar which define language objects e.g.: classes, func
 If a language object is named we can use it later in the source code. If we can use it we can inspect it also.
 Compile time reflection is a way to inspect these named language objects. Theoretically we can inspect every
 attributes of these objects. One possible way of compile time reflection is to ask the compiler to create a
-descriptor-object (an IPR node) for a named language object and pass it to a constexpr object.
+descriptor-object (an IPR node) for a named language object.
 I call this descriptor-object as IPR node. The IPR means Internal Program Representation.
 The descriptor-object is very similar to an AST node but it is not a real one.
 
@@ -72,13 +82,7 @@ This IPR node optionally can be forwarded to a constexpr object with the `->` sy
  here `driver` will be a dependent name that can be used during template instantiation.
  `SomeDriver` must be a constexpr constructor with a corresponding `ipr::...` argument:
 
- ```C++
- class SomeDriver
- {
-   constexpr SomeDriver(const ipr::Class& classDecl)
-   ...
- };
- ```
+ ` class SomeDriver { constexpr SomeDriver(const ipr::Class& classDecl)  ... }; `
 
  Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
 ```C++
@@ -127,7 +131,18 @@ There are two way of pasting a dependent name
  - the `typename<...>` syntax
  
  `typename<...>` syntax is for improve the code readability where variable is created
-
+ 
+ they can accept a string literal but it must be an grammatically correct identifier
+```C++
+typename<"aaa"> // OK
+typename<"aa1"> // OK
+typename<"aa_"> // OK
+typename<""> // illformed
+typename<" "> // illformed
+typename<"1aa"> // illformed
+typename<"aa("> // illformed
+typename<"#aa"> // illformed
+```
 
 You can acces the ipr:: Node methods directly
 ```C++
