@@ -299,7 +299,6 @@ constexpr void ConceptsChecker(const ipr::Class& classDecl)
 {
   static_assert(classDecl.hasMoveConstructor());
 }
-};
 
 // attached checker for a class template
 template<ipr::Class T> -> (ConceptsChecker)
