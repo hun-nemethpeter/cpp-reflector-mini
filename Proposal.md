@@ -112,13 +112,25 @@ auto MacroName -> (SomeDriver driver)
 }
 ```
 
-auto template can be restricted to a grammar object, this will be a "type-template"
+auto template can be restricted to a grammar object
 ```C++
+// this will be a "type-template"
 template<>
 ipr::Type MacroName
 {
   int
 }
+
+// this will be a "attribute-template"
+template<typename T>
+ipr::Attribute MacroName
+{
+  [[ auto(T.getName() + "some_attribute") ]]
+}
+
+...
+
+
 ```
 
 This way can leads to a better C macro
