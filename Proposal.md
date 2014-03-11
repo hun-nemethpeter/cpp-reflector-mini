@@ -125,7 +125,7 @@ ipr::Type MacroName
 template<typename T>
 ipr::Attribute MacroName
 {
-  [[ auto(T.getName() + "some_attribute") ]]
+  [[ auto<T.getName() + "some_attribute"> ]]
 }
 
 ...
