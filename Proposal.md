@@ -95,7 +95,7 @@ auto MacroName
 }
 
 // usage
-auto<MacroName<Foo>>; 
+MacroName<Foo>;
 
 // expanded to
 class Foo;
