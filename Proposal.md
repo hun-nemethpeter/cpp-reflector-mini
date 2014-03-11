@@ -217,7 +217,7 @@ auto SoAGenerator
 }
 
 // usage
-auto<SoAGenerator<S>>;
+SoAGenerator<S>;
 
 // expands to
 struct SoA_vector_of_S
