@@ -29,21 +29,18 @@ class User
 
 // OperatorEqGenerator will be a dependent name
 template<ipr::Class T>
-auto OperatorEqGenerator
+bool T::operator==(const T& rhs) const
 {
-  bool T::operator==(const T& rhs) const
-  {
-    return true
-      static for (field : T.fields())
-      {
-        && auto<field.getName()> == rhs.auto<field.getName()>
-      }
-    ;
-  }
+  return true
+    static for (field : T.fields())
+    {
+      && auto<field.getName()> == rhs.auto<field.getName()>
+    }
+  ;
 }
 
 // usage
-auto<OperatorEqGenerator<User>>;
+OperatorEqGenerator<User>;
 ```
 
 How?
@@ -172,7 +169,8 @@ Other use cases
 
 ```C++
 // origin
-struct S {
+struct S
+{
     int a;
     int b;
     int c;
@@ -193,6 +191,14 @@ auto SoAGenerator
 
 // usage
 auto<SoAGenerator<S>>;
+
+// expands to
+struct SoA_vector_of_S
+{
+    std::vector<int> a;
+    std::vector<int> b;
+    std::vector<int> c;
+};
 ```
 
 ### Replacing assert
@@ -269,16 +275,15 @@ int main()
 
 ### Code checking (also concepts check)
 
-If we use the driver without an instance name it means that the driver is doing only checks
+If we use the driver without an instance name it means that the driver is doing only checks, but in this case
+there is no reason for a class, only a constexpr function is enough.
 
 #### For concepts check
 ```C++
-struct ConceptsChecker
+constexpr void ConceptsChecker(const ipr::Class& classDecl)
 {
-  constexpr ConceptsChecker(const ipr::Class& classDecl)
-  {
-    static_assert(classDecl.hasMoveConstructor(), "Move constructor is missing");
-  }
+  static_assert(classDecl.hasMoveConstructor());
+}
 };
 
 // attached checker for a class template
@@ -290,16 +295,13 @@ class Foo
 
 #### For compile time call site parameter check
 ```C++
-struct FormatChecker {
-  // http://clang.llvm.org/doxygen/classclang_1_1Expr.html
-  constexpr FormatChecker(const ipr::Expression& expr)
+constexpr void FormatChecker(const ipr::FunctionDecl& decl)
+{
+  if (expr.isa<ipr::string_literal>()) 
   {
-    if (expr.isa<ipr::string_literal>()) 
-    {
-       // do format check for format string
-    }
+     // do format check for format string
   }
-};
+}
 
 // attached checker for a normal function
 void printDate(const char* formatStr) -> (FormatChecker)
@@ -310,13 +312,10 @@ void printDate(const char* formatStr) -> (FormatChecker)
 #### For compile time general call site check, ideal for ex. tutorials and coding style checkers.
 ```C++
 // attached checker after a normal function
-struct TutorialChecker
+constexpr TutorialChecker(const ipr::CompoundStmt& stmt)
 {
-  constexpr TutorialChecker(const ipr::CompoundStmt& stmt)
-  {
-     // check for C function and show std::cout example
-  }
-};
+ // check for C function and show std::cout example
+}
 
 int main()
 {
@@ -380,36 +379,4 @@ class SomeWidget
   SomeWidget(Node) -> (JsonParamDriver driver)
   {
     ...
-    // We should process with an other driver that associate member names with param names.
-  }
-
-  SomeWindow window;
-  SomeLabel label;
-};
-
-SomeWidget widget({
-                     window: "Hello world",
-                     label:  "Foo"
-                  });
-```
-
-Links
------
-
-The Pivot is a framework
-https://parasol.tamu.edu/pivot/
-
-You can comment it on (isocpp.org/forums -> SG7 – Reflection)
-https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
-
-The idea of this proposal comes from the AngularJS HTML template framework:
-http://angularjs.org/
-
-prebuilt directives ngRepeat directive in module ng:
-http://docs.angularjs.org/api/ng.directive:ngRepeat
-
-These code snippet based on this repo:
-https://github.com/hun-nemethpeter/cpp-reflector-mini
-
-Call for Compile-Time Reflection Proposals:
-http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3814.html
+    // We should process with an other 
