@@ -29,14 +29,17 @@ class User
 
 // OperatorEqGenerator will be a dependent name
 template<ipr::Class T>
-bool T::operator==(const T& rhs) const
+auto OperatorEqGenerator
 {
-  return true
-    static for (field : T.fields())
-    {
-      && auto<field.getName()> == rhs.auto<field.getName()>
-    }
-  ;
+  bool T::operator==(const T& rhs) const
+  {
+    return true
+      static for (field : T.fields())
+      {
+        && auto<field.getName()> == rhs.auto<field.getName()>
+      }
+    ;
+  }
 }
 
 // usage
