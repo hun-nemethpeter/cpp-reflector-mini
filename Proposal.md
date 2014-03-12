@@ -200,6 +200,31 @@ Standardized IPR nodes
 
 TODO: modelled after Pivot https://parasol.tamu.edu/pivot/
 
+Some used method:
+
+* ipr::Class
+  https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_class.html
+  * `const Sequence<Decl>& members() const`
+
+* ipr::Decl
+  https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_decl.html
+  * `virtual const Type& type() const = 0`
+  * `virtual const Name& name() const = 0`
+
+* ipr::Type
+  https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_type.html
+  * `virtual const Name& name() const = 0`
+
+* ipr::Enum
+  https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_enum.html
+  * `virtual const Sequence<Enumerator>& members() const = 0`
+  
+* ipr::Name
+
+* ipr::Identifier : ipr::Name
+  https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_identifier.html
+  * typedef const String& Arg_type
+  * Arg_type string() const 
 
 Other use cases
 ------------------
@@ -221,9 +246,9 @@ auto SoAGenerator
 {
   struct typename<"SoA_vector_of_" + T.name()>
   {
-    static for (field : T.fields())
+    static for (member : T.members())
     {
-      std::vector<typename<field.getType().name()>> auto<field.name()>;
+      std::vector<typename<member.type().name()>> auto<member.name()>;
     }
   };
 }
