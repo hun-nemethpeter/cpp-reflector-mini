@@ -36,7 +36,7 @@ auto OperatorEqGenerator
     return true
       static for (field : T.fields())
       {
-        && auto<field.getName()> == rhs.auto<field.getName()>
+        && auto<field.name()> == rhs.auto<field.name()>
       }
     ;
   }
@@ -94,7 +94,7 @@ auto MacroName
 {
   class Foo {};
   int bar;
-  void auto<"test" + T.getName()>();
+  void auto<"test" + T.name()>();
 }
 
 // usage
@@ -128,7 +128,7 @@ ipr::Type MacroName
 template<typename T>
 ipr::Attribute MacroName
 {
-  [[ auto<T.getName() + "some_attribute"> ]]
+  [[ auto<T.name() + "some_attribute"> ]]
 }
 
 ...
@@ -161,19 +161,19 @@ typename<"#aa"> // illformed
 template<ipr::Class T>
 struct Foo
 {
-  typename<T.getName()> member; // OK
-  typename<"aaa" + T.getName()> member; // illformed, const char* + string
-  typename<s"aaa" + T.getName()> member; // OK, string.operator+
-  typename<T.getName() + "aaa"> member; // OK
+  typename<T.name()> member1; // OK
+  typename<"aaa" + T.name()> member2; // illformed, const char* + string
+  typename<s"aaa" + T.name()> member3; // OK, string.operator+
+  typename<T.name() + "aaa"> member4; // OK
 };
 ```
 
 You can acces the ipr:: Node methods directly
 ```C++
 template<ipr::Class T>
-class Foo : public typename<T.getName() + "Test">
+class Foo : public typename<T.name() + "Test">
 {
-  typename<T.getName() + "Test"> memberName;
+  typename<T.name() + "Test"> memberName;
 };
 ```
  
@@ -182,7 +182,7 @@ Or you can use a driver if there is a complex transforming
 template<ipr::Class T> -> (SomeDriver driver)
 class Foo : public typename<driver.foo()>
 {
-  typename<driver.bar()> auto<driver.getName()>;
+  typename<driver.bar()> auto<driver.name()>;
 };
 ```
 
@@ -219,11 +219,11 @@ struct S
 template<ipr::Class T>
 auto SoAGenerator
 {
-  struct typename<"SoA_vector_of_" + T.getName()>
+  struct typename<"SoA_vector_of_" + T.name()>
   {
     static for (field : T.fields())
     {
-      std::vector<typename<field.getType().getName()>> auto<field.getName()>;
+      std::vector<typename<field.getType().name()>> auto<field.name()>;
     }
   };
 }
@@ -289,8 +289,8 @@ void Json::writeTo(const T& obj, std::ostream& os)
   {
     static for (enumerator : T.members())
     {
-       case auto<enumerator.getName()>:
-         os << auto<enumerator.getName().stringify()>;
+       case auto<enumerator.name()>:
+         os << auto<enumerator.name().stringify()>;
          return;
     }
   }
@@ -302,7 +302,7 @@ void Json::readFrom(T& obj, const std::string& data)
   obj = llvm::StringSwitch<T>(data)
     static for (enumerator : T.enumerators())
     {
-      .Case(auto<enumerator.getName().stringify()>, auto<enumerator.getName()>)
+      .Case(auto<enumerator.name().stringify()>, auto<enumerator.name()>)
     }
   ;
 }
