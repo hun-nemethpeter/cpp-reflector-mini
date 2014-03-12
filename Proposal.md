@@ -267,6 +267,10 @@ int main()
 
 This code snippet converts a string to an enum. The converter implementation is a function template.
 
+https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_enum.html
+ipr::Enum has `virtual const Sequence<Enumerator>& members() const = 0`
+
+
 ```C++
 // origin
 enum class EVote
@@ -283,7 +287,7 @@ void Json::writeTo(const T& obj, std::ostream& os)
 {
   switch (obj)
   {
-    static for (enumerator : T.enumerators())
+    static for (enumerator : T.members())
     {
        case auto<enumerator.getName()>:
          os << auto<enumerator.getName().stringify()>;
@@ -375,23 +379,23 @@ The grammar struct should not contain any method (including ctor, dtor, ..)
 // full grammar is here: http://www.json.org/
 struct JsonParamGrammarItem : ipr::grammar
 {
-  ipr::id_name key;
-  ipr::op_name colon = ':';
-  ipr::expr value;
+  ipr::Name key;
+  ipr::Token colon = ':';
+  ipr::Expr value;
 };
 
 struct JsonParamGrammarTail : ipr::grammar
 {
-  ipr::id_name comma = ',';
+  ipr::Token comma = ',';
   JsonParamGrammarItem item;
 };
 
 struct JsonParamGrammar : ipr::grammar
 {
-  ipr::symbol open_brace = '{';
+  ipr::Token open_brace = '{';
   JsonParamGrammarItem paramFirst;
   ipr::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
-  ipr::symbol close_brace = '}';
+  ipr::Token close_brace = '}';
 };
 
 class JsonParamDriver
