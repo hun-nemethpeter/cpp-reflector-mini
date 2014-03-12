@@ -34,9 +34,9 @@ auto OperatorEqGenerator
   bool T::operator==(const T& rhs) const
   {
     return true
-      static for (field : T.fields())
+      static for (member : T.members())
       {
-        && auto<field.name()> == rhs.auto<field.name()>
+        && auto<member.name()> == rhs.auto<member.name()>
       }
     ;
   }
