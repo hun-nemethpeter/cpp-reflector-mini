@@ -157,6 +157,15 @@ typename<" "> // illformed
 typename<"1aa"> // illformed
 typename<"aa("> // illformed
 typename<"#aa"> // illformed
+
+template<ipr::Class T>
+struct Foo
+{
+  typename<T.getName()> member; // OK
+  typename<"aaa" + T.getName()> member; // illformed, const char* + string
+  typename<s"aaa" + T.getName()> member; // OK, string.operator+
+  typename<T.getName() + "aaa"> member; // OK
+};
 ```
 
 You can acces the ipr:: Node methods directly
