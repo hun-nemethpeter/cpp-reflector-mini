@@ -223,8 +223,8 @@ Some used method:
 
 * ipr::Identifier : ipr::Name
   https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_identifier.html
-  * typedef const String& Arg_type
-  * Arg_type string() const 
+  * `typedef const String& Arg_type`
+  * `Arg_type string() const`
 
 Other use cases
 ------------------
