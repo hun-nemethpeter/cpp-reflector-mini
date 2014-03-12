@@ -34,7 +34,7 @@ auto OperatorEqGenerator
   bool T::operator==(const T& rhs) const
   {
     return true
-      static for (member : T.members())
+      for<member : T.members()>
       {
         && auto<member.name()> == rhs.auto<member.name()>
       }
@@ -186,12 +186,11 @@ class Foo : public typename<driver.foo()>
 };
 ```
 
-Repeating with static for
--------------------------
+Repeating with "for-template"
+-----------------------------
 
-A helper `static for` grammar object is created for repeating grammar parts. It accepts constexprs containers and
-works like a range base for.
-The syntax is simple `static for (item : container) { }`
+A helper `for<..:..>` for template grammar object is created for repeating grammar parts. It accepts constexprs containers and works like a range base for.
+The syntax is simple `for<item : container> { }`
 
 `{ }` doesn't introduce scope.
 
@@ -252,7 +251,7 @@ auto SoAGenerator
 {
   struct typename<"SoA_vector_of_" + T.name()>
   {
-    static for (member : T.members())
+    for<member : T.members()>
     {
       std::vector<typename<member.type().name()>> auto<member.name()>;
     }
@@ -318,7 +317,7 @@ void Json::writeTo(const T& obj, std::ostream& os)
 {
   switch (obj)
   {
-    static for (enumerator : T.members())
+    for<enumerator : T.members()>
     {
        case auto<enumerator.name()>:
          os << auto<enumerator.name().stringify()>;
@@ -331,7 +330,7 @@ template<ipr::Enum T>
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
-    static for (enumerator : T.members())
+    for<enumerator : T.members()>
     {
       .Case(auto<enumerator.name().stringify()>, auto<enumerator.name()>)
     }
