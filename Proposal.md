@@ -417,4 +417,36 @@ class SomeWidget
   SomeWidget(Node) -> (JsonParamDriver driver)
   {
     ...
-    // We should process with an other 
+    // We should process with an other driver that associate member names with param names.
+  }
+
+  SomeWindow window;
+  SomeLabel label;
+};
+
+SomeWidget widget({
+                     window: "Hello world",
+                     label:  "Foo"
+                  });
+```
+
+Links
+-----
+
+The Pivot is a framework
+https://parasol.tamu.edu/pivot/
+
+You can comment it on (isocpp.org/forums -> SG7 â€“ Reflection)
+https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
+
+The idea of this proposal comes from the AngularJS HTML template framework:
+http://angularjs.org/
+
+prebuilt directives ngRepeat directive in module ng:
+http://docs.angularjs.org/api/ng.directive:ngRepeat
+
+These code snippet based on this repo:
+https://github.com/hun-nemethpeter/cpp-reflector-mini
+
+Call for Compile-Time Reflection Proposals:
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3814.html
