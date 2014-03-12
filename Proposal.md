@@ -219,6 +219,12 @@ Some used method:
   https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_enum.html
   * `virtual const Sequence<Enumerator>& members() const = 0`
   
+* ipr::Enumerator
+  https://parasol.tamu.edu/pivot/doc/ipr/structipr_1_1_enumerator.html
+  * `virtual const Name& name() const = 0`
+  * `virtual const Expr& initializer() const = 0`
+  * `virtual int position() const = 0`
+  
 * ipr::Name
 
 * ipr::Identifier : ipr::Name
@@ -325,7 +331,7 @@ template<ipr::Enum T>
 void Json::readFrom(T& obj, const std::string& data)
 {
   obj = llvm::StringSwitch<T>(data)
-    static for (enumerator : T.enumerators())
+    static for (enumerator : T.members())
     {
       .Case(auto<enumerator.name().stringify()>, auto<enumerator.name()>)
     }
