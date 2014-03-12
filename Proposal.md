@@ -36,7 +36,10 @@ auto OperatorEqGenerator
     return true
       for<member : T.members()>
       {
-        && auto<member.name()> == rhs.auto<member.name()>
+        if<member.category == ipr::field_cat>
+        {
+          && auto<member.name()> == rhs.auto<member.name()>
+        }
       }
     ;
   }
