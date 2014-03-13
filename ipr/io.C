@@ -234,7 +234,7 @@ operator<<(Printer& printer, xpr_identifier id)
       printer << ' ';
    printer.write(id.begin, id.last);
 
-   return printer <<  Printer::Before;
+   return printer; // <<  Printer::Before;
 }
 
 Printer&
