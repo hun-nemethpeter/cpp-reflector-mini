@@ -282,8 +282,9 @@ void assert(bool Node)
   // get_result() is a const ref to the result
   if (!auto<Node.result()>)
   {
-    std::cout << "failed assert: " << auto<Node.stringify()> << std::endl;
-    std::cout << auto<Node.source().pos_column()> << std::endl;
+    std::cout << "failed assert: '" << Node.stringify() << "' in file: ";
+    std::cout << Node.source().file_name() << " at line:";
+    std::cout << Node.source().pos_line() << std::endl;
   }
 }
 
