@@ -277,13 +277,13 @@ struct SoA_vector_of_S
 
 ```C++
 template<ipr::Expression Node>
-void assert(Node)
+void assert(bool Node)
 {
   // get_result() is a const ref to the result
-  if (!auto<driver.decl.get_result()>)
+  if (!auto<Node.result()>)
   {
-    std::cout << "failed assert: " << auto<Node.decl.stringify()> << std::endl;
-    std::cout << auto<Node.decl.source.get_start_pos()> << std::endl;
+    std::cout << "failed assert: " << auto<Node.stringify()> << std::endl;
+    std::cout << auto<Node.source().pos_column()> << std::endl;
   }
 }
 
