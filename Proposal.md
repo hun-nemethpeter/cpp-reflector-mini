@@ -164,11 +164,16 @@ typename<"#aa"> // illformed
 template<ipr::Class T>
 struct Foo
 {
-  typename<T.name()> member1; // OK
-  typename<"aaa" + T.name()> member2; // illformed, const char* + string
-  typename<s"aaa" + T.name()> member3; // OK, string.operator+
-  typename<T.name() + "aaa"> member4; // OK
+  typename<T.name()> member1; // OK from ipr::Name
+  typename<T.type()> member2; // OK from ipr::Type
+  typename<"aaa" + T.name()> member3; // OK from ipr::Name, Note1
+  typename<s"aaa" + T.name()> member4; // OK from ipr::Name, Note2
+  typename<T.name() + "aaa"> member5; // OK from ipr::Name
 };
+
+// Note1: we need a built-in operator+(const char*, const ipr::Name&)
+// Note2: we need a built-in operator+(const std::string&, const ipr::Name&)
+
 ```
 
 You can acces the ipr:: Node methods directly
@@ -256,7 +261,7 @@ auto SoAGenerator
   {
     for<member : T.members()>
     {
-      std::vector<typename<member.type().name()>> auto<member.name()>;
+      std::vector<typename<member.type()>> auto<member.name()>;
     }
   };
 }
