@@ -461,9 +461,9 @@ class SomeWidget
   {
     if (jsonData.body)
     {
-      std::cout << jsonData.body.key.name() << ": " << jsonData.body.value.get_result().stringify() << std::endl;
+      std::cout << jsonData.body.key.name() << ": " << jsonData.body.value.result().stringify() << std::endl;
       for (auto& it : jsonData.body.paramMore)
-        std::cout << it.item.key.name()  << ": " << it.item.value.get_result().stringify() << std::endl;
+        std::cout << it.item.key.name()  << ": " << it.item.value.result().stringify() << std::endl;
     }
     ...
   }
