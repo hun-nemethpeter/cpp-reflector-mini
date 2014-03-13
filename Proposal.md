@@ -424,17 +424,17 @@ struct JsonParamGrammarTail : ipr::grammar
   JsonParamGrammarItem item;
 };
 
+struct JsonParamGrammarBody : ipr::grammar
+{
+  JsonParamGrammarItem paramsFirst;
+  ipr::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
+}
+
 struct JsonParamGrammar : ipr::grammar
 {
   ipr::Token open_brace = '{';
-  JsonParamGrammarItem paramFirst;
-  ipr::vector<JsonParamGrammarTail> paramMore; // this can be used for varargs ...
+  std::optional<JsonParamGrammarBody> body;
   ipr::Token close_brace = '}';
-};
-
-class JsonParamDriver
-{
-   constexpr JsonParamDriver(JsonParamGrammar grammar);
 };
 
 /*
@@ -452,10 +452,15 @@ ipr::id_name & ':' & ipr::expr
 class SomeWidget
 {
   template<JsonParamGrammar Node>
-  SomeWidget(JsonParamGrammar jsonData) -> (JsonParamDriver driver)
+  SomeWidget(Node jsonData)
   {
+    if (jsonData.body)
+    {
+      std::cout << jsonData.body.key << ": " << jsonData.body.value << std::endl;
+      for (auto& it : jsonData.body.paramMore)
+        std::cout << it.item.key  << ": " << it.item.value << std::endl;
+    }
     ...
-    // We should process with an other driver that associate member names with param names.
   }
 
   SomeWindow window;
