@@ -451,8 +451,8 @@ ipr::id_name & ':' & ipr::expr
 // usage
 class SomeWidget
 {
-  template<auto Node>
-  SomeWidget(Node) -> (JsonParamDriver driver)
+  template<JsonParamGrammar Node>
+  SomeWidget(JsonParamGrammar Node) -> (JsonParamDriver driver)
   {
     ...
     // We should process with an other driver that associate member names with param names.
