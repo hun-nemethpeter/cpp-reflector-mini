@@ -4,7 +4,7 @@
 enum class ERating
 {
   Excellent,
-  VeryGood,
+  VeryGood = 22,
   Average,
   Poor,
   Terrible

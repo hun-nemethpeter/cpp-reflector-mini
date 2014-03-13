@@ -10,12 +10,15 @@
 #include <clang/Tooling/Refactoring.h>
 #include <clang/Tooling/Tooling.h>
 
+#include <ipr/impl.H>
+#include <ipr/io.H>
+
 #include "ClangSourceManagerHelper.hh"
 
 using namespace clang;
 using namespace clang::ast_matchers;
 using namespace llvm;
-using clang::tooling::Replacement;
+using namespace ipr;
 
 // =====================================================================================================================
 class ClassMembersPrinter : public ast_matchers::MatchFinder::MatchCallback
@@ -38,6 +41,8 @@ public:
                  "========" << classStream.str() << std::endl;;
     std::cout << "Enums:\n"
                  "======" << enumStream.str() << std::endl;
+    std::cout << "Iprs:\n"
+                 "======\n" << iprStream.str() << std::endl;
   }
 
 private:
@@ -83,7 +88,25 @@ private:
     if (fileId.first != SM->getMainFileID())
       return;
     printEnumFields(enumDecl);
+    createIprEnums(enumDecl);
   }
+  // -------------------------------------------------------------------------------------------------------------------
+  void createIprEnums(const EnumDecl* enumDecl)
+  {
+    impl::Enum* iprEnum = unit.make_enum(*unit.global_region());
+    iprEnum->id = unit.make_identifier(unit.get_string(enumDecl->getNameAsString()));
+
+    for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
+    {
+       impl::Enumerator* enumerator = iprEnum->add_member(*unit.make_identifier(unit.get_string((*it)->getName().data())));
+       enumerator->init = unit.make_literal(unit.get_int(), unit.get_string(std::to_string((*it)->getInitVal().getSExtValue())));
+    }
+    Printer printer(iprStream);
+      printer << "enum: " << *iprEnum << "\n";
+    for (const auto& enumerator : iprEnum->members())
+      printer << " " << enumerator.name() << "\n";
+  }
+
   // -------------------------------------------------------------------------------------------------------------------
   void printEnumFields(const EnumDecl* enumDecl)
   {
@@ -107,6 +130,8 @@ private:
   std::string fileName;
   std::stringstream classStream;
   std::stringstream enumStream;
+  std::stringstream iprStream;
+  impl::Unit unit;
 };
 
 // =====================================================================================================================

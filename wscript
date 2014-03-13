@@ -46,12 +46,18 @@ def build(bld):
           '-fno-rtti',
           '-Wno-variadic-macros'
           ]
+    bld.stlib(
+        target = 'lib_ipr',
+        source = bld.path.ant_glob('ipr/*.C'),
+        includes = ['.'],
+        cxxflags = ['-g', '-O0', '-Wall', '-std=c++0x']
+        )
     bld.program(
         target = 'generator',
         source = bld.path.ant_glob('*.cc'),
-#        includes = ['src', '/home/npeter/Devel/install/include'],
+        includes = ['.'],
         cxxflags = clang_flags,
-#        libpath = ['/home/npeter/Devel/install/lib'],
+        use='lib_ipr',
         uselib = 'LLVM_LIBS LLVM_FLAGS',
         stlib = clang_libs,
     )
