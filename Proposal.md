@@ -328,7 +328,7 @@ void Json::writeTo(const T& obj, std::ostream& os)
   {
     for<enumerator : T.members()>
     {
-       case auto<enumerator.name()>:
+       case auto<enumerator>:
          os << auto<enumerator.name().stringify()>;
          return;
     }
@@ -341,7 +341,7 @@ void Json::readFrom(T& obj, const std::string& data)
   obj = llvm::StringSwitch<T>(data)
     for<enumerator : T.members()>
     {
-      .Case(auto<enumerator.name().stringify()>, auto<enumerator.name()>)
+      .Case(auto<enumerator.name().stringify()>, auto<enumerator>)
     }
   ;
 }
