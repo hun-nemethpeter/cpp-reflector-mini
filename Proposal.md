@@ -28,20 +28,21 @@ class User
 };
 
 // OperatorEqGenerator will be a dependent name
-template<ipr::Class T>
+template<ipr::Class T> // 1. instead of typename T => ipr::Class
 auto OperatorEqGenerator
 {
   bool T::operator==(const T& rhs) const
   {
-    return true
-      for<member : T.members()>
+      bool ret = true;
+      for<member : T.members()> // 2. for template
       {
-        if<member.category == ipr::field_cat>
+        if<member.category == ipr::field_cat> // 3. if template
         {
-          && auto<member.name()> == rhs.auto<member.name()>
+           ret = ret && $(member.name()) == rhs.$(member.name()); // token pasting with $
         }
       }
-    ;
+
+      return ret;
   }
 }
 
@@ -51,12 +52,64 @@ OperatorEqGenerator<User>;
 // expands to
 bool User::operator==(const User& rhs) const
 {
-  return true
-      && name == rhs.name
-      && birthDate == rhs.birthDate
-      && weight == rhs.weight
-  ;
+  bool ret = true;
+  ret = ret && name == rhs.name;
+  ret = ret && birthDate == rhs.birthDate;
+  ret = ret && weight == rhs.weight;
+
+  return ret;
 }
+```
+
+Extending the language
+----------------------
+
+```
+[temp]
+template-declaration:
+    template < template-parameter-list > <-> (  class-name template-driver-name ) declaration 
+    template < template-parameter-list > auto identifier { declaration-seq? }
+
+template-driver-name:
+    identifier
+
+[temp.explicit]
+explicit-instantiation:
+    explicit-ipr-instantiation
+
+explicit-ipr-instantiation:
+    for < for-template-iter-name : for-range-initializer > { declaration-seq? }
+    if < constant-expression > { declaration-seq? }
+
+for-template-iter-name:
+    identifier
+
+[temp.param]
+template-parameter:
+    ipr-parameter
+
+ipr-parameter:
+    ipr-type-name identifier
+
+ipr-type-name:
+    ipr::Class
+    ipr::Enum
+    ipr::Namespace
+    ipr::Template
+    ipr::Union
+    ipr::Expr
+
+[stmt.stmt]
+statement:
+    explicit-ipr-instantiation
+
+[expr.prim.general]
+primary-expression:
+    pasting-expression
+
+pasting-expression:
+    typename < ipr-parameter >
+    $ ( ipr-parameter )
 ```
 
 How?
@@ -66,8 +119,7 @@ The C++ language has a grammar which define language objects e.g.: classes, func
 If a language object is named we can use it later in the source code. If we can use it we can inspect it also.
 Compile time reflection is a way to inspect these named language objects. Theoretically we can inspect every
 attributes of these objects. One possible way of compile time reflection is to ask the compiler to create a
-descriptor-object (an IPR node) for a named language object.
-I call this descriptor-object as IPR node. The IPR means Internal Program Representation.
+descriptor-object (an IPR node) for a named language object. The IPR means Internal Program Representation.
 The descriptor-object is very similar to an AST node but it is not a real one.
 
 Language object -> IPR node transition
@@ -97,7 +149,7 @@ auto MacroName
 {
   class Foo {};
   int bar;
-  void auto<"test" + T.name()>();
+  void $("test" + T.name())();
 }
 
 // usage
@@ -112,7 +164,7 @@ void testFoo();
 you can attach a driver to an auto template
 ```C++
 template<ipr::Class T>
-auto MacroName -> (SomeDriver driver)
+auto MacroName <-> (SomeDriver driver)
 {
   void foo() { std::cout << driver.foo() << std::endl; }
 }
@@ -127,15 +179,13 @@ ipr::Type MacroName
   int
 }
 
-// this will be a "attribute-template"
-template<typename T>
+// this is a named-template with attribute
+template<ipr::Class T>
 ipr::Attribute MacroName
 {
-  [[ auto<T.name() + "some_attribute"> ]]
+  [[ $(T.name() + "some_attribute") ]]
 }
-
 ...
-
 
 ```
 
@@ -145,7 +195,7 @@ IPR node -> language object transition
 --------------------------------------
 
 There are two way of pasting a dependent name
- - the `auto<...>` syntax
+ - the `$(...)` syntax
  - the `typename<...>` syntax
  
  `typename<...>` syntax is for improve the code readability where variable is created
@@ -187,10 +237,10 @@ class Foo : public typename<T.name() + "Test">
  
 Or you can use a driver if there is a complex transforming
 ```C++
-template<ipr::Class T> -> (SomeDriver driver)
+template<ipr::Class T> <-> (SomeDriver driver)
 class Foo : public typename<driver.foo()>
 {
-  typename<driver.bar()> auto<driver.name()>;
+  typename<driver.bar()> $(driver.name());
 };
 ```
 
@@ -201,6 +251,18 @@ A helper `for<..:..>` for template grammar object is created for repeating gramm
 The syntax is simple `for<item : container> { }`
 
 `{ }` doesn't introduce scope.
+
+Only full statements can be repeated.
+
+Selecting with "if-template"
+----------------------------
+
+// TODO
+
+Separate out template logic with drivers
+----------------------------------------
+
+// TODO
 
 Standardized IPR nodes
 ----------------------
@@ -261,7 +323,7 @@ auto SoAGenerator
   {
     for<member : T.members()>
     {
-      std::vector<typename<member.type()>> auto<member.name()>;
+      std::vector<typename<member.type()>> $(member.name());
     }
   };
 }
@@ -285,7 +347,7 @@ template<ipr::Expression Node>
 void assert(bool Node)
 {
   // get_result() is a const ref to the result
-  if (!auto<Node.result()>)
+  if (!$(Node.result()))
   {
     std::cout << "failed assert: '" << Node.stringify() << "' in file: ";
     std::cout << Node.source().file_name() << " at line:";
@@ -328,28 +390,19 @@ void Json::writeTo(const T& obj, std::ostream& os)
   {
     for<enumerator : T.members()>
     {
-       case auto<enumerator>:
-         os << auto<enumerator.name().stringify()>;
+       case $(enumerator):
+         os << $(enumerator.name().stringify());
          return;
     }
   }
 }
 
-template<ipr::Enum T>
-void Json::readFrom(T& obj, const std::string& data)
-{
-  obj = llvm::StringSwitch<T>(data)
-    for<enumerator : T.members()>
-    {
-      .Case(auto<enumerator.name().stringify()>, auto<enumerator>)
-    }
-  ;
-}
-
 int main()
 {
-  Evote vote;
-  Json::readFrom(vote, "EVote::Undecided");
+  Evote vote == EVote::Yes;
+
+  // prints "EVote::Yes" to std::cout
+  Json::writeTo(vote, std::cout);
 
   return 0;
 }
@@ -368,7 +421,7 @@ constexpr void ConceptsChecker(const ipr::Class& classDecl)
 }
 
 // attached checker for a class template
-template<ipr::Class T> -> (ConceptsChecker)
+template<ipr::Class T> <-> (ConceptsChecker)
 class Foo
 {
 }
@@ -378,14 +431,14 @@ class Foo
 ```C++
 constexpr void FormatChecker(const ipr::FunctionDecl& decl)
 {
-  if (expr.isa<ipr::string_literal>()) 
+  if (expr.isa<ipr::Literal>()) 
   {
      // do format check for format string
   }
 }
 
 // attached checker for a normal function
-void printDate(const char* formatStr) -> (FormatChecker)
+printDate(const char* formatStr) -> void <-> (FormatChecker)
 {
 }
 ```
@@ -402,7 +455,7 @@ int main()
 {
   printf("My first program!");
   return 0;
-} -> (TutorialChecker, CodingStyleChecker)
+} <-> (TutorialChecker, CodingStyleChecker)
 
 ```
 
