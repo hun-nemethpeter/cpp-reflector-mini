@@ -34,9 +34,9 @@ auto OperatorEqGenerator
   bool T::operator==(const T& rhs) const
   {
       bool ret = true;
-      for<member : T.members()> // 2. for template
+      for <member : T.members()> // 2. for template
       {
-        if<member.category == ipr::field_cat> // 3. if template
+        if <member.category == ipr::field_cat> // 3. if template
         {
            ret = ret && $(member.name()) == rhs.$(member.name()); // token pasting with $
         }
@@ -67,7 +67,7 @@ Extending the language
 ```
 [temp]
 template-declaration:
-    template < template-parameter-list > <-> (  class-name template-driver-name ) declaration 
+    template < template-parameter-list > < - > (  class-name template-driver-name ) declaration 
     template < template-parameter-list > auto identifier { declaration-seq? }
 
 template-driver-name:
@@ -248,7 +248,7 @@ Repeating with "for-template"
 -----------------------------
 
 A helper `for<..:..>` for template grammar object is created for repeating grammar parts. It accepts constexprs containers and works like a range base for.
-The syntax is simple `for<item : container> { }`
+The syntax is simple `for <item : container> { }`
 
 `{ }` doesn't introduce scope.
 
@@ -321,7 +321,7 @@ auto SoAGenerator
 {
   struct typename<"SoA_vector_of_" + T.name()>
   {
-    for<member : T.members()>
+    for <member : T.members()>
     {
       std::vector<typename<member.type()>> $(member.name());
     }
@@ -388,7 +388,7 @@ void Json::writeTo(const T& obj, std::ostream& os)
 {
   switch (obj)
   {
-    for<enumerator : T.members()>
+    for <enumerator : T.members()>
     {
        case $(enumerator):
          os << $(enumerator.name().stringify());
