@@ -89,7 +89,10 @@ template-parameter:
     ipr-parameter
 
 ipr-parameter:
-    ipr-type-name identifier
+    ipr-type-name ipr-parameter-name
+    
+ipr-parameter-name:
+    identifier
 
 ipr-type-name:
     ipr::Class
@@ -108,8 +111,8 @@ primary-expression:
     pasting-expression
 
 pasting-expression:
-    typename < ipr-parameter >
-    $ ( ipr-parameter )
+    typename < ipr-parameter-name >
+    $ ( ipr-parameter-name )
 ```
 
 How?
