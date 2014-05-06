@@ -512,8 +512,8 @@ ipr::id_name & ':' & ipr::expr
 // usage
 class SomeWidget
 {
-  template<JsonParamGrammar Node>
-  SomeWidget(Node jsonData)
+  template<JsonParamGrammar jsonData>
+  SomeWidget()
   {
     if (jsonData.body)
     {
@@ -528,10 +528,10 @@ class SomeWidget
   SomeLabel label;
 };
 
-SomeWidget widget({
-                     window: "Hello world",
-                     label:  "Foo"
-                  });
+SomeWidget<{
+              window: "Hello world",
+              label:  "Foo"
+            }>();
 ```
 
 Links
