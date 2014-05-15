@@ -92,27 +92,40 @@ Here the new `std::ipr::Class` parameter a normal class, but it has a special ca
 
   `Foo<std::string> foo;`
 
-During template instatiation the `iprT` parameter acts as a normal value parameter. That parameter is created at compile time filled
+During template instatiation the `iprT` parameter acts as a normal value parameter and it is filled
 with informaion of `std::string`.
 
 ```C++
-template<ipr::Class iprT>
-class Descriptor
+class Reflect
 {
-  static print()
-  { std::cout << T.name() << std::endl; }
+  template<ipr::Class iprT>
+  static void print_class_name()
+  {
+    std::cout << iprT.name() << std::endl;
+  }
+  template<ipr::Enum iprT>
+  static void print_enum_size()
+  {
+    std::cout << iprT.members().size() << std::endl;
+  }
 };
 
 usage:
 int foo()
 {
-  Descriptor<std::string>::printName();
+  Reflect::print_class_name<std::string>();
+  // std::launch is an enum
+  Reflect::print_enum_size<std::launch>();
 }
+
+output:
+::std::string
+2
 ```
 
 This IPR node optionally can be forwarded to a constexpr object with the `->` syntax.
 
- `template<ipr::Class T> -> (SomeDriver driver)`
+ `template<ipr::Class iprT> -> (SomeDriver driver)`
 
  here `driver` will be a dependent name that can be used during template instantiation.
  `SomeDriver` must be a constexpr constructor with a corresponding `ipr::...` argument:
