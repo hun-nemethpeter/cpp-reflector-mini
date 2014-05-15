@@ -351,14 +351,14 @@ int main()
 }
 ```
 
-### Ideas for the future
+## Ideas for the future
 
-## Code checking (also concepts check)
+### Code checking (also concepts check)
 
 If we use the driver without an instance name it means that the driver is doing only checks, but in this case
 there is no reason for a class, only a constexpr function is enough.
 
-## For concepts check
+### For concepts check
 ```C++
 constexpr void ConceptsChecker(const ipr::Class& classDecl)
 {
@@ -372,7 +372,7 @@ class Foo
 }
 ```
 
-## For compile time call site parameter check
+### For compile time call site parameter check
 ```C++
 constexpr void FormatChecker(const ipr::FunctionDecl& decl)
 {
@@ -388,7 +388,7 @@ printDate(const char* formatStr) -> void <-> (FormatChecker)
 }
 ```
 
-## For compile time general call site check, ideal for ex. tutorials and coding style checkers.
+### For compile time general call site check, ideal for ex. tutorials and coding style checkers.
 ```C++
 // attached checker after a normal function
 constexpr TutorialChecker(const ipr::CompoundStmt& stmt)
@@ -404,7 +404,7 @@ int main()
 
 ```
 
-## Domain-specific language support
+### Domain-specific language support
 
 With the help of this we can achieve native HTML, Json, XML, Regex, SQL, whatever support. It would be pretty awesome.
 If we can solve with C++ modules to use JIT compiler on constexpr drivers it does not slow down the compilation too much.
