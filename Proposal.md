@@ -109,12 +109,6 @@ https://parasol.tamu.edu/pivot/
 You can comment it on (isocpp.org/forums -> SG7 â€“ Reflection)
 https://groups.google.com/a/isocpp.org/forum/#!forum/reflection
 
-The idea of this proposal comes from the AngularJS HTML template framework:
-http://angularjs.org/
-
-prebuilt directives ngRepeat directive in module ng:
-http://docs.angularjs.org/api/ng.directive:ngRepeat
-
 These code snippet based on this repo:
 https://github.com/hun-nemethpeter/cpp-reflector-mini
 
