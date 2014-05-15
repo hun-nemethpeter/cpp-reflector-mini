@@ -28,13 +28,15 @@ class User
 };
 
 // OperatorEqGenerator will be a dependent name
-template<ipr::Class T> // 1. instead of typename T => ipr::Class
+
+// 1. instead of typename T => ipr::Class
+template<ipr::Class iprT, typename T = $(iprT.name())>
 auto OperatorEqGenerator
 {
   bool T::operator==(const T& rhs) const
   {
       bool ret = true;
-      for <member : T.members()> // 2. for template
+      for <member : iprT.members()> // 2. for template
       {
         if <member.category == ipr::field_cat> // 3. if template
         {
