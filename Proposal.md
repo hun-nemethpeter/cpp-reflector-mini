@@ -81,7 +81,7 @@ The first main step for reflection is to make inspectable every named language-o
 This paper examines the way where every language-object has a corresponding IPR node at compile time.
 
 In C++ language the most common declaration for a template is `template<typename T> class Foo {};` where T is represent a type name.
-`template<int N> class foo {};` also a valid for, int this case the template will be instatized with an integer. E.g.
+`template<int N> class foo {};` also a valid for, in this case the template will be instatized with an integer. E.g.
 `Foo<1> foo;` and this structure called as non-type template parameter. One of the key idea of this paper is introducing
 new non-type template parameters. These special non-type template parameters will convert a C++ language element to
 a descriptor object.
