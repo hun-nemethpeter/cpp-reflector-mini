@@ -1,6 +1,6 @@
-Code checkers & generators
-==========================
-(Draft rev 2)
+Non-type template parameters for reflection
+===========================================
+(Draft 1)
 
 
 
