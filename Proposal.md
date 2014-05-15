@@ -124,55 +124,6 @@ output:
 Note, member call on this value template paramater (`iprT.name()`) happens during template instantiation and not in runtime.
 Every method of an IPR node is a constexpr function. And an IPR parameter itself is a constexpr object.
 
-Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
-```C++
-template<ipr::Class T>
-auto MacroName
-{
-  class Foo {};
-  int bar;
-  void $("test" + T.name())();
-}
-
-// usage
-MacroName<Foo>;
-
-// expanded to
-class Foo;
-int bar;
-void testFoo();
-```
-
-you can attach a driver to an auto template
-```C++
-template<ipr::Class T>
-auto MacroName <-> (SomeDriver driver)
-{
-  void foo() { std::cout << driver.foo() << std::endl; }
-}
-```
-
-auto template can be restricted to a grammar object
-```C++
-// this will be a "type-template"
-template<>
-ipr::Type MacroName
-{
-  int
-}
-
-// this is a named-template with attribute
-template<ipr::Class T>
-ipr::Attribute MacroName
-{
-  [[ $(T.name() + "some_attribute") ]]
-}
-...
-
-```
-
-This way can leads to a better C macro
-
 IPR node -> language object transition (writing)
 ------------------------------------------------
 
@@ -217,13 +168,23 @@ class Foo : public typename<T.name() + "Test">
 };
 ```
  
-Or you can use a driver if there is a complex transforming
+Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
 ```C++
-template<ipr::Class T> <-> (SomeDriver driver)
-class Foo : public typename<driver.foo()>
+template<ipr::Class T>
+auto MacroName
 {
-  typename<driver.bar()> $(driver.name());
-};
+  class Foo {};
+  int bar;
+  void $("test" + T.name())();
+}
+
+// usage
+MacroName<Foo>;
+
+// expanded to
+class Foo;
+int bar;
+void testFoo();
 ```
 
 Repeating with "for-template"
