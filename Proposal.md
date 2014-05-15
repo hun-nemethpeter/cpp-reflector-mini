@@ -63,59 +63,6 @@ bool User::operator==(const User& rhs) const
 }
 ```
 
-Extending the language
-----------------------
-
-```
-[temp]
-template-declaration:
-    template < template-parameter-list > < - > (  class-name template-driver-name ) declaration 
-    template < template-parameter-list > auto identifier { declaration-seq? }
-
-template-driver-name:
-    identifier
-
-[temp.explicit]
-explicit-instantiation:
-    explicit-ipr-instantiation
-
-explicit-ipr-instantiation:
-    for < for-template-iter-name : for-range-initializer > { declaration-seq? }
-    if < constant-expression > { declaration-seq? }
-
-for-template-iter-name:
-    identifier
-
-[temp.param]
-template-parameter:
-    ipr-parameter
-
-ipr-parameter:
-    ipr-type-name ipr-parameter-name
-    
-ipr-parameter-name:
-    identifier
-
-ipr-type-name:
-    ipr::Class
-    ipr::Enum
-    ipr::Namespace
-    ipr::Template
-    ipr::Union
-    ipr::Expr
-
-[stmt.stmt]
-statement:
-    explicit-ipr-instantiation
-
-[expr.prim.general]
-primary-expression:
-    pasting-expression
-
-pasting-expression:
-    typename < ipr-parameter-name >
-    $ ( ipr-parameter-name )
-```
 
 How?
 ----
@@ -125,22 +72,47 @@ If a language object is named we can use it later in the source code. If we can 
 Compile time reflection is a way to inspect these named language objects. Theoretically we can inspect every
 attributes of these objects. One possible way of compile time reflection is to ask the compiler to create a
 descriptor-object (an IPR node) for a named language object. The IPR means Internal Program Representation.
-The descriptor-object is very similar to an AST node but it is not a real one.
+The descriptor-object is an abstract AST node.
 
-Language object -> IPR node transition
---------------------------------------
+Language object -> IPR node transition (reading)
+------------------------------------------------
 
 The first main step for reflection is to make inspectable every named language-object.
 This paper examines the way where every language-object has a corresponding IPR node at compile time.
 
-Getting an IPR node of a named language object is done through extendending the template declaration syntax.
-Instead of typename/class keyword `ipr::GrammarElelemt` can use.
+In C++ language the most common declaration for a template is `template<typename T> class Foo {};` where T is represent a type name.
+`template<int N> class foo {};` also a valid for, int this case the template will be instatized with an integer. E.g.
+`Foo<1> foo;` and this structure called as non-type template parameter. One of the key idea of this paper is introducing
+new non-type template parameters. These special non-type template parameters will convert a C++ language element to
+a descriptor object.
 
- `temaplate<ipr::Class T>`
+ `template<std::ipr::Class iprT> class Foo {};`
+
+Here the new `std::ipr::Class` parameter a normal class, but it has a special capability. It can accept a class type name.
+
+  `Foo<std::string> foo;`
+
+During template instatiation the `iprT` parameter acts as a normal value parameter. That parameter is created at compile time filled
+with informaion of `std::string`.
+
+```C++
+template<ipr::Class iprT>
+class Descriptor
+{
+  static print()
+  { std::cout << T.name() << std::endl; }
+};
+
+usage:
+int foo()
+{
+  Descriptor<std::string>::printName();
+}
+```
 
 This IPR node optionally can be forwarded to a constexpr object with the `->` syntax.
 
- `temaplate<ipr::Class T> -> (SomeDriver driver)`
+ `template<ipr::Class T> -> (SomeDriver driver)`
 
  here `driver` will be a dependent name that can be used during template instantiation.
  `SomeDriver` must be a constexpr constructor with a corresponding `ipr::...` argument:
@@ -196,8 +168,8 @@ ipr::Attribute MacroName
 
 This way can leads to a better C macro
 
-IPR node -> language object transition
---------------------------------------
+IPR node -> language object transition (writing)
+------------------------------------------------
 
 There are two way of pasting a dependent name
  - the `$(...)` syntax
@@ -534,6 +506,60 @@ SomeWidget<{
               window: "Hello world",
               label:  "Foo"
             }>();
+```
+
+Extending the language
+----------------------
+
+```
+[temp]
+template-declaration:
+    template < template-parameter-list > < - > (  class-name template-driver-name ) declaration 
+    template < template-parameter-list > auto identifier { declaration-seq? }
+
+template-driver-name:
+    identifier
+
+[temp.explicit]
+explicit-instantiation:
+    explicit-ipr-instantiation
+
+explicit-ipr-instantiation:
+    for < for-template-iter-name : for-range-initializer > { declaration-seq? }
+    if < constant-expression > { declaration-seq? }
+
+for-template-iter-name:
+    identifier
+
+[temp.param]
+template-parameter:
+    ipr-parameter
+
+ipr-parameter:
+    ipr-type-name ipr-parameter-name
+    
+ipr-parameter-name:
+    identifier
+
+ipr-type-name:
+    ipr::Class
+    ipr::Enum
+    ipr::Namespace
+    ipr::Template
+    ipr::Union
+    ipr::Expr
+
+[stmt.stmt]
+statement:
+    explicit-ipr-instantiation
+
+[expr.prim.general]
+primary-expression:
+    pasting-expression
+
+pasting-expression:
+    typename < ipr-parameter-name >
+    $ ( ipr-parameter-name )
 ```
 
 Links
