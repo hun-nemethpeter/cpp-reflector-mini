@@ -96,26 +96,24 @@ During template instatiation the `iprT` parameter acts as a normal value paramet
 with informaion of `std::string`.
 
 ```C++
-class Reflect
+enum sample_enum { item1, item2 };
+
+template<ipr::Class iprT>
+void print_class_name()
 {
-  template<ipr::Class iprT>
-  static void print_class_name()
-  {
-    std::cout << iprT.name() << std::endl;
-  }
-  template<ipr::Enum iprT>
-  static void print_enum_size()
-  {
-    std::cout << iprT.members().size() << std::endl;
-  }
-};
+  std::cout << iprT.name() << std::endl;
+}
+template<ipr::Enum iprT>
+void print_enum_size()
+{
+  std::cout << iprT.members().size() << std::endl;
+}
 
 usage:
 int foo()
 {
-  Reflect::print_class_name<std::string>();
-  // std::launch is an enum
-  Reflect::print_enum_size<std::launch>();
+  print_class_name<std::string>();
+  print_enum_size<sample_enum>();
 }
 
 output:
@@ -123,16 +121,10 @@ output:
 2
 ```
 
-This IPR node optionally can be forwarded to a constexpr object with the `->` syntax.
+Note, member call on this value template paramater (`iprT.name()`) happens during template instantiation and not in runtime.
+Every method of an IPR node is a constexpr function. And an IPR parameter itself is a constexpr object.
 
- `template<ipr::Class iprT> -> (SomeDriver driver)`
-
- here `driver` will be a dependent name that can be used during template instantiation.
- `SomeDriver` must be a constexpr constructor with a corresponding `ipr::...` argument:
-
- ` class SomeDriver { constexpr SomeDriver(const ipr::Class& classDecl)  ... }; `
-
- Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
+Template declaration syntax is extended with auto template. This creates a standalone dependent names in a namespaced scope:
 ```C++
 template<ipr::Class T>
 auto MacroName
