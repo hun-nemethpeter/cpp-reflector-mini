@@ -1,0 +1,23 @@
+top = '.'
+out = '_build_'
+
+def options(opt):
+    opt.load('compiler_cxx waf_unit_test')
+
+def configure(conf):
+    conf.load('compiler_cxx waf_unit_test')
+
+def build(bld):
+    clang_flags = [
+          '-std=c++1y',
+          '-g',
+          '-O0',
+          '-Wall',
+          '-Wno-unused-parameter',
+          ]
+    bld.program(
+        target = 'constexpr_ast',
+        source = bld.path.ant_glob('*.cc'),
+        includes = ['.'],
+        cxxflags = clang_flags
+    )
