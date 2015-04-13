@@ -10,13 +10,13 @@ static_assert(Player.class.fields.size() == 2, "");
 template<typename T>
 void printClassName()
 {
-  std::cout << ..."T.class.name()]" << std::endl;
+  std::cout << ''"T.class.name()]"'' << std::endl;
 }
 
 template<typename T>
 class ClassNameAsMember
 {
-  int ...(T.class.name());
+  int ''T.class.name()'';
 };
 
 // instatize:
@@ -33,6 +33,6 @@ class MirrorClass()
 {
   for <member : T.class.members()>
   {
-    ...(member.type()) ...(member.name());
+    ''member.type()'' ''member.name()'';
   }
 }
