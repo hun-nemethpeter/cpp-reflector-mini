@@ -18,6 +18,7 @@ namespace ast
   class ast_parameter_list;
   class ast_product;
   class ast_scope;
+  class ast_sum;
   class ast_string;
   class ast_type;
   class ast_typedecl;
@@ -240,132 +241,6 @@ namespace ast
       int index;
   };
 
-  template<kind_t Kind, class T = ast_expr>
-  struct ast_kind : T
-  {
-    protected:
-      constexpr ast_kind() : T(Kind) { }
-  };
-
-                               //--- ast_unary<> --
-  /// A unary-expression is a specification of an operation that takes
-  /// only one operand, an expression.  By extension, a unary-node is a
-  /// node category that is essentially determined only by one node,
-  /// its "operand".  Usually, such an operand node is a classic expression.
-  /// Occasionally, it can be a type (e.g. sizeof (T)), we don't want to
-  /// loose that information, therefore we add a template-parameter
-  /// (the second) to indicate the precise type of the operand.  The first
-  /// template-parameter designates the actual node subcategory this class
-  /// provides interface for.
-  template<class Kind, class Operand = ast_expr>
-  class ast_unary : public Kind
-  {
-    public:
-      typedef Operand arg_type;
-      constexpr ast_unary() {}
-
-      constexpr const Operand& operand() const
-      { return *operand_; }
-
-    protected:
-      const Operand* operand_;
-  };
-
-               //--- Binary --
-  /// In full generality, a binary-expression is an expression that
-  /// consists in (a) an operator, and (b) two operands.  In Standard
-  /// C++, the two operands often are of the same type (and if they are not
-  /// they are implicitly converted).  In IPR, they need not be
-  /// of the same type.  This generality allows representations of
-  /// cast-expressions which are conceptually binary-expressions -- they
-  /// take a type and an expression.  Also, a function call is
-  /// conceptually a binary-expression that applies a function to
-  /// a list of arguments.  By extension, a binary node is any node that
-  /// is essentially dermined by two nodes, its "operands".
-  /// As for ast_unary<> nodes, we indicate the operands' type information
-  /// through the template-parameters First and Second.
-  template<class Kind, class First, class Second>
-  class ast_binary : public Kind
-  {
-    public:
-      typedef First arg1_type;
-      typedef Second arg2_type;
-
-      constexpr ast_binary() {}
-
-      constexpr const First& first() const
-      { return *first_; }
-
-      constexpr const Second& second() const
-      { return *second_; }
-
-    protected:
-      const First* first_;
-      const Second* second_;
-  };
-
-                               //--- Ternary<> --
-  /// Similar to ast_unary<> and ast_binary<> categories.  This is for
-  /// ternary-expressions, or more generally for ternary nodes.
-  /// An example of a ternary node is a Conditional node.
-  template<class Kind, class First, class Second, class Third>
-  class ast_ternary : public Kind
-  {
-    public:
-      typedef First arg1_type;
-      typedef Second arg2_type;
-      typedef Third arg3_type;
-
-      constexpr ast_ternary() {}
-
-      constexpr const First& first() const
-      { return *first_; }
-
-      constexpr const Second& second() const
-      { return *second_; }
-
-      constexpr const Third& third() const
-      { return *third_; }
-
-    protected:
-      const First* first_;
-      const Second* second_;
-      const Third* third_;
-  };
-
-                               //--- Quaternary --
-  /// Similar to ast_unary<>, ast_binary<> and ast_ternary<>.  Quaternary nodes are,
-  /// however rare in diversity.  Examples include function types.
-  template<class Kind, class First, class Second, class Third, class Fourth>
-  class ast_quaternary : public Kind
-  {
-    public:
-      typedef First arg1_type;
-      typedef Second arg2_type;
-      typedef Third arg3_type;
-      typedef Fourth arg4_type;
-
-      constexpr ast_quaternary() {}
-
-      constexpr const First& first() const
-      { return *first_; }
-
-      constexpr const Second& second() const
-      { return *second_; }
-
-      constexpr const Third& third() const
-      { return *third_; }
-
-      constexpr const Fourth& fourth() const
-      { return *fourth_; }
-
-    protected:
-      const First* first_;
-      const Second* second_;
-      const Third* third_;
-      const Fourth* fourth_;
-  };
-
   class ast_node
   {
     public:
@@ -376,10 +251,10 @@ namespace ast
       const kind_t kind_;
   };
 
-  class ast_string : public ast_kind<kind_string, ast_node>
+  class ast_string : public ast_node
   {
     public:
-      constexpr ast_string(const char* data_) : size_(0), data_(data_) {}
+      constexpr ast_string(const char* data_) : ast_node(kind_string), size_(0), data_(data_) {}
       typedef const char* iterator;
       constexpr int size() const
       { return size_; }
@@ -404,14 +279,17 @@ namespace ast
       const char* data_;
   };
 
-  class ast_linkage : public ast_unary<ast_kind<kind_linkage, ast_node>, ast_string>
+  class ast_linkage : public ast_node
   {
     public:
-      constexpr ast_linkage(const ast_string& linkage_name)
-      { operand_ = &linkage_name; }
+      constexpr ast_linkage(const ast_string& language) : ast_node(kind_linkage), language_(language)
+      { }
 
-      const arg_type& language() const
-      { return operand(); }
+      const ast_string& language() const
+      { return language_; }
+
+    protected:
+      const ast_string language_;
   };
 
   struct linkage
@@ -444,17 +322,17 @@ namespace ast
   /// an "overload set", for that name in that scope.  An "overload set"
   /// is a "sequence" of declarations, that additionaly supports
   /// lookup by "Type".
-  class ast_scope : public ast_kind<kind_scope>
+  class ast_scope : public ast_expr
   {
     public:
       typedef sequence<const ast_decl*>::iterator iterator;
 
-      constexpr ast_scope()
+      constexpr ast_scope() : ast_expr(kind_scope)
       {
       }
 
       constexpr ast_scope(const std::initializer_list<const ast_decl*> members)
-        : members_(members)
+        : ast_expr(kind_scope), members_(members)
       {
       }
 
@@ -539,7 +417,7 @@ namespace ast
   /// can be overloaded and given user-defined implementation. For
   /// instantce,  cout << 2, involves a user-defined operator.  The IPR
   /// representation is not a function call but, something like
-  /// 
+  ///
   ///                        << ---> implementation
   ///                       /  \.
   ///                    cout   2
@@ -570,9 +448,6 @@ namespace ast
 
   class ast_name : public ast_expr
   {
-    /// At the moment, this class is empty because there is no
-    /// interesting operation that could be provided here without
-    /// imposing too much of implementation details.
     public:
       const ast_string& data() const
       { return data_; }
@@ -634,14 +509,18 @@ namespace ast
   /// declarations for a name in a given scope.  An overload-set supports
   /// look-up by type.  The result of such lookup is the sequence of
   /// declarations of that name with that type.
-  struct ast_overload : public sequence<ast_decl>,
-                        public ast_kind<kind_overload>
+  class ast_overload : public sequence<const ast_decl*>,
+                       public ast_expr
   {
     public:
-      /// Bring Sequence<Decl>::operator[] into
-      /// scope before overloading.
-      using sequence<ast_decl>::operator[];
-      virtual const sequence<ast_decl>& operator[](const ast_type&) const = 0;
+      constexpr ast_overload() : ast_expr(kind_overload) {}
+
+      constexpr const sequence<const ast_decl*> operator[](const ast_type&) const
+      {
+        sequence<const ast_decl*> ret;
+        // TODO
+        return ret;
+      }
   };
 
 
@@ -677,8 +556,9 @@ namespace ast
       { return *name_; }
 
     protected:
-      constexpr ast_type(kind_t kind) : ast_expr(kind), name_(nullptr)
+      constexpr ast_type(kind_t kind, const ast_name* name = nullptr) : ast_expr(kind), name_(name)
       { }
+
       const ast_name* name_;
   };
 
@@ -744,16 +624,22 @@ namespace ast
   /// An alternate design choice would have been to have a predicate
   /// "has_unknown_bound()", which when true would make "bound()" throw
   /// an exception if accessed.
-  class ast_array : public ast_binary<ast_kind<kind_array, ast_type>, ast_type, ast_expr>
+  class ast_array : public ast_type
   {
     public:
-      constexpr ast_array(const ast_type* type, const ast_expr* expr)
-      {
-        first_ = type;
-        second_ = expr;
-      }
-      arg1_type element_type() const { return first(); }
-      arg2_type bound() const        { return second(); }
+      constexpr ast_array(const ast_type& element_type, const ast_expr& bound)
+        : ast_type(kind_array), element_type_(element_type), bound_(bound)
+      { }
+
+      constexpr const ast_type& element_type() const
+      { return element_type_; }
+
+      constexpr const ast_expr& bound() const
+      { return bound_; }
+
+    protected:
+      const ast_type& element_type_;
+      const ast_expr& bound_;
   };
 
                                //--- As_type --
@@ -766,12 +652,17 @@ namespace ast
   ///    typename T::size_type s = 90;
   ///    template<typename T, T t> ...
   /// \endcode
-  class ast_as_type : public ast_unary<ast_kind<kind_as_type, ast_type>, ast_expr>
+  class ast_as_type : public ast_type
   {
     public:
-      constexpr ast_as_type(const ast_name* name_)
-      { this->name_ = name_; }
-      arg_type expr() const { return operand(); }
+      constexpr ast_as_type(const ast_expr& expr) : ast_type(kind_as_type), expr_(expr)
+      { }
+
+      constexpr const ast_expr& expr() const
+      { return expr_; }
+
+    protected:
+      const ast_expr& expr_;
   };
 
   struct builtin_types
@@ -807,11 +698,45 @@ namespace ast
                                //--- Decltype --
   /// This node represents query for the "generalized declared type"
   /// of an expression.  Likely C++0x extension.
-  class ast_decltype : public ast_unary<ast_kind<kind_decltype, ast_type>, ast_expr>
+  class ast_decltype : public ast_type
   {
     public:
-      arg_type expr() const { return operand(); }
+      constexpr ast_decltype(const ast_expr& expr) : ast_type(kind_decltype), expr_(expr)
+      { }
+
+      constexpr const ast_expr& expr() const
+      { return expr_; }
+
+    protected:
+      const ast_expr& expr_;
   };
+
+  //--- Sum --
+  /// A Sum type represents a distinct union of types.  This is currently
+  /// used only for exception specification in Function type.
+  class ast_sum : public ast_type
+  {
+    public:
+      constexpr ast_sum(const std::initializer_list<const ast_type*> elements) : ast_type(kind_sum), elements_(elements) { }
+
+      constexpr const sequence<const ast_type*>& elements() const
+      { return elements_; }
+
+      constexpr int size() const
+      { return elements().size(); }
+
+      constexpr const ast_type& operator[](int i) const
+      { return *elements()[i]; }
+
+    private:
+      const sequence<const ast_type*> elements_;
+  };
+
+  struct sum
+  {
+    static const ast_sum empty;
+  };
+
 
                                //--- Function --
   /// This node class represents a ast_type that describes an expression
@@ -820,71 +745,99 @@ namespace ast
   /// however, we've made a special node for template.  ISO C++ specifies
   /// that function types have language linkages and two function types
   /// with different language linkages are different.
-  class ast_function : public ast_quaternary<ast_kind<kind_function, ast_type>, ast_product, ast_type, ast_type, ast_linkage>
+  class ast_function : public ast_type
   {
     public:
-      constexpr ast_function(const ast_product* param_list, const ast_type* return_type)
+      constexpr ast_function(const ast_product& source,
+                             const ast_type& target,
+                             const ast_sum& throws = sum::empty,
+                             const ast_linkage& lang_linkage = linkage::cpp)
+        : ast_type(kind_function), source_(source), target_(target), throws_(throws), lang_linkage_(lang_linkage)
       {
-        first_ = param_list;
-        second_ = return_type;
       }
       /// Parameter-type-list of a function of this type.  In full
       /// generality, this also describes template signature.
-      constexpr const arg1_type& source() const { return first(); }
+      constexpr const ast_product& source() const
+      { return source_; }
 
       /// return-type
-      constexpr const arg2_type& target() const { return second(); }
+      constexpr const ast_type& target() const
+      { return target_; }
 
       /// list of exception types a function of this type may throw
-      constexpr const arg3_type& throws() const { return third(); }
+      constexpr const ast_sum& throws() const
+      { return throws_; }
 
       /// The language linkage for this function type.  For most function
       /// types, it is C++ -- for it is the default.
-      constexpr const arg4_type& lang_linkage() const { return fourth(); }
+      constexpr const ast_linkage& lang_linkage() const
+      { return lang_linkage_; }
+
+    private:
+      const ast_product& source_;
+      const ast_type& target_;
+      const ast_sum& throws_;
+      const ast_linkage& lang_linkage_;
   };
 
                                //--- Pointer --
   /// A pointer-type is type that describes an Address node.
-  class ast_pointer : public ast_unary<ast_kind<kind_pointer, ast_type>, ast_type>
+  class ast_pointer : public ast_type
   {
     public:
-      constexpr ast_pointer(const ast_type* type)
-      { operand_ = type; }
+      constexpr ast_pointer(const ast_type& points_to) : ast_type(kind_pointer), points_to_(points_to)
+      { }
       /// The type of the entity whose address an object of this
       /// type may hold.
-      const ast_type& points_to() const { return operand(); }
+      constexpr const ast_type& points_to() const
+      { return points_to_; }
+
+    private:
+      const ast_type& points_to_;
   };
 
                                //--- Product --
   /// A Product represents a Cartesian product of Types.  Pragmatically,
   /// it may be viewed as a Sequence of Types.  It is a ast_type.
-  class ast_product : public ast_unary<ast_kind<kind_product, ast_type>, sequence<const ast_type*>>
+  class ast_product : public ast_type
   {
     public:
-      constexpr ast_product(const sequence<const ast_type*>* seq)
-      {
-        operand_ = seq;
-      }
+      constexpr ast_product() : ast_type(kind_product) {}
+      constexpr ast_product(const std::initializer_list<const ast_type*> elements) : ast_type(kind_product), elements_(elements)
+      { }
 
-      constexpr const arg_type& elements() const
-      { return operand(); }
+      constexpr const sequence<const ast_type*>& elements() const
+      { return elements_; }
 
       constexpr int size() const
       { return elements().size(); }
 
       constexpr const ast_type& operator[](int i) const
       { return *elements()[i]; }
+
+    private:
+      const sequence<const ast_type*> elements_;
   };
 
                                //--- Ptr_to_member --
   /// This is for pointer-to-member type, e.g. int A::* or void (A::*)().
   /// A pointer to member really is not a pointer type, it is much closer
   /// a pair of a type and offset that usual pointer types.
-  class ast_ptr_to_member : public ast_binary<ast_kind<kind_ptr_to_member, ast_type>, ast_type, ast_type>
+  class ast_ptr_to_member : public ast_type
   {
     public:
-      const arg1_type& containing_type() const { return first(); }
-      const arg2_type& member_type() const { return second(); }
+      constexpr ast_ptr_to_member(const ast_type& containing_type, const ast_type& member_type)
+        : ast_type(kind_ptr_to_member), containing_type_(containing_type), member_type_(member_type)
+      { }
+      constexpr const ast_type& containing_type() const
+      { return containing_type_; }
+
+      constexpr const ast_type& member_type() const
+      { return member_type_; }
+
+    private:
+      const ast_type& containing_type_;
+      const ast_type& member_type_;
   };
 
                                //--- Qualified --
@@ -897,68 +850,82 @@ namespace ast
   /// In particular, the Qualified::main_variant is never a Qualified node.
   /// We also maintain the invariant that Qualified::qualifiers is never
   /// ast_type::None, consequently it is an error to attempt to create such a node.
-  class ast_qualified : public ast_binary<ast_kind<kind_qualified, ast_type>, ast_type::qualifier_t, ast_type>
+  class ast_qualified : public ast_type
   {
     public:
-      constexpr ast_qualified(ast_type::qualifier_t qualifier, const ast_type* type) : qualifier_(qualifier)
-      {
-        first_ = &qualifier_;
-        second_ = type;
-      }
+      constexpr ast_qualified(ast_type::qualifier_t qualifier, const ast_type& main_variant)
+        : ast_type(kind_qualified), qualifier_(qualifier), main_variant_(main_variant)
+      { }
 
-      arg1_type qualifiers() const { return first(); }
-      const arg2_type& main_variant() const { return second(); }
+      constexpr const ast_type::qualifier_t qualifiers() const
+      { return qualifier_; }
+
+      constexpr const ast_type& main_variant() const
+      { return main_variant_; }
+
     private:
       const ast_type::qualifier_t qualifier_;
+      const ast_type& main_variant_;
   };
 
                                //--- Reference --
   /// A reference-type describes an expression that acts like an alias
   /// for a object or function.  However, unlike a pointer-type, it is
   /// not an object-type.
-  class ast_reference : public ast_unary<ast_kind<kind_reference, ast_type>, ast_type>
+  class ast_reference : public ast_type
   {
     public:
-      constexpr ast_reference(const ast_type* type)
-      { operand_ = type; }
+      constexpr ast_reference(const ast_type& refers_to) : ast_type(kind_reference), refers_to_(refers_to)
+      { }
 
       /// The type of the object or function an expression of this
       /// type refers to.
-      const arg_type& refers_to() const { return operand(); }
+      constexpr const ast_type& refers_to() const
+      { return refers_to_; }
+
+    private:
+      const ast_type& refers_to_;
   };
 
                                //--- Rvalue_reference --
   /// An rvalue-reference-type to support move semantics in C++0x.
-  class ast_rvalue_reference : public ast_unary<ast_kind<kind_rvalue_reference, ast_type>, ast_type>
+  class ast_rvalue_reference : public ast_type
   {
     public:
+      constexpr ast_rvalue_reference(const ast_type& refers_to) : ast_type(kind_rvalue_reference), refers_to_(refers_to)
+      { }
+
       /// The type of the object or function an expression of this
       /// type refers to.
-      const arg_type& refers_to() const { return operand(); }
-   };
+      constexpr const ast_type& refers_to() const
+      { return refers_to_; }
 
-                               //--- Sum --
-  /// A Sum type represents a distinct union of types.  This is currently
-  /// used only for exception specification in Function type.
-  class ast_sum : public ast_unary<ast_kind<kind_sum, ast_type>, sequence<ast_type>>
-  {
-    public:
-      const arg_type& elements() const { return operand(); }
-      int size() const { return elements().size(); }
-      const ast_type& operator[](int i) const { return elements()[i]; }
-  };
+    private:
+      const ast_type& refers_to_;
+   };
 
                                //--- Template --
   /// This represents the type of a template declaration.  In the near future,
   /// when "concepts" are integrated, it will become a Ternary node where the
   /// third operand will represent the "where-clause".
-  class ast_template : public ast_binary<ast_kind<kind_template, ast_type>, ast_product, ast_type>
+  class ast_template : public ast_type
   {
     public:
+      constexpr ast_template(const ast_product& source, const ast_type& target)
+        : ast_type(kind_template), source_(source), target_(target)
+      { }
+
       /// The constraints or types of the template-parameters.
-      const ast_product& source() const { return first(); }
+      constexpr const ast_product& source() const
+      { return source_; }
+
       /// The type of the instantiation result.
-      const ast_type& target() const { return second(); }
+      constexpr const ast_type& target() const
+      { return target_; }
+
+    private:
+      const ast_product& source_;
+      const ast_type& target_;
   };
 
                               //--- Udt --
@@ -985,28 +952,36 @@ namespace ast
   /// The type of a Standard C++ namespace.  A namespace is primarily
   /// interesting because it is a sequence of declarations that can be
   /// given a name.
-  class ast_namespace : public ast_kind<kind_namespace, ast_udt>
+  class ast_namespace : public ast_udt
   {
     public:
-      typedef ast_decl member;      ///< -- type of members of this type.
+      typedef ast_decl member_t;      ///< -- type of members of this type.
+
+      constexpr ast_namespace(const std::initializer_list<const ast_decl*> members)
+        : ast_udt(kind_namespace, region_), region_(members)
+      { }
+
       constexpr const sequence<const ast_decl*>& members() const
       { return scope().members(); }
+
+    private:
+      const ast_region region_;
   };
 
                                //--- Class --
   class ast_class : public ast_udt
   {
     public:
-      typedef ast_decl member;      ///< -- type of members of this type.
+      typedef ast_decl member_t;      ///< -- type of members of this type.
 
-      constexpr ast_class(const ast_name* name,
+      constexpr ast_class(const ast_name& name,
                           const std::initializer_list<const ast_decl*> members,
                           const std::initializer_list<const ast_base_type*> bases)
         : ast_udt(kind_class, region_)
         , bases_(bases)
         , region_(members)
       {
-        name_ = name;
+        name_ = &name;
       }
       constexpr const sequence<const ast_decl*>& members() const
       { return scope().members(); }
@@ -1014,27 +989,46 @@ namespace ast
       constexpr const sequence<const ast_base_type*>& bases() const
       { return bases_; }
 
-    protected:
+    private:
       const sequence<const ast_base_type*> bases_;
       const ast_region region_;
   };
 
                                //--- Union --
-  class ast_union : public ast_kind<kind_union, ast_udt>
+  class ast_union : public ast_udt
   {
-     typedef ast_decl Member;      ///< -- type of members of this type.
-     const sequence<const ast_decl*>& members() const { return scope().members(); }
+    public:
+     typedef ast_decl member_t;      ///< -- type of members of this type.
+
+     constexpr ast_union(const std::initializer_list<const ast_decl*> members)
+        : ast_udt(kind_union, region_), region_(members)
+      { }
+
+     constexpr const sequence<const ast_decl*>& members() const
+     { return scope().members(); }
+
+    private:
+      const ast_region region_;
   };
 
                                //--- Enum --
   /// An enumration is an object-type whose members are named constants
   /// the definitions of which as part of the definition of the enumeration
   /// itself.  By historical accident, enumerators are not "properly scoped".
-  class ast_enum : public ast_kind<kind_enum, ast_udt>
+  class ast_enum : public ast_udt
   {
     public:
-      typedef ast_enumerator member;      ///< -- type of members of this type.
-      virtual const sequence<ast_enumerator>& members() const = 0;
+      typedef ast_enumerator member_t;      ///< -- type of members of this type.
+
+      constexpr ast_enum(const std::initializer_list<const ast_enumerator*> members)
+        : ast_udt(kind_enum, region_), members_(members)
+      { }
+
+      constexpr const sequence<const ast_enumerator*>& members() const
+      { return members_; }
+
+    private:
+      const sequence<const ast_enumerator*> members_;
   };
 
 
@@ -1043,45 +1037,72 @@ namespace ast
   /// unknown bound, as in "unsigned char charset[];"
   /// We do not unify Phantom expressions, as two arrays with
   /// unknown bounds may not designate the same type.
-  class ast_phantom : public ast_kind<kind_phantom, ast_expr>
+  class ast_phantom : public ast_expr
   {
     public:
-      constexpr ast_phantom() {}
+      constexpr ast_phantom() : ast_expr(kind_phantom) {}
   };
 
                                //--- Literal --
   /// An IPR literal is just like a standard C++ literal.
-  class ast_literal : public ast_binary<ast_kind<kind_literal, ast_classic>, ast_type, ast_string>
+  class ast_literal : public ast_classic
   {
     public:
-      constexpr ast_literal(const ast_type* type, const ast_string* str)
-      {
-        first_ = type;
-        second_ = str;
-      }
+      constexpr ast_literal(const ast_type& type, const ast_string& string)
+        : ast_classic(kind_literal), type_(type), string_(string)
+      { }
       /// See comments for the cast operators regarding type().
+
+      constexpr const ast_type& type() const
+      { return type_; }
 
       /// The texttual representation of this literal as it appears
       /// in the program text.
-      constexpr const arg2_type& string() const
-      { return second(); }
+      constexpr const ast_string& string() const
+      { return string_; }
+
+    private:
+      const ast_type& type_;
+      const ast_string& string_;
    };
+
+  //--- Parameter_list --
+  /// \todo Parameter_list should have its category ste properly.
+  class ast_parameter_list : public ast_region,
+                             public sequence<const ast_parameter*>
+  {
+    public:
+      constexpr ast_parameter_list()
+        : ast_region({})
+      { }
+
+      constexpr ast_parameter_list(const std::initializer_list<const ast_parameter*> params)
+        : ast_region({}), sequence<const ast_parameter*>(params)
+      { }
+  };
+
 
                                //--- Mapping --
   /// This node represents a parameterized expression.
   /// Its type is a Function in case of parameterized classic expression,
   /// and Template otherwise.
-  class ast_mapping : public ast_kind<kind_mapping>
+  class ast_mapping : public ast_expr
   {
     public:
-      constexpr ast_mapping(const ast_parameter_list* param_list)
-        : depth_(0)
+      constexpr ast_mapping()
+        : ast_expr(kind_mapping)
+        , depth_(0)
+        , result_(0)
+      {}
+      constexpr ast_mapping(const ast_parameter_list& param_list)
+        : ast_expr(kind_mapping)
+        , depth_(0)
         , param_list_(param_list)
         , result_(0)
       {}
 
       constexpr const ast_parameter_list& params() const
-      { return *param_list_; }
+      { return param_list_; }
 
 //      virtual const ast_type& result_type() const = 0;
       constexpr const ast_expr& result() const
@@ -1095,20 +1116,8 @@ namespace ast
 
     protected:
       int depth_;
-      const ast_parameter_list* param_list_;
+      const ast_parameter_list param_list_;
       const ast_expr* result_;
-  };
-
-                               //--- Parameter_list --
-  /// \todo Parameter_list should have its category ste properly.
-  class ast_parameter_list : public ast_region,
-                             public sequence<const ast_parameter*>
-  {
-    public:
-      constexpr ast_parameter_list(const std::initializer_list<const ast_parameter*> params)
-        : ast_region({})
-        , sequence<const ast_parameter*>(params)
-      { }
   };
 
   class ast_stmt : public ast_expr
@@ -1195,7 +1204,7 @@ namespace ast
 #endif
 
     protected:
-      constexpr ast_decl(kind_t kind) 
+      constexpr ast_decl(kind_t kind)
         : ast_stmt(kind)
         , name_(nullptr)
         , specifiers_(None)
@@ -1245,9 +1254,11 @@ namespace ast
   /// declaration  -- if result().substitutions() is empty.
   /// The list of specializations of this template (either
   /// partial or explicit) is given by specializations().
-  class ast_named_map : public ast_kind<kind_named_map, ast_decl>
+  class ast_named_map : public ast_decl
   {
     public:
+      constexpr ast_named_map() : ast_decl(kind_named_map) {}
+
       virtual const ast_named_map& primary_named_map() const = 0;
       virtual const sequence<ast_decl>& specializations() const = 0;
       virtual const ast_mapping& mapping() const = 0;
@@ -1262,21 +1273,21 @@ namespace ast
   };
 
   /// This represents a classic enumerator.
-  class ast_enumerator : public ast_kind<kind_enumerator, ast_decl>
+  class ast_enumerator : public ast_decl
   {
     public:
-      constexpr ast_enumerator(const ast_enum* membership_)
-        : membership_(membership_)
-      {
-      }
+      constexpr ast_enumerator(const ast_enum& membership_)
+        : ast_decl(kind_enumerator), membership_(membership_)
+      { }
+
       constexpr const ast_type& type() const
       { return membership(); }
 
       constexpr const ast_enum& membership() const
-      { return *membership_; }
+      { return membership_; }
 
     protected:
-      const ast_enum* membership_;
+      const ast_enum& membership_;
   };
 
                                //--- Base_type --
@@ -1286,9 +1297,11 @@ namespace ast
   /// subobject is pretended to be the same as that of the base-class
   /// so that when it appears in a member-initializer list, it can
   /// conveniently be thought of as initialization of that subobject.
-  class ast_base_type : public ast_kind<kind_base_type, ast_decl>
+  class ast_base_type : public ast_decl
   {
     public:
+      constexpr ast_base_type() : ast_decl(kind_base_type) { }
+
       /// A base-object is, by definition, unnamed.  However, it
       /// is convenient to refer to it by the name of the corresponding
       /// type -- in C++ tradition.
@@ -1299,14 +1312,14 @@ namespace ast
                                //--- Parameter --
   /// A parameter is uniquely characterized by its position in
   /// a parameter list.
-  class ast_parameter : public ast_kind<kind_parameter, ast_decl>
+  class ast_parameter : public ast_decl
   {
     public:
-      constexpr ast_parameter(const ast_type* type, const ast_name* name)
-        : membership_(nullptr)
+      constexpr ast_parameter(const ast_type& type, const ast_name& name)
+        : ast_decl(kind_parameter), membership_(nullptr)
       {
-        type_ = type;
-        name_ = name;
+        type_ = &type;
+        name_ = &name;
       }
 
       constexpr const ast_expr& default_value() const
@@ -1323,16 +1336,17 @@ namespace ast
   /// This node represents a function declaration. Notice that the
   /// exception specification is actually made part of the function
   /// type.  For convenience, it is represented here too.
-  class ast_fundecl : public ast_kind<kind_fundecl, ast_decl>
+  class ast_fundecl : public ast_decl
   {
     public:
-      constexpr ast_fundecl(const ast_name* name, const ast_type* type, const ast_mapping* name_mapping)
-         : membership_(nullptr)
+      constexpr ast_fundecl(const ast_name& name, const ast_type& type, const ast_mapping& mapping)
+         : ast_decl(kind_fundecl)
+         , membership_(nullptr)
          , definition_(nullptr)
-         , mapping_(name_mapping)
+         , mapping_(mapping)
       {
-        name_ = name;
-        type_ = type;
+        name_ = &name;
+        type_ = &type;
       }
 
       constexpr const ast_parameter_list& parameters() const
@@ -1345,38 +1359,39 @@ namespace ast
       { return *definition_; }
 
       constexpr const ast_mapping& mapping() const
-      { return *mapping_; }
+      { return mapping_; }
 
     protected:
       const ast_udt* membership_;
       const ast_fundecl* definition_;
-      const ast_mapping* mapping_;
+      const ast_mapping& mapping_;
    };
 
                                //--- Var --
   /// This represents a variable declaration.  It is also used to
   /// represent a static data member.
-  class ast_var : public ast_kind<kind_var, ast_decl>
+  class ast_var : public ast_decl
   {
     public:
-      constexpr ast_var(const ast_type* type,
-          const ast_name* name,
+      constexpr ast_var(const ast_type& type,
+          const ast_name& name,
           ast_decl::specifier_t specifier = ast_decl::None,
-          const ast_linkage* linkage = &linkage::cpp)
+          const ast_linkage& linkage = linkage::cpp) : ast_decl(kind_var)
       {
-        type_ = type;
-        name_ = name;
+        type_ = &type;
+        name_ = &name;
         specifiers_ = specifier;
-        lang_linkage_ = linkage;
+        lang_linkage_ = &linkage;
       }
   };
 
                                 //--- Field --
   /// This node represents a nonstatic data member.
-  class ast_field : ast_kind<kind_field, ast_decl>
+  class ast_field : public ast_decl
   {
     public:
-      constexpr ast_field() : membership_(nullptr) {}
+      constexpr ast_field() : ast_decl(kind_field), membership_(nullptr) {}
+
       constexpr const ast_udt& membership() const
       { return *membership_; }
 
@@ -1386,10 +1401,10 @@ namespace ast
 
                                 //--- Bitfield --
   /// A bit-field data member.
-  class ast_bitfield : public ast_kind<kind_bitfield, ast_decl>
+  class ast_bitfield : public ast_decl
   {
     public:
-      constexpr ast_bitfield() : precision_(nullptr), membership_(nullptr) {}
+      constexpr ast_bitfield() : ast_decl(kind_bitfield), precision_(nullptr), membership_(nullptr) {}
 
       constexpr const ast_expr& precision() const
       { return *precision_; }
@@ -1403,10 +1418,10 @@ namespace ast
   };
 
                                 //--- Typedecl --
-  class ast_typedecl : public ast_kind<kind_typedecl, ast_decl>
+  class ast_typedecl : public ast_decl
   {
     public:
-      constexpr ast_typedecl() : membership_(nullptr), definition_(nullptr) {}
+      constexpr ast_typedecl() : ast_decl(kind_typedecl), membership_(nullptr), definition_(nullptr) {}
 
       constexpr const ast_udt& membership() const
       { return *membership_; }
