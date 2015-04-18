@@ -387,6 +387,17 @@ namespace ast
       { return data_; }
       constexpr iterator end() const
       { return begin() + size_; }
+      constexpr bool compare(const char* s2) const
+      {
+        int n = size_;
+        const char* s1 = data_;
+        for (; n; --n, ++s1, ++s2)
+        {
+          if (*s1 != *s2)
+            return false;
+        }
+        return true;
+      }
 
     protected:
       const int size_;
@@ -409,42 +420,6 @@ namespace ast
     static const ast_linkage cpp;
   };
 
-                               //--- Region --
-  /// A Region node represents a region of program text.  It is mostly
-  /// useful for capturing the notion of scope (in Standard C++ sense).
-  /// In IPR, we're using a generalized notion of Scope (a sequence of
-  /// declarations).  The  notion of Region helps making precise when
-  /// some implicit actions like cleanup-ups happen, or nesting of scopes.
-  /// The sequence of declarations appearing in a Region makes up the
-  /// Scope of that region.
-  class ast_region : public ast_kind<kind_region, ast_node>
-  {
-    public:
-      constexpr ast_region()
-        : enclosing_(nullptr)
-        , bindings_(nullptr)
-        , owner_(nullptr)
-      { }
-#if TODO
-      typedef std::pair<Unit_location, Unit_location> Location_span;
-      virtual const Location_span& span() const = 0;
-#endif
-
-      constexpr const ast_region& enclosing() const
-      { return *enclosing_; }
-
-      constexpr const ast_scope& bindings() const
-      { return *bindings_; }
-
-      constexpr const ast_expr& owner() const
-      { return *owner_; }
-
-    protected:
-      const ast_region* enclosing_;
-      const ast_scope* bindings_;
-      const ast_expr* owner_;
-   };
-
   class ast_expr : public ast_node
   {
     public:
@@ -454,11 +429,109 @@ namespace ast
     protected:
       constexpr ast_expr(kind_t kind)
         : ast_node(kind)
-          , type_(nullptr)
+        , type_(nullptr)
     { }
 
       const ast_type* type_;
   };
+
+  //--- Scope --
+  /// A "declaration" is a type specification for a name. A "Scope" is
+  /// a "sequence" of declarations, that additionally supports "lookup"
+  /// by "Name".  A name may have more than one declarations in a given
+  /// scope; such a name is said "overloaded".  The result of
+  /// looking up a name in a scope is a set of all declarations, called
+  /// an "overload set", for that name in that scope.  An "overload set"
+  /// is a "sequence" of declarations, that additionaly supports
+  /// lookup by "Type".
+  class ast_scope : public ast_kind<kind_scope>
+  {
+    public:
+      typedef sequence<const ast_decl*>::iterator iterator;
+
+      constexpr ast_scope()
+      {
+      }
+
+      constexpr ast_scope(const std::initializer_list<const ast_decl*> members)
+        : members_(members)
+      {
+      }
+
+      /// The sequence of declarations this scope contain.
+      constexpr const sequence<const ast_decl*>& members() const
+      { return members_; }
+
+      /// The region that determine this scope.
+      /// virtual const Region& region() const = 0;
+
+#if TODO
+      /// Look-up by name returns the overload-set of all declarations,
+      /// for the subscripting name, contained in this scope.
+      constexpr const ast_overload& operator[](const ast_name&) const
+      { return TODO; }
+#endif
+
+      /// How may declarations are there in this Scope.
+      constexpr int size() const
+      { return members().size(); }
+
+      iterator begin() const
+      { return members().begin(); }
+
+      iterator end() const
+      { return members().end(); }
+
+      constexpr const ast_decl& operator[](int i) const
+      { return *members()[i]; }
+
+    protected:
+      const sequence<const ast_decl*> members_;
+  };
+
+
+                               //--- Region --
+  /// A Region node represents a region of program text.  It is mostly
+  /// useful for capturing the notion of scope (in Standard C++ sense).
+  /// In IPR, we're using a generalized notion of Scope (a sequence of
+  /// declarations).  The  notion of Region helps making precise when
+  /// some implicit actions like cleanup-ups happen, or nesting of scopes.
+  /// The sequence of declarations appearing in a Region makes up the
+  /// Scope of that region.
+  class ast_region : public ast_node
+  {
+    public:
+      constexpr ast_region(const std::initializer_list<const ast_decl*> decls)
+        : ast_node(kind_region)
+        , enclosing_(nullptr)
+        , bindings_(decls)
+        , owner_(nullptr)
+      { }
+      constexpr ast_region(const ast_region* enclosing)
+        : ast_node(kind_region)
+        , enclosing_(enclosing)
+        , owner_(nullptr)
+      { }
+
+#if TODO
+      typedef std::pair<Unit_location, Unit_location> Location_span;
+      virtual const Location_span& span() const = 0;
+#endif
+
+      constexpr const ast_region& enclosing() const
+      { return *enclosing_; }
+
+      constexpr const ast_scope& bindings() const
+      { return bindings_; }
+
+      constexpr const ast_expr& owner() const
+      { return *owner_; }
+
+    protected:
+      const ast_region* enclosing_;
+      const ast_scope bindings_;
+      const ast_expr* owner_;
+   };
 
                                //--- Classic --
   /// Classic expressions are those constructed with operators
@@ -500,26 +573,31 @@ namespace ast
     /// At the moment, this class is empty because there is no
     /// interesting operation that could be provided here without
     /// imposing too much of implementation details.
+    public:
+      const ast_string& data() const
+      { return data_; }
+
+      constexpr bool operator==(const char* str) const
+      { return data_.compare(str); }
 
     protected:
-      constexpr ast_name(kind_t kind) : ast_expr(kind)
+      constexpr ast_name(kind_t kind, const ast_string& data) : ast_expr(kind), data_(data)
       { }
+
+      const ast_string data_;
   };
 
   //--- Identifier --
   /// An identifier is a sequence of alphanumeric characters starting
   /// with either a letter or an underbar ('_').
-  class ast_identifier : public ast_unary<ast_kind<kind_identifier, ast_name>, ast_string>
+  class ast_identifier : public ast_name
   {
     public:
       /// The character sequence of this identifier
-      arg_type string() const { return operand(); }
+      const ast_string& string() const { return data(); }
 
-      constexpr ast_identifier(const char* id) : data(id)
-    { operand_ = &data; }
-
-    private:
-      const ast_string data;
+      constexpr ast_identifier(const char* id) : ast_name(kind_identifier, id)
+      { }
   };
 
   struct keywords
@@ -566,47 +644,14 @@ namespace ast
       virtual const sequence<ast_decl>& operator[](const ast_type&) const = 0;
   };
 
-                              //--- Scope --
-  /// A "declaration" is a type specification for a name. A "Scope" is
-  /// a "sequence" of declarations, that additionally supports "lookup"
-  /// by "Name".  A name may have more than one declarations in a given
-  /// scope; such a name is said "overloaded".  The result of
-  /// looking up a name in a scope is a set of all declarations, called
-  /// an "overload set", for that name in that scope.  An "overload set"
-  /// is a "sequence" of declarations, that additionaly supports
-  /// lookup by "Type".
-  class ast_scope : public ast_kind<kind_scope>
-  {
-    public:
-      typedef sequence<ast_decl>::iterator iterator;
 
-      /// The sequence of declarations this scope contain.
-      virtual const sequence<ast_decl>& members() const = 0;
-
-      /// The region that determine this scope.
-      /// virtual const Region& region() const = 0;
-
-      /// Look-up by name returns the overload-set of all declarations,
-      /// for the subscripting name, contained in this scope.
-      virtual const ast_overload& operator[](const ast_name&) const = 0;
-
-      /// How may declarations are there in this Scope.
-      constexpr int size() const { return members().size(); }
-
-      iterator begin() const { return members().begin(); }
-      iterator end() const { return members().end(); }
-#if TODO
-      constexpr const ast_decl& operator[](int i) const { return members()[i]; }
-#endif
-   };
-
-                                //--- General types --
-   /// A type is a collection of constraints and operations that preserve
-   /// some invariants.  Since a Type is also an Expression, it has a type.
-   /// A type of a type is what we call a "concept".  A type in IPR has a
-   /// much broader significance than Standard C++ types (henceforth called
-   /// "classic type").  In particular, in IPR, namespace is a type.
-   /// Simirlary, an overload-set has a type.
+                               //--- General types --
+  /// A type is a collection of constraints and operations that preserve
+  /// some invariants.  Since a Type is also an Expression, it has a type.
+  /// A type of a type is what we call a "concept".  A type in IPR has a
+  /// much broader significance than Standard C++ types (henceforth called
+  /// "classic type").  In particular, in IPR, namespace is a type.
+  /// Simirlary, an overload-set has a type.
   class ast_type : public ast_expr
   {
     public:
@@ -628,7 +673,7 @@ namespace ast
       ///      virtual qualifier_t qualifiers() const = 0;
       ///      virtual const ast_type& main_variant() const = 0;
       /// All types have have names.
-      const ast_name& name() const
+      constexpr const ast_name& name() const
       { return *name_; }
 
     protected:
@@ -677,12 +722,18 @@ namespace ast
                                //--- Type_id --
   /// This node is used for elaborated expressions that designate types.
   /// For example, "const T*" is a Type_id , so is "int (T&)".
-  class ast_type_id : public ast_unary<ast_kind<kind_type_id, ast_name>, ast_type>
+  class ast_type_id : public ast_name
   {
     public:
-      constexpr ast_type_id()
+      constexpr ast_type_id(const ast_type& type, const char* id)
+        : ast_name(kind_type_id, id), type_(type)
       { }
-      arg_type type_expr() const { return operand(); }
+
+      const ast_type& type_expr() const
+      { return type_; }
+
+    protected:
+      const ast_type& type_;
   };
 
                                //--- Array --
@@ -916,16 +967,18 @@ namespace ast
   {
     public:
       /// The region delimited by the definition of this Udt.
-      const ast_region& region() const
-      { return *region_; }
-      const ast_scope& scope() const { return region().bindings(); }
+      constexpr const ast_region& region() const
+      { return region_; }
+
+      constexpr const ast_scope& scope() const
+      { return region().bindings(); }
 
     protected:
       /// It is an error to create a node of this type.
-      constexpr ast_udt(kind_t kind) : ast_type(kind), region_(nullptr) ///< Used by derived classes.
+      constexpr ast_udt(kind_t kind, const ast_region& region) : ast_type(kind), region_(region) ///< Used by derived classes.
       { }
 
-      const ast_region* region_;
+      const ast_region& region_;
   };
 
                                //--- Namespace --
@@ -936,27 +989,41 @@ namespace ast
   {
     public:
       typedef ast_decl member;      ///< -- type of members of this type.
-      constexpr const sequence<ast_decl>& members() const
+      constexpr const sequence<const ast_decl*>& members() const
       { return scope().members(); }
   };
 
                                //--- Class --
-  class ast_class : public ast_kind<kind_class, ast_udt>
+  class ast_class : public ast_udt
   {
     public:
       typedef ast_decl member;      ///< -- type of members of this type.
-      constexpr ast_class() {}
-      constexpr const sequence<ast_decl>& members() const
+
+      constexpr ast_class(const ast_name* name,
+                          const std::initializer_list<const ast_decl*> members,
+                          const std::initializer_list<const ast_base_type*> bases)
+        : ast_udt(kind_class, region_)
+        , bases_(bases)
+        , region_(members)
+      {
+        name_ = name;
+      }
+      constexpr const sequence<const ast_decl*>& members() const
       { return scope().members(); }
 
-      const sequence<ast_base_type> bases;
+      constexpr const sequence<const ast_base_type*>& bases() const
+      { return bases_; }
+
+    protected:
+      const sequence<const ast_base_type*> bases_;
+      const ast_region region_;
   };
 
                                //--- Union --
   class ast_union : public ast_kind<kind_union, ast_udt>
   {
      typedef ast_decl Member;      ///< -- type of members of this type.
-     const sequence<ast_decl>& members() const { return scope().members(); }
+     const sequence<const ast_decl*>& members() const { return scope().members(); }
   };
 
                                //--- Enum --
@@ -1039,7 +1106,8 @@ namespace ast
   {
     public:
       constexpr ast_parameter_list(const std::initializer_list<const ast_parameter*> params)
-        : sequence<const ast_parameter*>(params)
+        : ast_region({})
+        , sequence<const ast_parameter*>(params)
       { }
   };
 

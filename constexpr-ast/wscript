@@ -4,6 +4,11 @@ out = '_build_'
 def options(opt):
     opt.load('compiler_cxx waf_unit_test')
 
+# g++ 4.8.2 is not enough
+#
+# for building with clang use at least version 3.4
+# CXX=clang++ waf configure
+# waf
 def configure(conf):
     conf.load('compiler_cxx waf_unit_test')
 
