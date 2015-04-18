@@ -1,5 +1,7 @@
 #include <str_const.h>
 #include <ast.h>
+void gets();
+#include <iostream>
 
 using namespace std::ast;
 
@@ -69,8 +71,8 @@ void test_ast_building()
 
   //  int (*)(char, double);
   auto fooFn2() -> int (*)(char, double);
-  static constexpr std::initializer_list<const ast_type*> param_seq = { &builtin_types::type_char, &builtin_types::type_double };
-  static constexpr ast_product param_list_2(param_seq);
+  static constexpr const ast_type* param_seq[] = { &builtin_types::type_char, &builtin_types::type_double };
+  static constexpr ast_product param_list_2({ param_seq, 2});
   static constexpr ast_function abstract_int_funtion_param_2(param_list_2, builtin_types::type_int);
 
   //  int test();
@@ -82,8 +84,8 @@ void test_ast_building()
   //  int test(char param1, double param2);
   static constexpr ast_parameter test_param_1(builtin_types::type_char, id_param1);
   static constexpr ast_parameter test_param_2(builtin_types::type_double, id_param2);
-  static constexpr std::initializer_list<const ast_parameter*> ast_parameters = { &test_param_1, &test_param_2 };
-  static constexpr ast_parameter_list test_param_list_2(ast_parameters);
+  static constexpr const ast_parameter* ast_parameters[] = { &test_param_1, &test_param_2 };
+  static constexpr ast_parameter_list test_param_list_2({ast_parameters, 2});
   static constexpr ast_mapping mappings_param_2(test_param_list_2);
   static constexpr ast_fundecl int_funtion_param2(id_test, abstract_int_funtion_param_2, mappings_param_2);
   static_assert(int_funtion_param2.parameters().size() == 2, "");
@@ -96,15 +98,17 @@ void test_ast_building()
 
   //  class test
   //  {
-  //    char a;
-  //    double b;
+  //    char member1;
+  //    double member2;
   //  };
   static constexpr ast_var test_member1(builtin_types::type_char, id_member1);
   static constexpr ast_var test_member2(builtin_types::type_double, id_member2);
-  static constexpr std::initializer_list<const ast_decl*> test_class_members = { &test_member1, &test_member2 };
-  static constexpr ast_class test_class(id_test, test_class_members, {});
+  static constexpr const ast_decl* members[] = { &test_member1, &test_member2 };
+  static constexpr ast_class test_class(id_test, { members, 2 }, {});
   static_assert(test_class.name() == "test", "");
   static_assert(test_class.members().size() == 2, "");
+  static_assert(test_class.members()[0].name() == "member1", "");
+  static_assert(test_class.members()[1].name() == "member2", "");
   static_assert(test_class.bases().size() == 0, "");
 }
 

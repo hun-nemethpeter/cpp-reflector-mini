@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <initializer_list>
+#include <utility>
 
 #define TODO 0
 
@@ -165,13 +166,13 @@ namespace ast
       typedef T value_type;
       typedef const T& reference;
       typedef const T* pointer;
+      typedef std::pair<const T* const*, std::size_t> pair_t;
 
       constexpr sequence() : data(0), size_(0) {}
-      constexpr sequence(const T* data, std::size_t size) : data(data), size_(size) {}
-      constexpr sequence(const std::initializer_list<T>& values) : data(values.begin()), size_(values.size()) {}
+      constexpr sequence(const pair_t& values) : data(values.first), size_(values.second) {}
 
       constexpr const T& operator[](std::size_t index) const
-      { return data[index]; }
+      { return *data[index]; }
 
       constexpr std::size_t size() const
       { return size_; }
@@ -183,10 +184,10 @@ namespace ast
       { return iterator(this, -1); } // TODO
 
       constexpr const T& get(std::size_t index) const
-      { return data[index]; }
+      { return *data[index]; }
 
     private:
-      const T* const data;
+      const T* const* data;
       const std::size_t size_;
   };
 
@@ -325,19 +326,19 @@ namespace ast
   class ast_scope : public ast_expr
   {
     public:
-      typedef sequence<const ast_decl*>::iterator iterator;
+      typedef sequence<ast_decl>::iterator iterator;
 
       constexpr ast_scope() : ast_expr(kind_scope)
       {
       }
 
-      constexpr ast_scope(const std::initializer_list<const ast_decl*> members)
+      constexpr ast_scope(const sequence<ast_decl>::pair_t& members)
         : ast_expr(kind_scope), members_(members)
       {
       }
 
       /// The sequence of declarations this scope contain.
-      constexpr const sequence<const ast_decl*>& members() const
+      constexpr const sequence<ast_decl>& members() const
       { return members_; }
 
       /// The region that determine this scope.
@@ -361,10 +362,10 @@ namespace ast
       { return members().end(); }
 
       constexpr const ast_decl& operator[](int i) const
-      { return *members()[i]; }
+      { return members()[i]; }
 
     protected:
-      const sequence<const ast_decl*> members_;
+      const sequence<ast_decl> members_;
   };
 
 
@@ -379,7 +380,7 @@ namespace ast
   class ast_region : public ast_node
   {
     public:
-      constexpr ast_region(const std::initializer_list<const ast_decl*> decls)
+      constexpr ast_region(const sequence<ast_decl>::pair_t& decls)
         : ast_node(kind_region)
         , enclosing_(nullptr)
         , bindings_(decls)
@@ -717,19 +718,20 @@ namespace ast
   class ast_sum : public ast_type
   {
     public:
-      constexpr ast_sum(const std::initializer_list<const ast_type*> elements) : ast_type(kind_sum), elements_(elements) { }
+      constexpr ast_sum() : ast_type(kind_sum) { }
+      constexpr ast_sum(const sequence<ast_type>::pair_t& elements) : ast_type(kind_sum), elements_(elements) { }
 
-      constexpr const sequence<const ast_type*>& elements() const
+      constexpr const sequence<ast_type>& elements() const
       { return elements_; }
 
       constexpr int size() const
       { return elements().size(); }
 
       constexpr const ast_type& operator[](int i) const
-      { return *elements()[i]; }
+      { return elements()[i]; }
 
     private:
-      const sequence<const ast_type*> elements_;
+      const sequence<ast_type> elements_;
   };
 
   struct sum
@@ -803,20 +805,20 @@ namespace ast
   {
     public:
       constexpr ast_product() : ast_type(kind_product) {}
-      constexpr ast_product(const std::initializer_list<const ast_type*> elements) : ast_type(kind_product), elements_(elements)
+      constexpr ast_product(const sequence<ast_type>::pair_t& elements) : ast_type(kind_product), elements_(elements)
       { }
 
-      constexpr const sequence<const ast_type*>& elements() const
+      constexpr const sequence<ast_type>& elements() const
       { return elements_; }
 
       constexpr int size() const
       { return elements().size(); }
 
       constexpr const ast_type& operator[](int i) const
-      { return *elements()[i]; }
+      { return elements()[i]; }
 
     private:
-      const sequence<const ast_type*> elements_;
+      const sequence<ast_type> elements_;
   };
 
                                //--- Ptr_to_member --
@@ -957,11 +959,11 @@ namespace ast
     public:
       typedef ast_decl member_t;      ///< -- type of members of this type.
 
-      constexpr ast_namespace(const std::initializer_list<const ast_decl*> members)
+      constexpr ast_namespace(const sequence<ast_decl>::pair_t& members)
         : ast_udt(kind_namespace, region_), region_(members)
       { }
 
-      constexpr const sequence<const ast_decl*>& members() const
+      constexpr const sequence<ast_decl>& members() const
       { return scope().members(); }
 
     private:
@@ -975,22 +977,22 @@ namespace ast
       typedef ast_decl member_t;      ///< -- type of members of this type.
 
       constexpr ast_class(const ast_name& name,
-                          const std::initializer_list<const ast_decl*> members,
-                          const std::initializer_list<const ast_base_type*> bases)
+                          const sequence<ast_decl>::pair_t& members,
+                          const sequence<ast_base_type>::pair_t& bases)
         : ast_udt(kind_class, region_)
         , bases_(bases)
         , region_(members)
       {
         name_ = &name;
       }
-      constexpr const sequence<const ast_decl*>& members() const
+      constexpr const sequence<ast_decl>& members() const
       { return scope().members(); }
 
-      constexpr const sequence<const ast_base_type*>& bases() const
+      constexpr const sequence<ast_base_type>& bases() const
       { return bases_; }
 
     private:
-      const sequence<const ast_base_type*> bases_;
+      const sequence<ast_base_type> bases_;
       const ast_region region_;
   };
 
@@ -1000,11 +1002,11 @@ namespace ast
     public:
      typedef ast_decl member_t;      ///< -- type of members of this type.
 
-     constexpr ast_union(const std::initializer_list<const ast_decl*> members)
+     constexpr ast_union(const sequence<ast_decl>::pair_t& members)
         : ast_udt(kind_union, region_), region_(members)
       { }
 
-     constexpr const sequence<const ast_decl*>& members() const
+     constexpr const sequence<ast_decl>& members() const
      { return scope().members(); }
 
     private:
@@ -1020,15 +1022,15 @@ namespace ast
     public:
       typedef ast_enumerator member_t;      ///< -- type of members of this type.
 
-      constexpr ast_enum(const std::initializer_list<const ast_enumerator*> members)
+      constexpr ast_enum(const sequence<ast_enumerator>::pair_t& members)
         : ast_udt(kind_enum, region_), members_(members)
       { }
 
-      constexpr const sequence<const ast_enumerator*>& members() const
+      constexpr const sequence<ast_enumerator>& members() const
       { return members_; }
 
     private:
-      const sequence<const ast_enumerator*> members_;
+      const sequence<ast_enumerator> members_;
   };
 
 
@@ -1069,15 +1071,15 @@ namespace ast
   //--- Parameter_list --
   /// \todo Parameter_list should have its category ste properly.
   class ast_parameter_list : public ast_region,
-                             public sequence<const ast_parameter*>
+                             public sequence<ast_parameter>
   {
     public:
       constexpr ast_parameter_list()
         : ast_region({})
       { }
 
-      constexpr ast_parameter_list(const std::initializer_list<const ast_parameter*> params)
-        : ast_region({}), sequence<const ast_parameter*>(params)
+      constexpr ast_parameter_list(const sequence<ast_parameter>::pair_t& params)
+        : ast_region({}), sequence<ast_parameter>(params)
       { }
   };
 

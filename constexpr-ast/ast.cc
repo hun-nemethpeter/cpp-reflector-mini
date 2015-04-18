@@ -5,7 +5,7 @@ namespace std { namespace ast {
 const ast_linkage linkage::c("C");
 const ast_linkage linkage::cpp("C++");
 
-const ast_sum sum::empty = {};
+const ast_sum sum::empty;
 
 const ast_identifier keywords::id_void("void");
 const ast_identifier keywords::id_bool("bool");
