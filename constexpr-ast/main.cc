@@ -24,7 +24,9 @@ void test_ast_building()
   //  examples
   //  int test;
   constexpr ast_var test_var1(builtin_types::type_int, id_test);
+  static_assert(&builtin_types::type_int.name() != nullptr, "");
   static_assert(test_var1.name() == "test", "");
+  static_assert(test_var1.type().name() == "int", "");
 
   //  const int test;
   static constexpr ast_qualified const_int(ast_type::Const, builtin_types::type_int);
@@ -93,6 +95,7 @@ void test_ast_building()
 
   //  class test;
   static constexpr ast_class test_class_empty(id_test, {}, {});
+  static_assert(test_class_empty.name() == "test", "");
   static_assert(test_class_empty.members().size() == 0, "");
   static_assert(test_class_empty.bases().size() == 0, "");
 
@@ -103,12 +106,19 @@ void test_ast_building()
   //  };
   static constexpr ast_var test_member1(builtin_types::type_char, id_member1);
   static constexpr ast_var test_member2(builtin_types::type_double, id_member2);
-  static constexpr const ast_decl* members[] = { &test_member1, &test_member2 };
-  static constexpr ast_class test_class(id_test, { members, 2 }, {});
+  static constexpr const ast_decl* test_class_members[] = { &test_member1, &test_member2 };
+
+  static constexpr ast_class test_class(id_test, { test_class_members, 2 }, {});
+
   static_assert(test_class.name() == "test", "");
   static_assert(test_class.members().size() == 2, "");
+
   static_assert(test_class.members()[0].name() == "member1", "");
+  static_assert(test_class.members()[0].type().name() == "char", "");
+
   static_assert(test_class.members()[1].name() == "member2", "");
+  static_assert(test_class.members()[1].type().name() == "double", "");
+
   static_assert(test_class.bases().size() == 0, "");
 }
 

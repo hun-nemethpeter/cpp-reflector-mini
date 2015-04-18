@@ -246,7 +246,8 @@ namespace ast
   {
     public:
       constexpr ast_node(kind_t kind_) : kind_(kind_) {}
-      kind_t kind();
+      constexpr kind_t kind() const
+      { return kind_; }
 
     private:
       const kind_t kind_;
@@ -283,7 +284,7 @@ namespace ast
   class ast_linkage : public ast_node
   {
     public:
-      constexpr ast_linkage(const ast_string& language) : ast_node(kind_linkage), language_(language)
+      constexpr ast_linkage(const char* language) : ast_node(kind_linkage), language_(language)
       { }
 
       const ast_string& language() const
@@ -295,21 +296,21 @@ namespace ast
 
   struct linkage
   {
-    static const ast_linkage c;
-    static const ast_linkage cpp;
+    static constexpr ast_linkage c = "C";
+    static constexpr ast_linkage cpp = "C++";
   };
 
   class ast_expr : public ast_node
   {
     public:
-      const ast_type& type() const
+      constexpr const ast_type& type() const
       { return *type_; }
 
     protected:
       constexpr ast_expr(kind_t kind)
         : ast_node(kind)
         , type_(nullptr)
-    { }
+      { }
 
       const ast_type* type_;
   };
@@ -447,6 +448,23 @@ namespace ast
      const ast_decl* impl_decl_;
   };
 
+  //--- Name --
+  /// Standard C++ says that 'a name is a use of identifier to designate
+  /// an entity'.  In IPR we take the view that a name is a symbol
+  /// (or combination thereof) interpreted in their most abstract sense,
+  /// i.e. whose meaning depends on binding contexts (Scopes).
+  /// That definition accounts for the following (in the standard C++ sense)
+  ///    - unqualified-id                    -- Identifier
+  ///    - qualified-id                      -- Scope_ref
+  ///    - operator-function-id              -- Operator
+  ///    - conversion-function-id            -- Conversion
+  ///    - template-id                       -- Template_id
+  ///    - type-id                           -- Type_id
+  ///
+  /// Most names are introduced by declarations into scope.
+  /// A Name is an Expression.  That obviates the needs for a
+  /// special node to turn names into Expressions, for the purpose
+  /// of symbolic interpretation.
   class ast_name : public ast_expr
   {
     public:
@@ -478,31 +496,31 @@ namespace ast
 
   struct keywords
   {
-    static const ast_identifier id_void;
+    static constexpr ast_identifier id_void = "void";
 
-    static const ast_identifier id_bool;
+    static constexpr ast_identifier id_bool = "bool";
 
-    static const ast_identifier id_char;
-    static const ast_identifier id_schar;
-    static const ast_identifier id_uchar;
+    static constexpr ast_identifier id_char = "char";
+    static constexpr ast_identifier id_schar = "signed char";
+    static constexpr ast_identifier id_uchar = "unsigned char";
 
-    static const ast_identifier id_wchar_t;
+    static constexpr ast_identifier id_wchar_t = "wchar_t";
 
-    static const ast_identifier id_short;
-    static const ast_identifier id_ushort;
+    static constexpr ast_identifier id_short = "short";
+    static constexpr ast_identifier id_ushort = "unsigned short";
 
-    static const ast_identifier id_int;
-    static const ast_identifier id_uint;
+    static constexpr ast_identifier id_int = "int";
+    static constexpr ast_identifier id_uint = "unsigned int";
 
-    static const ast_identifier id_long;
-    static const ast_identifier id_ulong;
+    static constexpr ast_identifier id_long = "long";
+    static constexpr ast_identifier id_ulong = "unsigned long";
 
-    static const ast_identifier id_long_long;
-    static const ast_identifier id_ulong_long;
+    static constexpr ast_identifier id_long_long = "long long";
+    static constexpr ast_identifier id_ulong_long = "unsigned long long";
 
-    static const ast_identifier id_float;
-    static const ast_identifier id_double;
-    static const ast_identifier id_long_double;
+    static constexpr ast_identifier id_float = "float";
+    static constexpr ast_identifier id_double = "double";
+    static constexpr ast_identifier id_long_double = "long double";
   };
 
                                //--- Overload --
@@ -657,7 +675,11 @@ namespace ast
   {
     public:
       constexpr ast_as_type(const ast_expr& expr) : ast_type(kind_as_type), expr_(expr)
-      { }
+      {
+        type_ = &expr.type();
+        if (expr.kind() == kind_identifier)
+          name_ = &static_cast<const ast_identifier&>(expr);
+      }
 
       constexpr const ast_expr& expr() const
       { return expr_; }
@@ -668,31 +690,31 @@ namespace ast
 
   struct builtin_types
   {
-    static const ast_as_type type_void;
+    static constexpr ast_as_type type_void = keywords::id_void;
 
-    static const ast_as_type type_bool;
+    static constexpr ast_as_type type_bool = keywords::id_bool;
 
-    static const ast_as_type type_char;
-    static const ast_as_type type_schar;
-    static const ast_as_type type_uchar;
+    static constexpr ast_as_type type_char = keywords::id_char;
+    static constexpr ast_as_type type_schar = keywords::id_schar;
+    static constexpr ast_as_type type_uchar = keywords::id_uchar;
 
-    static const ast_as_type type_wchar_t;
+    static constexpr ast_as_type type_wchar_t = keywords::id_wchar_t;
 
-    static const ast_as_type type_short;
-    static const ast_as_type type_ushort;
+    static constexpr ast_as_type type_short = keywords::id_short;
+    static constexpr ast_as_type type_ushort = keywords::id_ushort;
 
-    static const ast_as_type type_int;
-    static const ast_as_type type_uint;
+    static constexpr ast_as_type type_int = keywords::id_int;
+    static constexpr ast_as_type type_uint = keywords::id_uint;
 
-    static const ast_as_type type_long;
-    static const ast_as_type type_ulong;
+    static constexpr ast_as_type type_long = keywords::id_long;
+    static constexpr ast_as_type type_ulong = keywords::id_ulong;
 
-    static const ast_as_type type_long_long;
-    static const ast_as_type type_ulong_long;
+    static constexpr ast_as_type type_long_long = keywords::id_long_long;
+    static constexpr ast_as_type type_ulong_long = keywords::id_ulong_long;
 
-    static const ast_as_type type_float;
-    static const ast_as_type type_double;
-    static const ast_as_type type_long_double;
+    static constexpr ast_as_type type_float = keywords::id_float;
+    static constexpr ast_as_type type_double = keywords::id_double;
+    static constexpr ast_as_type type_long_double = keywords::id_long_double;
   };
 
 
@@ -1206,9 +1228,9 @@ namespace ast
 #endif
 
     protected:
-      constexpr ast_decl(kind_t kind)
+      constexpr ast_decl(kind_t kind, const ast_name* name = nullptr)
         : ast_stmt(kind)
-        , name_(nullptr)
+        , name_(name)
         , specifiers_(None)
         , lang_linkage_(nullptr)
         , home_region_(nullptr)
@@ -1376,9 +1398,10 @@ namespace ast
   {
     public:
       constexpr ast_var(const ast_type& type,
-          const ast_name& name,
-          ast_decl::specifier_t specifier = ast_decl::None,
-          const ast_linkage& linkage = linkage::cpp) : ast_decl(kind_var)
+                        const ast_name& name,
+                        ast_decl::specifier_t specifier = ast_decl::None,
+                        const ast_linkage& linkage = linkage::cpp)
+        : ast_decl(kind_var, &name)
       {
         type_ = &type;
         name_ = &name;
