@@ -32,13 +32,12 @@ template<typename T>
 class MirrorClass()
 {
   for <member : T.class.members()>
-  {
     // syntax 1
     ''member.type()'' ''member.name()'';
 
     // syntax 2
     ''member.name()'': member.type();
-  }
+  for;
 
   // A Preliminary Proposal for a Static if
   // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3322.pdf
@@ -49,9 +48,8 @@ class MirrorClass()
   // “Static If” Considered
   // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3613.pdf
   if <member.size() == 0>
-  {
     char dummy[4];
-  }
+  if;
 }
 
 Example
