@@ -18,9 +18,10 @@ namespace ast
   class ast_parameter;
   class ast_parameter_list;
   class ast_product;
+  class ast_qualified;
   class ast_scope;
-  class ast_sum;
   class ast_string;
+  class ast_sum;
   class ast_type;
   class ast_typedecl;
 
@@ -158,6 +159,61 @@ namespace ast
     kind_while
   };
 
+  template<typename T, typename U>
+  constexpr const T& get_as(const U& obj)
+  {
+    return static_cast<const T&>(obj);
+  }
+
+  template<typename U>
+  constexpr const ast_qualified& get_as(const U& obj)
+  {
+    if (obj.kind() == kind_qualified)
+      return static_cast<const ast_qualified&>(obj);
+    throw "cast error"; // TODO use bad_cast
+  };
+
+  template<typename U>
+  constexpr const ast_node& get_as(const U& obj)
+  {
+    switch (obj.kind())
+    {
+      case kind_string:
+      case kind_linkage:
+      case kind_scope:
+      case kind_region:
+      case kind_identifier:
+      case kind_overload:
+      case kind_type_id:
+      case kind_array:
+      case kind_as_type:
+      case kind_decltype:
+      case kind_sum:
+      case kind_function:
+      case kind_pointer:
+      case kind_product:
+      case kind_ptr_to_member:
+      case kind_qualified:
+      case kind_reference:
+      case kind_rvalue_reference:
+      case kind_template:
+      case kind_phantom:
+      case kind_literal:
+      case kind_mapping:
+      case kind_named_map:
+      case kind_enumerator:
+      case kind_base_type:
+      case kind_parameter:
+      case kind_fundecl:
+      case kind_field:
+      case kind_bitfield:
+      case kind_typedecl:
+        return static_cast<const ast_node&>(obj);
+    }
+
+    throw "cast error"; // TODO use bad_cast
+  };
+
   template<typename T>
   class sequence {
     public:
@@ -275,6 +331,8 @@ namespace ast
         }
         return true;
       }
+      constexpr bool operator==(const char* str) const
+      { return compare(str); }
 
     protected:
       const int size_;
@@ -287,7 +345,7 @@ namespace ast
       constexpr ast_linkage(const char* language) : ast_node(kind_linkage), language_(language)
       { }
 
-      const ast_string& language() const
+      constexpr const ast_string& language() const
       { return language_; }
 
     protected:
@@ -758,7 +816,7 @@ namespace ast
 
   struct sum
   {
-    static const ast_sum empty;
+    static constexpr ast_sum empty = {};
   };
 
 
@@ -779,6 +837,7 @@ namespace ast
         : ast_type(kind_function), source_(source), target_(target), throws_(throws), lang_linkage_(lang_linkage)
       {
       }
+
       /// Parameter-type-list of a function of this type.  In full
       /// generality, this also describes template signature.
       constexpr const ast_product& source() const
@@ -1218,13 +1277,16 @@ namespace ast
       virtual const sequence<ast_substitution>& substitutions() const = 0;
 
       virtual int position() const = 0;
+#endif
 
       /// This is the first seen declaration for name() in a given
       /// translation unit.  The master declaration is therefore the
       /// first element of the declaration-set.
-      virtual const ast_decl& master() const = 0;
+      constexpr const ast_decl& master() const
+      { return *master_; }
 
-      virtual const sequence<ast_decl>& decl_set() const = 0;
+#if TODO
+      constexpr const sequence<ast_decl>& decl_set() const = 0;
 #endif
 
     protected:
@@ -1236,6 +1298,7 @@ namespace ast
         , home_region_(nullptr)
         , lexical_region_(nullptr)
         , initializer_(nullptr)
+        , master_(nullptr)
       {}
 
       const ast_name* name_;
@@ -1244,6 +1307,7 @@ namespace ast
       const ast_region* home_region_;
       const ast_region* lexical_region_;
       const ast_expr* initializer_;
+      const ast_decl* master_;
   };
 
   inline ast_decl::specifier_t
