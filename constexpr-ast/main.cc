@@ -36,7 +36,6 @@ void test_ast_building()
   static_assert(test_var2.type().kind() == kind_qualified, "");
   static_assert(get_as<ast_qualified>(test_var2.type()).qualifiers() == ast_type::Const, "");
   static_assert(test_var2.name() == "test", "");
-  static_assert(test_var2.type().name() == "int", "");
 
   //  const int* test;
   static constexpr ast_pointer pointer_to_const_int(const_int);
