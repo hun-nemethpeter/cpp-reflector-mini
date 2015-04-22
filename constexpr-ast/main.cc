@@ -5,6 +5,23 @@ void gets();
 
 using namespace std::ast;
 
+void test_sequence()
+{
+  static constexpr const int a = 4;
+  static constexpr const int b = 5;
+  static constexpr const int c = 6;
+  static constexpr const int* intArray[] = { &a, &b, &c };
+  constexpr const sequence<int> cseq(intArray);
+
+  static_assert(cseq.size() == 3, "");
+  static_assert(cseq[0] == 4, "");
+  static_assert(cseq[1] == 5, "");
+  static_assert(cseq[2] == 6, "");
+  static_assert(&cseq[0] == &a, "");
+  static_assert(&cseq[1] == &b, "");
+  static_assert(&cseq[2] == &c, "");
+}
+
 void test_str_const()
 {
   constexpr str_const test("Hello!!");
@@ -73,7 +90,7 @@ void test_ast_building()
   // abstract function declaration with 2 params
   // int (*)(char, double);
   static constexpr const ast_type* param_seq[] = { &builtin_types::type_char, &builtin_types::type_double };
-  static constexpr ast_product param_list_2({ param_seq, 2});
+  static constexpr ast_product param_list_2(param_seq);
 
   static constexpr ast_function abstract_int_funtion_param_2(param_list_2, builtin_types::type_int);
   static_assert(abstract_int_funtion_param_2.target().name() == "int", "");
@@ -95,7 +112,7 @@ void test_ast_building()
   static constexpr ast_parameter test_param_1(builtin_types::type_char, id_param1);
   static constexpr ast_parameter test_param_2(builtin_types::type_double, id_param2);
   static constexpr const ast_parameter* ast_parameters[] = { &test_param_1, &test_param_2 };
-  static constexpr ast_parameter_list test_param_list_2({ast_parameters, 2});
+  static constexpr ast_parameter_list test_param_list_2(ast_parameters);
   static constexpr ast_mapping mappings_param_2(test_param_list_2);
 
   static constexpr ast_fundecl int_funtion_param2(id_test, abstract_int_funtion_param_2, mappings_param_2);
@@ -122,7 +139,7 @@ void test_ast_building()
   static constexpr ast_var test_member2(builtin_types::type_double, id_member2);
   static constexpr const ast_decl* test_class_members[] = { &test_member1, &test_member2 };
 
-  static constexpr ast_class test_class(id_test, { test_class_members, 2 }, {});
+  static constexpr ast_class test_class(id_test, test_class_members, {});
   static_assert(test_class.name() == "test", "");
   static_assert(test_class.members().size() == 2, "");
   static_assert(test_class.members()[0].name() == "member1", "");
@@ -132,87 +149,9 @@ void test_ast_building()
   static_assert(test_class.bases().size() == 0, "");
 }
 
-#if 0
-template<typename T>
-class array
-{
-  public:
-    template <unsigned Size>
-    constexpr array(const T (&values)[Size]) : _data(values), _size(Size)
-    { }
-    
-    constexpr const T& operator[](std::size_t n) const
-    { return _data[n]; }
-
-    constexpr auto size() const -> std::size_t
-    { return _size; }
-
-    constexpr const T& begin() const
-    { return *_data; }
-
-  private:
-    const T* _data;
-    std::size_t _size;
-};
-
-template<typename T>
-class sequence
-{
-  public:
-    class iterator;
-
-    typedef T value_type;
-    typedef const T& reference;
-    typedef const T* pointer;
-
-    constexpr sequence() : data(0), size_(0) {}
-    constexpr sequence(const array<const T*>& values)
-      : data(&values.begin())
-      , size_(values.size()) {}
-
-    constexpr const T& operator[](std::size_t index) const
-    { return *data[index]; }
-
-    constexpr std::size_t size() const
-    { return size_; }
-
-    constexpr iterator begin() const
-    { return iterator(this, 0); }
-
-    constexpr iterator end() const
-    { return iterator(this, -1); } // TODO
-
-    constexpr const T& get(std::size_t index) const
-    { return *data[index]; }
-
-  private:
-    const T* const* const  data;
-    const std::size_t size_;
-};
-
-void seq_test()
-{
-  constexpr const int a = 1;
-  constexpr const int b = 2;
-  constexpr const int c = 3;
-  constexpr const int* intArray[] = { &a, &b, &c };
-  constexpr const array<const int*> carray(intArray);
-  constexpr const sequence<int> cseq(carray);
-
-  static_assert(carray.size() == 3, "");
-  static_assert(carray[0] == &a, "");
-  static_assert(carray[1] == &b, "");
-  static_assert(carray[2] == &c, "");
-
-  static_assert(cseq.size() == 3, "");
-  static_assert(cseq[0] == 1, "");
-  static_assert(cseq[1] == 2, "");
-  static_assert(cseq[2] == 3, "");
-}
-#endif
-
 int main()
 {
+  test_sequence();
   test_str_const();
   test_ast_building();
 

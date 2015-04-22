@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <initializer_list>
-#include <utility>
 
 #define TODO 0
 
@@ -222,10 +221,12 @@ namespace ast
       typedef T value_type;
       typedef const T& reference;
       typedef const T* pointer;
-      typedef std::pair<const T* const*, std::size_t> pair_t;
 
       constexpr sequence() : data(0), size_(0) {}
-      constexpr sequence(const pair_t& values) : data(values.first), size_(values.second) {}
+
+      template <unsigned Size>
+      constexpr sequence(const T* const (&values)[Size]) : data(values), size_(Size)
+      { }
 
       constexpr const T& operator[](std::size_t index) const
       { return *data[index]; }
@@ -391,7 +392,7 @@ namespace ast
       {
       }
 
-      constexpr ast_scope(const sequence<ast_decl>::pair_t& members)
+      constexpr ast_scope(const sequence<ast_decl>& members)
         : ast_expr(kind_scope), members_(members)
       {
       }
@@ -439,7 +440,7 @@ namespace ast
   class ast_region : public ast_node
   {
     public:
-      constexpr ast_region(const sequence<ast_decl>::pair_t& decls)
+      constexpr ast_region(const sequence<ast_decl>& decls)
         : ast_node(kind_region)
         , enclosing_(nullptr)
         , bindings_(decls)
@@ -799,7 +800,7 @@ namespace ast
   {
     public:
       constexpr ast_sum() : ast_type(kind_sum) { }
-      constexpr ast_sum(const sequence<ast_type>::pair_t& elements) : ast_type(kind_sum), elements_(elements) { }
+      constexpr ast_sum(const sequence<ast_type>& elements) : ast_type(kind_sum), elements_(elements) { }
 
       constexpr const sequence<ast_type>& elements() const
       { return elements_; }
@@ -886,7 +887,7 @@ namespace ast
   {
     public:
       constexpr ast_product() : ast_type(kind_product) {}
-      constexpr ast_product(const sequence<ast_type>::pair_t& elements) : ast_type(kind_product), elements_(elements)
+      constexpr ast_product(const sequence<ast_type>& elements) : ast_type(kind_product), elements_(elements)
       { }
 
       constexpr const sequence<ast_type>& elements() const
@@ -1040,7 +1041,7 @@ namespace ast
     public:
       typedef ast_decl member_t;      ///< -- type of members of this type.
 
-      constexpr ast_namespace(const sequence<ast_decl>::pair_t& members)
+      constexpr ast_namespace(const sequence<ast_decl>& members)
         : ast_udt(kind_namespace, region_), region_(members)
       { }
 
@@ -1058,8 +1059,8 @@ namespace ast
       typedef ast_decl member_t;      ///< -- type of members of this type.
 
       constexpr ast_class(const ast_name& name,
-                          const sequence<ast_decl>::pair_t& members,
-                          const sequence<ast_base_type>::pair_t& bases)
+                          const sequence<ast_decl>& members,
+                          const sequence<ast_base_type>& bases)
         : ast_udt(kind_class, region_)
         , bases_(bases)
         , region_(members)
@@ -1083,7 +1084,7 @@ namespace ast
     public:
      typedef ast_decl member_t;      ///< -- type of members of this type.
 
-     constexpr ast_union(const sequence<ast_decl>::pair_t& members)
+     constexpr ast_union(const sequence<ast_decl>& members)
         : ast_udt(kind_union, region_), region_(members)
       { }
 
@@ -1103,7 +1104,7 @@ namespace ast
     public:
       typedef ast_enumerator member_t;      ///< -- type of members of this type.
 
-      constexpr ast_enum(const sequence<ast_enumerator>::pair_t& members)
+      constexpr ast_enum(const sequence<ast_enumerator>& members)
         : ast_udt(kind_enum, region_), members_(members)
       { }
 
@@ -1159,7 +1160,7 @@ namespace ast
         : ast_region({})
       { }
 
-      constexpr ast_parameter_list(const sequence<ast_parameter>::pair_t& params)
+      constexpr ast_parameter_list(const sequence<ast_parameter>& params)
         : ast_region({}), sequence<ast_parameter>(params)
       { }
   };
