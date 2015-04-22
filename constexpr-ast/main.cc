@@ -132,6 +132,85 @@ void test_ast_building()
   static_assert(test_class.bases().size() == 0, "");
 }
 
+#if 0
+template<typename T>
+class array
+{
+  public:
+    template <unsigned Size>
+    constexpr array(const T (&values)[Size]) : _data(values), _size(Size)
+    { }
+    
+    constexpr const T& operator[](std::size_t n) const
+    { return _data[n]; }
+
+    constexpr auto size() const -> std::size_t
+    { return _size; }
+
+    constexpr const T& begin() const
+    { return *_data; }
+
+  private:
+    const T* _data;
+    std::size_t _size;
+};
+
+template<typename T>
+class sequence
+{
+  public:
+    class iterator;
+
+    typedef T value_type;
+    typedef const T& reference;
+    typedef const T* pointer;
+
+    constexpr sequence() : data(0), size_(0) {}
+    constexpr sequence(const array<const T*>& values)
+      : data(&values.begin())
+      , size_(values.size()) {}
+
+    constexpr const T& operator[](std::size_t index) const
+    { return *data[index]; }
+
+    constexpr std::size_t size() const
+    { return size_; }
+
+    constexpr iterator begin() const
+    { return iterator(this, 0); }
+
+    constexpr iterator end() const
+    { return iterator(this, -1); } // TODO
+
+    constexpr const T& get(std::size_t index) const
+    { return *data[index]; }
+
+  private:
+    const T* const* const  data;
+    const std::size_t size_;
+};
+
+void seq_test()
+{
+  constexpr const int a = 1;
+  constexpr const int b = 2;
+  constexpr const int c = 3;
+  constexpr const int* intArray[] = { &a, &b, &c };
+  constexpr const array<const int*> carray(intArray);
+  constexpr const sequence<int> cseq(carray);
+
+  static_assert(carray.size() == 3, "");
+  static_assert(carray[0] == &a, "");
+  static_assert(carray[1] == &b, "");
+  static_assert(carray[2] == &c, "");
+
+  static_assert(cseq.size() == 3, "");
+  static_assert(cseq[0] == 1, "");
+  static_assert(cseq[1] == 2, "");
+  static_assert(cseq[2] == 3, "");
+}
+#endif
+
 int main()
 {
   test_str_const();
