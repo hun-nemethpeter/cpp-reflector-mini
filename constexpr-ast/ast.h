@@ -1,3 +1,7 @@
+// Original copyright message from interface.H file:
+// This file is part of The Pivot framework.
+// Written by Gabriel Dos Reis <gdr@cs.tamu.edu>
+
 #include <cstddef>
 
 #define TODO 0
