@@ -5,8 +5,23 @@ void gets();
 
 using namespace std::ast;
 
+std::ostream& operator<<(std::ostream& stream, const std::ast::ast_string& str)
+{
+   stream << str.begin();
+   return stream;
+}
+
+std::ostream& operator<<(std::ostream& stream, const std::ast::ast_name& name)
+{
+   stream << name.data();
+   return stream;
+}
+
 void test_sequence()
 {
+  constexpr const sequence<int> empty_seq;
+  static_assert(empty_seq.begin() == empty_seq.end(), "");
+
   static constexpr const int a = 4;
   static constexpr const int b = 5;
   static constexpr const int c = 6;
@@ -14,6 +29,9 @@ void test_sequence()
   constexpr const sequence<int> cseq(intArray);
 
   static_assert(cseq.size() == 3, "");
+  static_assert(cseq.begin() != cseq.end(), "");
+  static_assert(cseq.begin()++++++ == cseq.begin(), "");
+  static_assert(++++++cseq.begin() == cseq.end(), "");
   static_assert(cseq[0] == 4, "");
   static_assert(cseq[1] == 5, "");
   static_assert(cseq[2] == 6, "");
@@ -148,6 +166,8 @@ void test_ast_building()
   static_assert(test_class.members()[1].name() == "member2", "");
   static_assert(test_class.members()[1].type().name() == "double", "");
   static_assert(test_class.bases().size() == 0, "");
+  for (const auto& member : test_class.members())
+    std::cout << member.name() << std::endl;
 }
 
 int main()

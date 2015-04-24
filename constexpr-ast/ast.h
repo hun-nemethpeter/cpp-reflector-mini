@@ -237,7 +237,7 @@ namespace ast
       { return iterator(this, 0); }
 
       constexpr iterator end() const
-      { return iterator(this, -1); } // TODO
+      { return iterator(this, size_); }
 
       constexpr const T& get(std::size_t index) const
       { return *data[index]; }
@@ -388,20 +388,15 @@ namespace ast
       typedef sequence<ast_decl>::iterator iterator;
 
       constexpr ast_scope() : ast_expr(kind_scope)
-      {
-      }
+      { }
 
       constexpr ast_scope(const sequence<ast_decl>& members)
         : ast_expr(kind_scope), members_(members)
-      {
-      }
+      { }
 
       /// The sequence of declarations this scope contain.
       constexpr const sequence<ast_decl>& members() const
       { return members_; }
-
-      /// The region that determine this scope.
-      /// virtual const Region& region() const = 0;
 
 #if TODO
       /// Look-up by name returns the overload-set of all declarations,
@@ -414,10 +409,10 @@ namespace ast
       constexpr int size() const
       { return members().size(); }
 
-      iterator begin() const
+      constexpr iterator begin() const
       { return members().begin(); }
 
-      iterator end() const
+      constexpr iterator end() const
       { return members().end(); }
 
       constexpr const ast_decl& operator[](int i) const

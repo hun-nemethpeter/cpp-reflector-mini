@@ -31,12 +31,12 @@ class ClassNameAsMember
 template<typename T>
 class MirrorClass()
 {
-  <for> (member : T.class.members())
+  #<for> (member : T.class.members()>
     // syntax 1 - normal declaration syntax, but type come from member.type()
     //            id come from member.name()
     ''member.type()'' ''member.name()'';
 
-    // syntax 2
+    // syntax 2 - name first then type
     ''member.name()'': member.type();
 
     // syntax 3 - type first then name
@@ -47,7 +47,10 @@ class MirrorClass()
 
     // syntax 4 - cast to a decltype
     (decltype)member.type(): member.name();
-  </for>
+
+    // preprocessor like syntax
+    #<type>member.type()#</type> #<id>member.name()#</id>;
+  #</for>
 }
 
 Example
@@ -118,4 +121,17 @@ struct TestClass()
     <if> (...)
     </if>
   </if>
+ or
+
+#<if> (member.size() == 0)
+    char dummy[4];
+#<else>
+  #<if> (...)
+  #</if>
+#</if>
+
+#<id>#</id>
+#<type>#</type>
+#<for>#</for>
+
 }
