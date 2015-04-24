@@ -526,7 +526,7 @@ namespace ast
   class ast_name : public ast_expr
   {
     public:
-      const ast_string& data() const
+      constexpr const ast_string& data() const
       { return data_; }
 
       constexpr bool operator==(const char* str) const
@@ -546,7 +546,7 @@ namespace ast
   {
     public:
       /// The character sequence of this identifier
-      const ast_string& string() const { return data(); }
+      constexpr const ast_string& string() const { return data(); }
 
       constexpr ast_identifier(const char* id) : ast_name(kind_identifier, id)
       { }

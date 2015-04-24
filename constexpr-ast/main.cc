@@ -37,6 +37,7 @@ void test_ast_building()
   static constexpr ast_identifier id_param2("param2");
   static constexpr ast_identifier id_member1("member1");
   static constexpr ast_identifier id_member2("member2");
+  static_assert(id_test.string() == "test", "");
 
   //  examples
   //  int test;
