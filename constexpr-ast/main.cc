@@ -168,6 +168,20 @@ void test_ast_building()
   static_assert(test_class.bases().size() == 0, "");
   for (const auto& member : test_class.members())
     std::cout << member.name() << std::endl;
+
+  //  enum test
+  //  {
+  //    member1,
+  //    member2
+  //  };
+  static constexpr ast_enumerator test_enumerator1(id_member1);
+  static constexpr ast_enumerator test_enumerator2(id_member2);
+  static constexpr const ast_decl* test_enum_members[] = { &test_enumerator1, &test_enumerator2 };
+  static constexpr ast_enum test_enum(id_test, test_enum_members);
+  static_assert(test_enum.name() == "test", "");
+  static_assert(test_enum.members().size() == 2, "");
+  static_assert(test_enum.members()[0].name() == "member1", "");
+  static_assert(test_enum.members()[1].name() == "member2", "");
 }
 
 int main()

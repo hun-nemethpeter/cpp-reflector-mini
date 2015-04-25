@@ -1102,15 +1102,18 @@ namespace ast
     public:
       typedef ast_enumerator member_t;      ///< -- type of members of this type.
 
-      constexpr ast_enum(const sequence<ast_enumerator>& members)
-        : ast_udt(kind_enum, region_), members_(members)
-      { }
+      constexpr ast_enum(const ast_name& name, const sequence<ast_decl>& members)
+        : ast_udt(kind_enum, region_)
+        , region_(members)
+      {
+        name_ = &name;
+      }
 
-      constexpr const sequence<ast_enumerator>& members() const
-      { return members_; }
+      constexpr const sequence<ast_decl>& members() const
+      { return scope().members(); }
 
     private:
-      const sequence<ast_enumerator> members_;
+      const ast_region region_;
   };
 
 
@@ -1363,18 +1366,19 @@ namespace ast
   class ast_enumerator : public ast_decl
   {
     public:
-      constexpr ast_enumerator(const ast_enum& membership_)
-        : ast_decl(kind_enumerator), membership_(membership_)
+      constexpr ast_enumerator(const ast_name& name)
+        : ast_decl(kind_enumerator, &name)
+        , membership_(nullptr)
       { }
 
       constexpr const ast_type& type() const
       { return membership(); }
 
       constexpr const ast_enum& membership() const
-      { return membership_; }
+      { return *membership_; }
 
     protected:
-      const ast_enum& membership_;
+      const ast_enum* membership_;
   };
 
                                //--- Base_type --

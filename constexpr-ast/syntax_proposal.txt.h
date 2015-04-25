@@ -10,13 +10,14 @@ static_assert(Player.class.fields.size() == 2, "");
 template<typename T>
 void printClassName()
 {
-  std::cout << ''"T.class.name()]"'' << std::endl;
+  // do we need runtime support?
+  std::cout << #<typeid<T>.name()> << std::endl;
 }
 
 template<typename T>
 class ClassNameAsMember
 {
-  int ''T.class.name()'';
+  int #<typeid<T>.name()>;
 };
 
 // instatize:
@@ -50,16 +51,20 @@ class MirrorClass()
 
     // preprocessor like syntax
     #<type>member.type()#</type> #<id>member.name()#</id>;
+
+    // simplified preprocessor like syntax
+    #<member.type()> #<member.name()>;
   #</for>
+
 }
 
 Example
 int a;
-std::ast::ast_var ast = a.class;
+constexpr std::ast::ast_var ast = a.class;
 
 // two form of pasting:
 // declare something
-''ast.name() + "1"'': ast.type();
+#<ast.name() + "1">: ast.type();
 result: int a1;
 
 // stringify something
@@ -134,4 +139,7 @@ struct TestClass()
 #<type>#</type>
 #<for>#</for>
 
+  #<for> (member : T.class.members()>
+    #<member.type()> #<member.name()>;
+  #</for>
 }
