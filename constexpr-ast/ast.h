@@ -14,10 +14,6 @@
 
 namespace std
 {
-namespace reflection
-{
-  // Empty namespace. Compiler will fill it.
-}
 namespace ast
 {
   class ast_base_type;
@@ -1557,4 +1553,9 @@ namespace ast
       const ast_typedecl* definition_;
    };
 
-}}
+}
+namespace reflection
+{
+  // Empty namespace. Compiler will fill it.
+}
+}
