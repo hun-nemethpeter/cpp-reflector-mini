@@ -1,4 +1,3 @@
-#include <str_const.h>
 #include <ast.h>
 void gets();
 #include <iostream>
@@ -40,9 +39,9 @@ void test_sequence()
   static_assert(&cseq[2] == &c, "");
 }
 
-void test_str_const()
+void test_ast_string()
 {
-  constexpr str_const test("Hello!!");
+  constexpr ast_string test("Hello!!");
   static_assert(test.size() == 7, "");
   static_assert(test[6] == '!', "");
   static_assert(test[7] == 0, "");
@@ -187,7 +186,7 @@ void test_ast_building()
 int main()
 {
   test_sequence();
-  test_str_const();
+  test_ast_string();
   test_ast_building();
 
   return 0;

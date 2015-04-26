@@ -2,10 +2,6 @@
 // This file is part of The Pivot framework.
 // Written by Gabriel Dos Reis <gdr@cs.tamu.edu>
 
-#include <cstddef>
-
-#define TODO 0
-
 namespace std
 {
 namespace ast
@@ -16,7 +12,9 @@ namespace ast
   class ast_enumerator;
   class ast_expr;
   class ast_linkage;
+  class ast_name;
   class ast_node;
+  class ast_overload;
   class ast_parameter;
   class ast_parameter_list;
   class ast_product;
@@ -172,7 +170,7 @@ namespace ast
   {
     if (obj.kind() == kind_qualified)
       return static_cast<const ast_qualified&>(obj);
-    throw "cast error"; // TODO use bad_cast
+    static_assert(true, "Invlaid cast!");
   };
 
   template<typename U>
@@ -213,7 +211,7 @@ namespace ast
         return static_cast<const ast_node&>(obj);
     }
 
-    throw "cast error"; // TODO use bad_cast
+    static_assert(true, "Invlaid cast!");
   };
 
   template<typename T>
@@ -231,10 +229,10 @@ namespace ast
       constexpr sequence(const T* const (&values)[Size]) : data(values), size_(Size)
       { }
 
-      constexpr const T& operator[](std::size_t index) const
+      constexpr const T& operator[](unsigned index) const
       { return *data[index]; }
 
-      constexpr std::size_t size() const
+      constexpr unsigned size() const
       { return size_; }
 
       constexpr iterator begin() const
@@ -243,12 +241,12 @@ namespace ast
       constexpr iterator end() const
       { return iterator(this, size_); }
 
-      constexpr const T& get(std::size_t index) const
+      constexpr const T& get(unsigned index) const
       { return *data[index]; }
 
     private:
       const T* const* data;
-      const std::size_t size_;
+      const unsigned size_;
   };
 
   template<class T>
@@ -316,14 +314,25 @@ namespace ast
   class ast_string : public ast_node
   {
     public:
-      constexpr ast_string(const char* data_) : ast_node(kind_string), size_(0), data_(data_) {}
       typedef const char* iterator;
+
+      template<unsigned Size>
+      constexpr ast_string(const char(&data)[Size])
+        : ast_node(kind_string), size_(Size - 1), data_(data)
+      { }
+
       constexpr int size() const
       { return size_; }
+
       constexpr iterator begin() const
       { return data_; }
+
       constexpr iterator end() const
-      { return begin() + size_; }
+      { return begin() + size(); }
+
+      constexpr char operator[](unsigned index) const
+      { return data_[index]; }
+
       constexpr bool compare(const char* s2) const
       {
         int n = size_;
@@ -346,7 +355,8 @@ namespace ast
   class ast_linkage : public ast_node
   {
     public:
-      constexpr ast_linkage(const char* language) : ast_node(kind_linkage), language_(language)
+      template<unsigned Size>
+      constexpr ast_linkage(const char(&language)[Size]) : ast_node(kind_linkage), language_(language)
       { }
 
       constexpr const ast_string& language() const
@@ -377,6 +387,8 @@ namespace ast
       const ast_type* type_;
   };
 
+#define TODO 0
+
   //--- Scope --
   /// A "declaration" is a type specification for a name. A "Scope" is
   /// a "sequence" of declarations, that additionally supports "lookup"
@@ -402,11 +414,14 @@ namespace ast
       constexpr const sequence<ast_decl>& members() const
       { return members_; }
 
-#if TODO
       /// Look-up by name returns the overload-set of all declarations,
       /// for the subscripting name, contained in this scope.
-      constexpr const ast_overload& operator[](const ast_name&) const
-      { return TODO; }
+      constexpr const ast_overload operator[](const ast_name&) const;
+#if TODO
+      {
+        ast_overload ret;
+        return ret;
+      }
 #endif
 
       /// How may declarations are there in this Scope.
@@ -547,7 +562,8 @@ namespace ast
       /// The character sequence of this identifier
       constexpr const ast_string& string() const { return data(); }
 
-      constexpr ast_identifier(const char* id) : ast_name(kind_identifier, id)
+      template<unsigned Size>
+      constexpr ast_identifier(const char(&id)[Size]) : ast_name(kind_identifier, id)
       { }
   };
 
@@ -585,15 +601,15 @@ namespace ast
   /// declarations for a name in a given scope.  An overload-set supports
   /// look-up by type.  The result of such lookup is the sequence of
   /// declarations of that name with that type.
-  class ast_overload : public sequence<const ast_decl*>,
+  class ast_overload : public sequence<ast_decl>,
                        public ast_expr
   {
     public:
       constexpr ast_overload() : ast_expr(kind_overload) {}
 
-      constexpr const sequence<const ast_decl*> operator[](const ast_type&) const
+      constexpr const sequence<ast_decl> operator[](const ast_type&) const
       {
-        sequence<const ast_decl*> ret;
+        sequence<ast_decl> ret;
         // TODO
         return ret;
       }
@@ -681,7 +697,8 @@ namespace ast
   class ast_type_id : public ast_name
   {
     public:
-      constexpr ast_type_id(const ast_type& type, const char* id)
+      template<unsigned Size>
+      constexpr ast_type_id(const ast_type& type, const char(&id)[Size])
         : ast_name(kind_type_id, id), type_(type)
       { }
 
