@@ -2,8 +2,22 @@
 // This file is part of The Pivot framework.
 // Written by Gabriel Dos Reis <gdr@cs.tamu.edu>
 
+// IPR User Guide
+// https://parasol.tamu.edu/pivot/publications/user-guide.pdf
+//
+// A Principled, Complete, and Efficient Representation of C++
+// by Gabriel Dos Reis and Bjarne Stroustrup
+// http://www.stroustrup.com/gdr-bs-macis09.pdf
+//
+// author Peter Nemeth
+// https://github.com/hun-nemethpeter/cpp-reflector-mini
+
 namespace std
 {
+namespace reflection
+{
+  // Empty namespace. Compiler will fill it.
+}
 namespace ast
 {
   class ast_base_type;
