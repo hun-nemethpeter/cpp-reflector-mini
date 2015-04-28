@@ -1085,7 +1085,7 @@ namespace ast
 
       constexpr ast_class(const ast_name& name,
                           const sequence<ast_decl>& members,
-                          const sequence<ast_base_type>& bases)
+                          const sequence<ast_base_type>& bases = sequence<ast_base_type>())
         : ast_udt(kind_class, region_)
         , bases_(bases)
         , region_(members)
