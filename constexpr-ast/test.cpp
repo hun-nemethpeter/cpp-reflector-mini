@@ -30,8 +30,6 @@ struct Test2
   int a;
 };
 
-using namespace std::ast;
-
 int main()
 {
   static_assert(typeid<Test>.name() == "Test", "");
