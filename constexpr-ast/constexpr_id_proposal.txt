@@ -103,14 +103,17 @@ My proposed syntax is:
 2. switch.. case
   #<switch> (typeid<int>.size_in_bits())
     #<case> (4)
-	int32();
+      int32();
     #</case>
     #<case> (8)
-	int642();
+      int64();
     #</case>
     #<case> (16)
-	int128();
+      int128();
     #</case>
+    #<default>
+      static_assert(false, "Not supported int size");
+    #</default>
   #</switch>
 
 3. define meta function
@@ -122,7 +125,7 @@ My proposed syntax is:
   #<if> (members.empty())
      char padding[8];
   #</if>
-#</inline>
+#</define>
 
 4. call meta function
 
