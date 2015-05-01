@@ -44,7 +44,7 @@ The implementation is quite limited now.
 
 ## II. The constexpr-id-expression
 
-  An important part of my previous proposal was the cabability of pasting constexpr result to an id-expression. That was the $ sign. The $ sign was hated so much so I replaced now with the hash sign (#) + xml element syntax ( #< constexpr > ). The hash sign (#) comes from the preprocessor. Now the hash + less then sign is a compiler error so we can redefine it. #<element> will stand between the preprocessor and template. It won't be a preprocessor directive but evalueted during template parsing.
+  An important part of my previous proposal was the cabability of pasting constexpr result to an id-expression. That was the $ sign. The $ sign was hated so much so I replaced now with the hash sign (`#`) + xml element syntax ( `#< constexpr >` ). The hash sign (`#`) comes from the preprocessor. Now the hash + less then sign is a compiler error so we can redefine it. `#<element>` will stand between the preprocessor and template. It won't be a preprocessor directive but evalueted during template parsing.
 
   My idea is simple. The result of an constexpr must be one of the following
 
