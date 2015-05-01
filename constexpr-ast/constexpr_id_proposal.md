@@ -21,8 +21,8 @@ A proof of concept implementation of this proposal is written. The following exa
 
 struct Test
 {
-  bool               member1;
-  char               member2;
+  bool member1;
+  char member2;
 };
 
 int main()
