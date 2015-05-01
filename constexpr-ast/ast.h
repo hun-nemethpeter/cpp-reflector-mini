@@ -1136,6 +1136,7 @@ namespace ast
         name_ = &name;
       }
 
+      // TODO How can I create a sequence<ast_enumerator> from sequence<ast_decl> here?
       constexpr const sequence<ast_decl>& members() const
       { return scope().members(); }
 
