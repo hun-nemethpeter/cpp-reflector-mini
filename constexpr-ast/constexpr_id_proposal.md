@@ -64,18 +64,22 @@ Here are some use case for using the constexpr + `#< ... >:`
   `namespace test { ... }`
   
 4. Access specifier
-  
+
+  ```C++
   class A
   {
     #<getPublicSpecifier()>:
   };
+  ```
   
   is the same as
 
+```C++
   class A
   {
     public:
   };
+  ```
 
 
 ## III. Statement and declaration repeater
@@ -83,10 +87,12 @@ Here are some use case for using the constexpr + `#< ... >:`
 For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary.
 
 My proposed syntax is:
+  ```C++
   #<for> (item : items())
      declarations or
      statements
   #</for>
+  ```
 
 ## IV. Generalize the statement and declaration manipulation
 
@@ -94,15 +100,18 @@ If we allow for we should allow other control structures as well. Intended use c
 
 My proposed syntax is:
 
-1. if..else
+1. `#<if> .. #<else> .. #</if>`
+  ```C++
   #<if> (member.size() == 0)
     char dummy[4];
   #<else>
     #<if> (...)
     #</if>
   #</if>
+  ```
 
-2. switch.. case
+2. `#<switch> .. #<case> ..`
+  ```C++
   #<switch> (typeid<int>.size_in_bits())
     #<case> (4)
       int32();
@@ -117,32 +126,35 @@ My proposed syntax is:
       static_assert(false, "Not supported int size");
     #</default>
   #</switch>
+  ```
 
 3. define meta function
-
-#<define> copyClassMembers(const std::ast::ast_class& srcClass)
-  #<for> (member : srcClass.members())
-    ''member.type()'' ''member.name()'';
-  #</for>
-  #<if> (members.empty())
-     char padding[8];
-  #</if>
-#</define>
+  ```C++
+  #<define> copyClassMembers(const std::ast::ast_class& srcClass)
+    #<for> (member : srcClass.members())
+      #<member.type()> #<member.name()>;
+    #</for>
+    #<if> (members.empty())
+       char padding[8];
+    #</if>
+  #</define>
+  ```
 
 4. call meta function
 
-#<call>copyClassMembers(typeid<TestClass>)#</call>
+  ```#<call>copyClassMembers(typeid<TestClass>)#</call>```
 
 5. try lookup a symbol
 
-#<lookup>symbolname#</lookup>
-if symbolname is exist then the result is true otherwise false.
+  ```#<lookup>symbolname#</lookup>```
+  if symbolname is exist then the result is true otherwise false.
 
-constexpr bool alloca_exist = #<lookup>void* alloca(size_t)#</lookup>;
-#<if> (!alloca_exist)
-void* alloca(size_t size)
-{
-  return 0;
-}
-#</if>
-
+  ```C++
+  constexpr bool alloca_exist = #<lookup>void* alloca(size_t)#</lookup>;
+  #<if> (!alloca_exist)
+  void* alloca(size_t size)
+  {
+    return 0;
+  }
+  #</if>
+  ```
