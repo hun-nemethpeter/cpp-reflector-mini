@@ -142,11 +142,14 @@ My proposed syntax is:
 
 4. call meta function
 
-  ```#<call>copyClassMembers(typeid<TestClass>)#</call>```
+  We can call a defined meta function with the call element
+  ```C++
+  #<call>copyClassMembers(typeid<TestClass>)#</call>
+  ```
 
 5. try lookup a symbol
 
-  ```#<lookup>symbolname#</lookup>```
+  `#<lookup>symbolname#</lookup>`
   if symbolname is exist then the result is true otherwise false.
 
   ```C++
