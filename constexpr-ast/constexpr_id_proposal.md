@@ -45,7 +45,7 @@ Here are some use case for using the constexpr + `#< ... >`:
   
   is the same as
   
-  `int test;` // declare a variable with name testVariable;
+  `int test;`
   
 2. Function declaration
   
