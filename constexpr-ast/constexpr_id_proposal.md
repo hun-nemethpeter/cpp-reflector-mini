@@ -37,7 +37,7 @@ constexpr ast_decl::specifier_t getPublicSpecifier()
 { return ast_decl::Public; }
 ```
 
-Here are some use case for using the constexpr + `#< ... >:`
+Here are some use case for using the constexpr + `#< ... >`:
 
 1. Variable declaration
   
