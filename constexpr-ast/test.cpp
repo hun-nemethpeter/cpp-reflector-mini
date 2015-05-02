@@ -20,7 +20,6 @@ int main()
   static_assert(typeid<Test>.members()[1].name() == "member2");
   static_assert(typeid<Test>.members()[1].type().name() == "char");
   static_assert(typeid<Test>.bases().size() == 0);
-  static_assert(typeid<Test2>.name() == "Test2");
 
   return 0;
 }
