@@ -334,6 +334,9 @@ namespace ast
       constexpr int size() const
       { return size_; }
 
+      constexpr const char* c_str() const
+      { return data_; }
+
       constexpr iterator begin() const
       { return data_; }
 
