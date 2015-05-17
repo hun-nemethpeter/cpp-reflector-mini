@@ -120,6 +120,35 @@ My proposed syntax is:
      statements
   #</for>
   ```
+An alternative solution is to extending constexpr functions/methods with an #<emit> block.
+In this approach a constexpr can emit source code. A source code which is parsable.
+
+  ```C++
+  constexpr void generateVariables(const ast_class& myClass) {
+    for (const auto& member : myClass.members()) {
+      #<emit> (kind_decl>
+        int #<(member.name())>;
+      #</emit>
+    }
+  }
+
+  template<typename T>
+  class Test
+  {
+    #!generateVariables(typeid<T>);
+  };
+
+  const bool is_asserts_enabled = true;
+
+  constexpr void assert(const ast_expr& expr) {
+    if (!is_asserts_enabled)
+      return;
+    #<emit> (kind_expr_stmt)
+      if (#<(expr)> == false)
+        std::cerr << "Assert '" << #<(expr.to_string()) << "' failed!" << std::endl;
+    #</emit>
+  }
+  ```
 
 ## IV. Generalize the statement and declaration manipulation
 
