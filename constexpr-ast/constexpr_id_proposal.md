@@ -120,7 +120,7 @@ My proposed syntax is:
      statements
   #</for>
   ```
-An alternative solution is to extending constexpr functions/methods with an #<emit> block.
+An alternative solution is to extending constexpr functions/methods with an `#<emit>` block.
 In this approach a constexpr can emit source code. A source code which is parsable.
 
   ```C++
