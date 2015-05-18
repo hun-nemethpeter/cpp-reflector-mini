@@ -109,19 +109,9 @@ Here are some use case for using the constexpr + `#< ... >`:
   ```
 
 
-## III. Statement and declaration repeater
+## III. The constexpr macro
 
-For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary.
-
-My proposed syntax is:
-  ```C++
-  #<for> (item : items())
-     declarations or
-     statements
-  #</for>
-  ```
-An alternative solution is to extending constexpr functions/methods with an `#<emit>` block.
-In this approach a constexpr can emit source code. A source code which is parsable.
+For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary. I propose to extend the constexpr functions/methods with an `#<emit>...#</emit>` block so a constexpr can emit source code. A source code which is parsable. So a `void constexpr` became a macro and can be used with the following syntax: `#!constexprMacroName()`.
 
   ```C++
   constexpr void generateVariables(const ast_class& myClass) {
@@ -148,72 +138,4 @@ In this approach a constexpr can emit source code. A source code which is parsab
         std::cerr << "Assert '" << #<(expr.to_string()) << "' failed!" << std::endl;
     #</emit>
   }
-  ```
-
-## IV. Generalize the statement and declaration manipulation
-
-If we allow for we should allow other control structures as well. Intended use case is replacing the textual pre-processor.
-
-My proposed syntax is:
-
-1. `#<if> .. #<else> .. #</if>`
-  ```C++
-  #<if> (member.size() == 0)
-    char dummy[4];
-  #<else>
-    #<if> (...)
-    #</if>
-  #</if>
-  ```
-
-2. `#<switch> .. #<case> ..`
-  ```C++
-  #<switch> (typeid<int>.size_in_bits())
-    #<case> (4)
-      int32();
-    #</case>
-    #<case> (8)
-      int64();
-    #</case>
-    #<case> (16)
-      int128();
-    #</case>
-    #<default>
-      static_assert(false, "Not supported int size");
-    #</default>
-  #</switch>
-  ```
-
-3. define meta function
-  ```C++
-  #<define> copyClassMembers(const std::ast::ast_class& srcClass)
-    #<for> (member : srcClass.members())
-      #<member.type()> #<member.name()>;
-    #</for>
-    #<if> (members.empty())
-       char padding[8];
-    #</if>
-  #</define>
-  ```
-
-4. call meta function
-
-  We can call a defined meta function with the call element
-  ```C++
-  #<call>copyClassMembers(typeid<TestClass>)#</call>
-  ```
-
-5. try lookup a symbol
-
-  `#<lookup>symbolname#</lookup>`
-  if symbolname is exist then the result is true otherwise false.
-
-  ```C++
-  constexpr bool alloca_exist = #<lookup>void* alloca(size_t)#</lookup>;
-  #<if> (!alloca_exist)
-  void* alloca(size_t size)
-  {
-    return 0;
-  }
-  #</if>
   ```
