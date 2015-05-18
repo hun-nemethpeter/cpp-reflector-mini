@@ -143,11 +143,11 @@ In this example the assert macro is implemented with constexpr-macro:
     #</emit>
   }
   
-  It can be used as
+  // use as
   assert(typeid<a == 3>);
   
   // we need some syntax sugar for efficient use
-  constexpr void assert(const ast_expr& expr = typeid)
+  constexpr void assert(const ast_expr& expr = typeid) { ...
   
   // use as normal assert macro now
   assert(a == 3);
