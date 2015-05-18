@@ -117,7 +117,7 @@ Here is an example for generating a variable with constexpr macro.
   ```C++
   constexpr void generateVariables(const ast_class& myClass) {
     for (const auto& member : myClass.members()) {
-      #<emit>
+      #<emit> (const auto& member)
         int #<(member.name())>;
       #</emit>
     }
@@ -137,7 +137,7 @@ In this example the assert macro is implemented with constexpr-macro:
   constexpr void assert(const ast_expr& expr) {
     if (!is_asserts_enabled)
       return;
-    #<emit>
+    #<emit> (const auto& expr)
       if (#<(expr)> == false)
         std::cerr << "Assert '" << #<(expr.to_string()) << "' failed!" << std::endl;
     #</emit>
@@ -152,3 +152,6 @@ In this example the assert macro is implemented with constexpr-macro:
   // use as normal assert macro now
   assert(a == 3);
   ```
+How `#<emit> .. #</emit> block is parsed?
+
+An `#<emit> .. #</emit>` block is similar to a simple block `{ .. }` or rather to a lambda function. 
