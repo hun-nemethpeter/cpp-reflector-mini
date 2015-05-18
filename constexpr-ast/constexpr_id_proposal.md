@@ -126,7 +126,7 @@ In this approach a constexpr can emit source code. A source code which is parsab
   ```C++
   constexpr void generateVariables(const ast_class& myClass) {
     for (const auto& member : myClass.members()) {
-      #<emit> (kind_decl>
+      #<emit>
         int #<(member.name())>;
       #</emit>
     }
@@ -143,7 +143,7 @@ In this approach a constexpr can emit source code. A source code which is parsab
   constexpr void assert(const ast_expr& expr) {
     if (!is_asserts_enabled)
       return;
-    #<emit> (kind_expr_stmt)
+    #<emit>
       if (#<(expr)> == false)
         std::cerr << "Assert '" << #<(expr.to_string()) << "' failed!" << std::endl;
     #</emit>
