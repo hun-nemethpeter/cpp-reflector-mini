@@ -111,7 +111,7 @@ Here are some use case for using the constexpr + `#< ... >`:
 
 ## III. The constexpr macro
 
-For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary. I propose to extend the constexpr functions/methods with an `#<emit>...#</emit>` block so a constexpr can emit source code. A source code which is parsable. So a `void constexpr` became a macro and can be used with the following syntax: `#!constexprMacroName()`.
+For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary. I propose to extend the constexpr functions/methods with an `#<emit>...#</emit>` block so a constexpr can emit source code. A source code which is parsable. So a `void constexpr` will become a macro and can be used with the following syntax: `#!constexprMacroName()`.
 
   ```C++
   constexpr void generateVariables(const ast_class& myClass) {
