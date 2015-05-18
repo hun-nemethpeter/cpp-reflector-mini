@@ -142,4 +142,13 @@ In this example the assert macro is implemented with constexpr-macro:
         std::cerr << "Assert '" << #<(expr.to_string()) << "' failed!" << std::endl;
     #</emit>
   }
+  
+  It can be used as
+  assert(typeid<a == 3>);
+  
+  // we need some syntax sugar for efficient use
+  constexpr void assert(const ast_expr& expr = typeid)
+  
+  // use as normal assert macro now
+  assert(a == 3);
   ```
