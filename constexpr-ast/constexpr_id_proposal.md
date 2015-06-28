@@ -109,11 +109,11 @@ Here are some use case for using the constexpr + `#< ... >`:
   ```
 
 
-## III. Statement and declaration repeater
+## III. The constexpr macro
 
-For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary.
+For a usable code generation the constexpr-id is not enough. Repeating a templated-code is necessary. I propose to extend the constexpr functions/methods with an inline lambda block so a constexpr can emit lamda bodies during its run. Lambda bodies will not be executed but their bdies will be marge to the caller place.
 
-My proposed syntax is:
+Here is an example for generating a variable with constexpr macro. My proposed syntax is:
   ```C++
   constexpr void generateVariables(const ast_class& myClass) {
     for (const auto& member : myClass.members()) {
@@ -127,7 +127,10 @@ My proposed syntax is:
   {
     #!generateVariables(typeid<T>);
   };
-
+  ```
+  
+In this example the assert macro is implemented with constexpr-macro:
+  ```C++
   const bool is_asserts_enabled = true;
 
   constexpr void assert(const ast_expr& expr) {
@@ -138,5 +141,13 @@ My proposed syntax is:
         std::cerr << "Assert '" << #$(expr.to_string()) << "' failed!" << std::endl;
     }
   }
+  
+  // use as
+  assert(typeid<a == 3>);
+  
+  // we need some syntax sugar for efficient use
+  constexpr void assert(const ast_expr& expr = typeid) { ... }
+  
+  // use as normal assert macro now
+  assert(a == 3);
   ```
-
