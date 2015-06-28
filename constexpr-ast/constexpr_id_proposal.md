@@ -44,7 +44,7 @@ The implementation is quite limited now.
 
 ## II. The constexpr-id-expression
 
-  An important part of my previous proposal was the cabability of pasting constexpr result to an id-expression. That was the $ sign. The $ sign was hated so much so I replaced now with the hash sign (`#`) + xml element syntax ( `#< constexpr >` ). The hash sign (`#`) comes from the preprocessor. Now the hash + less then sign is a compiler error so we can redefine it. `#<element>` will stand between the preprocessor and template. It won't be a preprocessor directive but evalueted during template parsing.
+  An important part of my previous proposal was the cabability of pasting constexpr result to an id-expression. That was the $ sign. I replaced now with the hash sign (`#`) + `$` sign ( `#$ ( constexpr )` ). The hash sign (`#`) comes from the preprocessor. Now the hash + dollar sign is a compiler error so we can redefine it. `#$( constexpr )` will stand between the preprocessor and template. It won't be a preprocessor directive but evalueted during template parsing.
 
   My idea is simple. The result of an constexpr must be one of the following
 
@@ -68,7 +68,7 @@ Here are some use case for using the constexpr + `#< ... >`:
 
 1. Variable declaration
   
-  `int #<generatIdTest()>;`
+  `int #$(generatIdTest());`
   
   is the same as
   
@@ -76,7 +76,7 @@ Here are some use case for using the constexpr + `#< ... >`:
   
 2. Function declaration
   
-  `int #<generatIdTest()> (int a, int b);`
+  `int #$(generatIdTest()) (int a, int b);`
   
   is the same as
   
@@ -84,7 +84,7 @@ Here are some use case for using the constexpr + `#< ... >`:
   
 3. Namespace declaration
   
-  `namespace #<generatIdTest()> { ... }`
+  `namespace #$(generatIdTest()) { ... }`
   
   is the same as
   
@@ -95,7 +95,7 @@ Here are some use case for using the constexpr + `#< ... >`:
   ```C++
   class A
   {
-    #<getPublicSpecifier()>:
+    #$(getPublicSpecifier()):
   };
   ```
   
@@ -115,20 +115,10 @@ For a usable code generation the constexpr-id is not enough. Repeating a templat
 
 My proposed syntax is:
   ```C++
-  #<for> (item : items())
-     declarations or
-     statements
-  #</for>
-  ```
-An alternative solution is to extending constexpr functions/methods with an `#<emit>` block.
-In this approach a constexpr can emit source code. A source code which is parsable.
-
-  ```C++
   constexpr void generateVariables(const ast_class& myClass) {
     for (const auto& member : myClass.members()) {
-      #<emit> (kind_decl>
-        int #<(member.name())>;
-      #</emit>
+      inline class [] (const auto& member) {
+        int #$(member.name());
     }
   }
 
@@ -143,77 +133,10 @@ In this approach a constexpr can emit source code. A source code which is parsab
   constexpr void assert(const ast_expr& expr) {
     if (!is_asserts_enabled)
       return;
-    #<emit> (kind_expr_stmt)
-      if (#<(expr)> == false)
-        std::cerr << "Assert '" << #<(expr.to_string()) << "' failed!" << std::endl;
-    #</emit>
+    inline block [] (const auto& expr) {
+      if (#$(expr) == false)
+        std::cerr << "Assert '" << #$(expr.to_string()) << "' failed!" << std::endl;
+    }
   }
   ```
 
-## IV. Generalize the statement and declaration manipulation
-
-If we allow for we should allow other control structures as well. Intended use case is replacing the textual pre-processor.
-
-My proposed syntax is:
-
-1. `#<if> .. #<else> .. #</if>`
-  ```C++
-  #<if> (member.size() == 0)
-    char dummy[4];
-  #<else>
-    #<if> (...)
-    #</if>
-  #</if>
-  ```
-
-2. `#<switch> .. #<case> ..`
-  ```C++
-  #<switch> (typeid<int>.size_in_bits())
-    #<case> (4)
-      int32();
-    #</case>
-    #<case> (8)
-      int64();
-    #</case>
-    #<case> (16)
-      int128();
-    #</case>
-    #<default>
-      static_assert(false, "Not supported int size");
-    #</default>
-  #</switch>
-  ```
-
-3. define meta function
-  ```C++
-  #<define> copyClassMembers(const std::ast::ast_class& srcClass)
-    #<for> (member : srcClass.members())
-      #<member.type()> #<member.name()>;
-    #</for>
-    #<if> (members.empty())
-       char padding[8];
-    #</if>
-  #</define>
-  ```
-
-4. call meta function
-
-  We can call a defined meta function with the call element
-  ```C++
-  #<call>copyClassMembers(typeid<TestClass>)#</call>
-  ```
-
-5. try lookup a symbol
-
-  `#<lookup>symbolname#</lookup>`
-  if symbolname is exist then the result is true otherwise false.
-
-  ```C++
-  constexpr bool alloca_exist = #<lookup>void* alloca(size_t)#</lookup>;
-  #<if> (!alloca_exist)
-  void* alloca(size_t size)
-  {
-    return 0;
-  }
-  #</if>
-  ```
